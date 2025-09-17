@@ -1,72 +1,64 @@
 <?php
-session_start();
-include 'koneksi.php';
+// public/dashboard.php
 
-// 1. Pengecekan Sesi
+// 1. Panggil file config.php
+// Path '../app/config.php' artinya "keluar dari folder public, lalu masuk ke folder app"
+require_once '../app/config.php';
+
+// 2. Pengecekan Sesi (Keamanan)
+// Jika tidak ada user_id di session, tendang ke halaman login
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    // Gunakan BASE_URL untuk redirect yang pasti benar
+    header("Location: " . BASE_URL . "/login.php");
     exit();
 }
 
-// 2. Ambil data user dari session
+// 3. Ambil data user dari session (sudah aman karena sudah dicek di atas)
 $user_id = $_SESSION['user_id'];
-$username = $_SESSION['username'];
-$nama_lengkap = $_SESSION['nama_lengkap'];
 $role_id = $_SESSION['role_id'];
-$role_name = $_SESSION['role_name'];
 
-// 3. Logika untuk mengambil data laporan sesuai peran
+// 4. Logika untuk mengambil data laporan sesuai peran (sama seperti kodemu sebelumnya)
+$sql_laporan = "";
+// ... (Kode query SELECT berdasarkan role_id tetap sama seperti yang sudah kamu buat) ...
+// NOTE: Seluruh blok 'switch ($role_id)' kamu dari file dashboard.php lama bisa ditaruh di sini.
+// Pastikan tidak ada duplikasi variabel.
+
+// (Untuk contoh, saya salin kembali logikanya ke sini)
 $daftar_laporan = [];
 $pesan_dashboard = "Daftar Laporan Terkini";
-$sql_laporan = "";
-
-// Kueri disesuaikan berdasarkan peran pengguna
 switch ($role_id) {
-    case 1: // PPC (Petugas Pengambil Contoh)
+    case 1: // PPC
         $pesan_dashboard = "Riwayat Laporan yang Anda Buat";
         $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
-                        FROM laporan l
-                        JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.ppc_id = ?
-                        ORDER BY l.updated_at DESC";
+                        FROM laporan l JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
+                        WHERE l.ppc_id = ? ORDER BY l.updated_at DESC";
         $stmt = $conn->prepare($sql_laporan);
         $stmt->bind_param("i", $user_id);
         break;
-        
     case 2: // Penyelia
         $pesan_dashboard = "Laporan yang Membutuhkan Verifikasi Anda";
         $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
-                        FROM laporan l
-                        JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.status = 'Menunggu Verifikasi'
-                        ORDER BY l.updated_at ASC";
+                        FROM laporan l JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
+                        WHERE l.status = 'Menunggu Verifikasi' ORDER BY l.updated_at ASC";
         $stmt = $conn->prepare($sql_laporan);
         break;
-
+    // ... (case 3 dan 4 sama seperti sebelumnya) ...
     case 3: // Manajer Teknis
         $pesan_dashboard = "Laporan yang Membutuhkan Persetujuan Anda";
         $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
-                        FROM laporan l
-                        JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.status = 'Menunggu Persetujuan MT'
-                        ORDER BY l.updated_at ASC";
+                        FROM laporan l JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
+                        WHERE l.status = 'Menunggu Persetujuan MT' ORDER BY l.updated_at ASC";
         $stmt = $conn->prepare($sql_laporan);
         break;
-
     case 4: // Penerima Contoh
         $pesan_dashboard = "Laporan Final yang Siap Dicetak";
         $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
-                        FROM laporan l
-                        JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.status = 'Disetujui, Siap Dicetak'
-                        ORDER BY l.updated_at ASC";
+                        FROM laporan l JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
+                        WHERE l.status = 'Disetujui, Siap Dicetak' ORDER BY l.updated_at ASC";
         $stmt = $conn->prepare($sql_laporan);
         break;
-
     default:
-        // Jika ada peran lain, tampilkan daftar kosong
-        $daftar_laporan = [];
-        $stmt = null; // Tidak ada statement yang perlu dieksekusi
+        $stmt = null;
         break;
 }
 
@@ -78,27 +70,13 @@ if ($stmt) {
     }
     $stmt->close();
 }
-?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard - <?php echo htmlspecialchars($role_name); ?></title>
-    <link href="css/styles.css" rel="stylesheet" />
-</head>
-<body>
 
-<header class="header-dashboard">
-    <div class="header-title">
-        <img src="https://yt3.googleusercontent.com/7uw0pH3SFyMHSYFo0OqwrLmv9LE28VF3TCK2dotW-Ruee1A6VVDYI8fiB0HEcYDb7WQYWcqU5w=s900-c-k-c0x00ffffff-no-rj" alt="Logo BSPJI" class="header-logo">
-        <h1 style="font-size:2.1em;">Sistem Pelaporan Sampling</h1>
-    </div>
-    <div class="user-info">
-        <span style="font-size:1.3em;">Selamat Datang, <strong><?php echo htmlspecialchars($nama_lengkap); ?></strong></span>
-        <span style="font-size:1.3em; font-weight:400;">Peran: <?php echo htmlspecialchars($role_name); ?></span>
-        <a href="logout.php">Logout</a>
-    </div>
-</header>
+// 5. Atur judul halaman
+$page_title = 'Dashboard';
+
+// 6. Panggil template header
+require_once '../templates/header.php';
+?>
 
 <div class="container-dashboard">
     
@@ -159,6 +137,10 @@ if ($stmt) {
         </div>
     </div>
 </div>
-
+<?php
+// 7. Panggil template footer (untuk saat ini footer bisa kosong atau hanya berisi tag penutup)
+// require_once '../templates/footer.php'; 
+// Note: Kita akan buat file footer di langkah selanjutnya, untuk sekarang bisa di-comment dulu.
+?>
 </body>
 </html>
