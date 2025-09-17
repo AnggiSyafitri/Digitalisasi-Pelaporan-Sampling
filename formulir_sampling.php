@@ -12,83 +12,238 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
     <meta charset="UTF-8">
     <title>Formulir Pengambilan Contoh Sampling</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h2, h3 { color: #2c3e50; }
-        .form-section { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; }
-        input[type="text"], input[type="date"], textarea, select { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
-        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; color: white; font-size: 16px; }
-        .btn-secondary { background-color: #3498db; }
-        .btn-primary { background-color: #2ecc71; }
-        .contoh-item { border: 1px dashed #3498db; padding: 20px; margin-top: 20px; border-radius: 5px; background-color: #fafdff; }
-        .parameter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
-        .parameter-grid label { font-weight: normal; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            background-color: #f8f9fa; 
+            color: #333;
+        }
+        .header {
+            background-color: #343a40;
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .header a {
+            color: #ffc107;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 2rem auto; 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        h3 { 
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        .form-section { 
+            margin-bottom: 2rem; 
+            border-bottom: 1px solid #dee2e6; 
+            padding-bottom: 1.5rem; 
+        }
+        .form-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+            color: #555;
+        }
+        input[type="text"], input[type="date"], textarea, select { 
+            width: 100%; 
+            padding: 0.75rem; 
+            margin-bottom: 1rem; 
+            border-radius: 6px; 
+            border: 1px solid #ced4da; 
+            box-sizing: border-box; 
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-size: 1rem;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            outline: none;
+        }
+        .btn { 
+            padding: 0.75rem 1.5rem; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            color: white; 
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .btn-primary { background-color: #28a745; }
+        .btn-primary:hover { background-color: #218838; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
+        .contoh-item { 
+            border: 1px solid #007bff; 
+            padding: 1.5rem; 
+            margin-top: 1.5rem; 
+            border-radius: 8px; 
+            background-color: #f8f9fa;
+            position: relative;
+        }
+        .contoh-item h4 {
+            margin-top: 0;
+            color: #343a40;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .parameter-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 0.75rem;
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        .parameter-grid label { 
+            font-weight: normal; 
+            display: flex;
+            align-items: center;
+            background: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        .parameter-grid input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: auto;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-start;
+            margin-top: 1.5rem;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<header class="header">
     <h2>Formulir Pengambilan Contoh</h2>
-    <p>Login sebagai: <b><?php echo htmlspecialchars($_SESSION['nama_lengkap']); ?></b> | <a href="logout.php">Logout</a></p>
+    <span>Login sebagai: <b><?php echo htmlspecialchars($_SESSION['nama_lengkap']); ?></b> | <a href="logout.php">Logout</a></span>
+</header>
 
+<div class="container">
     <form action="simpan_sampling.php" method="post" enctype="multipart/form-data">
 
         <div class="form-section">
-            <h3>Informasi Perusahaan & Kegiatan</h3>
+            <h3>Informasi Umum</h3>
             <label for="perusahaan">Nama Perusahaan:</label>
             <input type="text" id="perusahaan" name="perusahaan" required>
 
             <label for="alamat">Alamat:</label>
-            <textarea id="alamat" name="alamat" required></textarea>
+            <textarea id="alamat" name="alamat" rows="3" required></textarea>
 
             <label for="tanggal">Tanggal Sampling:</label>
-            <input type="date" id="tanggal" name="tanggal" required>
+            <input type="date" id="tanggal" name="tanggal" value="<?php echo date('Y-m-d'); ?>" required>
         </div>
 
         <div class="form-section">
             <h3>Data Contoh Uji</h3>
-            <button type="button" class="btn btn-secondary" onclick="tambahContoh()">+ Tambah Contoh Uji</button>
+            <p>Tambahkan satu atau lebih contoh uji yang diambil selama kegiatan sampling.</p>
+            <button type="button" class="btn btn-secondary" onclick="tambahContoh()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                Tambah Contoh Uji
+            </button>
             <div id="contohContainer"></div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Simpan dan Ajukan Laporan</button>
+        <div class="button-group">
+            <button type="submit" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
+                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                  <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                </svg>
+                Simpan & Ajukan Laporan
+            </button>
+        </div>
     </form>
-    <p><a href="dashboard.php">⬅ Kembali ke Dashboard</a></p>
+    <a href="dashboard.php" class="back-link">⬅ Kembali ke Dashboard</a>
 </div>
 
 <script>
-    // --- DATABASE MINI DARI EXCEL ---
     const dataSampling = {
         "Air Limbah": {
             jenisContoh: ["Air Limbah Industri", "Air Limbah Domestik"],
-            parameter: ["Total Suspensi Solid", "pH", "BOD", "COD", "Minyak dan Lemak", "Amonia", "Total Coliform", "Debit", "Warna", "Sulfat", "Logam Berat", "Nitrat"],
-            prosedur: ["SNI 06-6989.3-2019 (TSS)", "SNI 6989.11:2019 (pH)", "SNI 6989.72:2009 (BOD)", "SNI 6989.2:2019 (COD)"]
+            parameter: ["Total Suspensi Solid", "pH", "Amonia sebagai NH3-N", "COD sebagai O2", "Minyak dan Lemak", "Sulfat", "Cadmium (Cd)total", "Nikel (Ni) total", "Chrom (Cr) total", "Seng (Zn) total", "Mangan (Mn) terlarut", "Tembaga (Cu) total", "Timbal (Pb) total", "Besi (Fe) Terlarut", "Barium (Ba) total", "Cobalt (Co) total", "Padatan Terlarut Total (TDS Meter)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Krom Hexavalen (Cr-VI)", "Nitrit ( NO2 )", "Total Coliform"],
+            prosedur: ["SNI 8990 : 2021 (Metode Pangambilan Contoh Air Limbah)", "SNI 9063:2022 (Metode pengambilan contoh uji air dan air limbah untuk parameter mikrobiologi)"]
         },
         "Air Permukaan": {
             jenisContoh: ["Air Sungai", "Air Danau", "Air Waduk", "Air Kolam", "Air Parit", "Air Irigasi"],
-            parameter: ["Temperatur", "TDS", "TSS", "pH", "BOD", "COD", "DO", "Total Fosfat", "Nitrat", "Sianida", "Fenol"],
-            prosedur: ["SNI 6989.57:2008 (Metode Pengambilan Contoh Air Permukaan)", "SNI 06-6989.23-2005 (Temperatur)"]
+            parameter: ["Total Suspensi Solid", "pH", "Amonia sebagai NH3-N", "Sulfat", "Cadmium (Cd) terlarut", "Nikel (Ni) terlarut", "Chrom (Cr) Terlarut", "Seng (Zn) terlarut", "Mangan (Mn) terlarut", "Tembaga (Cu) terlarut", "Timbal (Pb) Terlarut", "Besi (Fe) terlarut", "Barium (Ba) terlarut", "Kobalt (Co) terlarut", "Padatan Terlarut Total (TDS)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Argentum (Ag) terlarut", "Krom Hexavalen (Cr-VI)", "Khlorida ( CI )", "Angka Permanganat (KMnO4)", "Fluorida", "Nitrit ( NO2 )", "Total Coliform", "Fecal Coliform"],
+            prosedur: ["SNI 8995 : 2021 (Metode Pengambilan Contoh Uji Air Untuk Pengujian Fisika dan Kimia)", "SNI 9063:2022 (Metode pengambilan contoh uji air dan air limbah untuk parameter mikrobiologi)"]
         },
         "Air Tanah": {
-            jenisContoh: ["Air Sumur Bor", "Air Sumur Gali", "Sumur Artesis", "Sumber Mata Air"],
-            parameter: ["Warna", "Bau", "TDS", "Kekeruhan", "Zat Organik", "Besi", "Mangan", "Nitat", "Nitrit", "Klorida"],
-            prosedur: ["SNI 6989.58:2008 (Metode Pengambilan Contoh Air Tanah)"]
+            jenisContoh: ["Air Sumur Bor", "Air Sumur", "Sumur Artesis", "Sumber Mata Air"],
+            parameter: ["Total Suspensi Solid", "pH", "Amonia sebagai NH3-N", "Sulfat", "Cadmium (Cd) terlarut", "Nikel (Ni) terlarut", "Chrom (Cr) Terlarut", "Seng (Zn) terlarut", "Mangan (Mn) terlarut", "Tembaga (Cu) terlarut", "Timbal (Pb) Terlarut", "Besi (Fe) terlarut", "Barium (Ba) terlarut", "Aluminium (Al) terlarut", "Kalium (K) terlarut", "Kobalt (Co) terlarut", "Padatan Terlarut Total (TDS)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Argentum (Ag) terlarut", "Krom Hexavalen (Cr-VI)", "Khlorida ( CI )", "Angka Permanganat (KMnO4)", "Fluorida", "Nitrit ( NO2 )", "Escherichia coli", "Total Coliform"],
+            prosedur: ["SNI 8995 : 2021 (Metode Pengambilan Contoh Uji Air Untuk Pengujian Fisika dan Kimia)", "SNI 9063:2022 (Metode pengambilan contoh uji air dan air limbah untuk parameter mikrobiologi)"]
         },
         "Udara": {
             jenisContoh: ["Udara Emisi dari sumber bergerak", "Udara Emisi dari sumber tidak bergerak", "Udara Ambien"],
-            parameter: ["Partikulat (TSP, PM10, PM2.5)", "Sulfur dioksida (SO2)", "Karbon monoksida (CO)", "Nitrogen dioksida (NO2)", "Oksidan (O3)", "Hidrokarbon (HC)"],
-            prosedur: ["SNI 7119.3:2017 (SO2)", "SNI 7119.10:2011 (CO)", "SNI 7119.2:2017 (NO2)"]
+            parameter: {
+                "Udara Emisi dari sumber bergerak": ["Opasitas"],
+                "Udara Ambien": ["Sulfur dioksida (SO2)", "Nitrogen dioksida (NO2)", "Carbon monoksida (CO)", "TSP", "Timbal (Pb)", "Oksidan (O3)", "Amoniak (NH3)", "Hidrogen sulfida (H2S)"],
+                "Udara Emisi dari sumber tidak bergerak": ["Sulfur dioksida (SO2)", "Nitrogen dioksida (NO2)", "Karbon monoksida (CO)", "Nitrogen Oksida (NOx)", "Oksigen (O2)", "Karbon dioksida (CO2)", "Opasitas", "Kecepatan Linier/Laju alir (velocity)", "Berat Molekul kering", "Kadar Uap Air", "Partikulat"]
+            },
+            prosedur: {
+                "Udara Emisi dari sumber bergerak": ["M-LP-714-SMO (Smoke Meter Opacity) (Pengambilan contoh uji udara sumber emisi bergerak)"],
+                "Udara Ambien": ["SNI 19-7119.6-2005 (Metode Pengambilan Contoh Udara Ambien)", "SNI 19-7119.9-2005 (Metode Pengambilan Contoh Udara Roadside)"],
+                "Udara Emisi dari sumber tidak bergerak": ["SNI 7117.13-2009 (Pengambilan contoh uji udara emisi tidak bergerak)"]
+            }
         },
         "Tingkat Kebisingan": {
-            jenisContoh: null, // Jenis contoh tidak ada
-            parameter: ["Kebisingan Lingkungan", "Kebisingan Lingkungan Kerja"],
-            prosedur: ["SNI 8427:2017 (Pengukuran Tingkat Kebisingan Lingkungan)"]
+            jenisContoh: null,
+            parameter: ["Kebisingan"],
+            prosedur: ["SNI 8427 : 2017 (Metode Pengambilan contoh uji kebisingan)"]
         },
         "Tingkat Getaran": {
-            jenisContoh: null, // Jenis contoh tidak ada
-            parameter: ["Getaran Lingkungan untuk Kenyamanan dan Kesehatan", "Getaran Mekanik dan Kejut"],
-            prosedur: ["KepMenLH No. 49 Tahun 1996 (Pengukuran Tingkat Getaran)"]
+            jenisContoh: null,
+            parameter: ["Getaran"],
+            prosedur: ["M-LP-711-GET (Vibration Meter) (Metode Pengambilan contoh uji Getaran)"]
         }
     };
 
@@ -98,39 +253,43 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
         const container = document.getElementById("contohContainer");
         const div = document.createElement("div");
         div.className = "contoh-item";
-        div.setAttribute('data-id', contohCounter);
+        div.id = `contoh_item_${contohCounter}`;
+        const currentCounter = contohCounter;
 
         const namaContohOptions = Object.keys(dataSampling).map(key => `<option value="${key}">${key}</option>`).join('');
 
         div.innerHTML = `
-            <h4>Contoh Uji #${contohCounter + 1}</h4>
-            <input type="hidden" name="contoh[${contohCounter}][tipe_laporan]" id="tipe_laporan_${contohCounter}" value="">
+            <h4>
+                <span>Contoh Uji #${currentCounter + 1}</span>
+                <button type="button" class="btn btn-danger" onclick="hapusContoh(${currentCounter})">Hapus</button>
+            </h4>
+            <input type="hidden" name="contoh[${currentCounter}][tipe_laporan]" id="tipe_laporan_${currentCounter}">
 
-            <label for="nama_contoh_${contohCounter}">1. Nama Contoh (Bahan):</label>
-            <select name="contoh[${contohCounter}][nama_contoh]" id="nama_contoh_${contohCounter}" onchange="updateDynamicFields(${contohCounter})" required>
+            <label for="nama_contoh_${currentCounter}">1. Nama Contoh (Bahan):</label>
+            <select name="contoh[${currentCounter}][nama_contoh]" id="nama_contoh_${currentCounter}" onchange="updateDynamicFields(${currentCounter})" required>
                 <option value="">-- Pilih Bahan --</option>
                 ${namaContohOptions}
             </select>
 
-            <div id="jenis_contoh_wrapper_${contohCounter}">
-                <label for="jenis_contoh_${contohCounter}">2. Jenis Contoh (Produk Uji):</label>
-                <select name="contoh[${contohCounter}][jenis_contoh]" id="jenis_contoh_${contohCounter}" required>
-                    <option value="">-- Pilih Nama Contoh dulu --</option>
+            <div id="jenis_contoh_wrapper_${currentCounter}" style="display:none;">
+                <label for="jenis_contoh_${currentCounter}">2. Jenis Contoh (Produk Uji):</label>
+                <select name="contoh[${currentCounter}][jenis_contoh]" id="jenis_contoh_${currentCounter}" onchange="updateParameters(${currentCounter})">
+                    <option value="">-- Pilih Jenis Contoh --</option>
                 </select>
             </div>
 
-            <label for="parameter_${contohCounter}">3. Parameter Uji:</label>
-            <div class="parameter-grid" id="parameter_container_${contohCounter}">
-                <p>-- Pilih Nama Contoh dulu --</p>
+            <label>3. Parameter Uji:</label>
+            <div class="parameter-grid" id="parameter_container_${currentCounter}">
+                <p>Pilih Nama dan Jenis Contoh terlebih dahulu.</p>
             </div>
 
-            <label for="prosedur_${contohCounter}">4. Prosedur Pengambilan Contoh:</label>
-            <select name="contoh[${contohCounter}][prosedur]" id="prosedur_${contohCounter}" required>
-                <option value="">-- Pilih Nama Contoh dulu --</option>
+            <label for="prosedur_${currentCounter}">4. Prosedur Pengambilan Contoh:</label>
+            <select name="contoh[${currentCounter}][prosedur]" id="prosedur_${currentCounter}" required>
+                <option value="">-- Pilih Prosedur --</option>
             </select>
             
-            <label for="baku_mutu_${contohCounter}">5. Baku Mutu:</label>
-            <select name="contoh[${contohCounter}][baku_mutu]" id="baku_mutu_${contohCounter}">
+            <label for="baku_mutu_${currentCounter}">5. Baku Mutu:</label>
+            <select name="contoh[${currentCounter}][baku_mutu]" id="baku_mutu_${currentCounter}">
                 <option value="">-- Pilih Baku Mutu --</option>
                 <option value="PP RI No. 22 Tahun 2021, Lampiran I">PP RI No. 22 Tahun 2021, Lampiran I</option>
                 <option value="PP RI No. 22 Tahun 2021, Lampiran III">PP RI No. 22 Tahun 2021, Lampiran III</option>
@@ -142,26 +301,33 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
                 <option value="Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996">Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996</option>                
                 <option value="Lainnya">Lainnya...</option>
             </select>
-            <input type="text" name="contoh[${contohCounter}][baku_mutu_lainnya]" id="baku_mutu_lainnya_${contohCounter}" style="display:none;" placeholder="Masukkan baku mutu lainnya">
+            <input type="text" name="contoh[${currentCounter}][baku_mutu_lainnya]" id="baku_mutu_lainnya_${currentCounter}" style="display:none; margin-top: 10px;" placeholder="Masukkan baku mutu lainnya">
 
             <label>Etiket / Merek:</label>
-            <input type="text" name="contoh[${contohCounter}][merek]">
+            <input type="text" name="contoh[${currentCounter}][merek]">
             
             <label>Kode:</label>
-            <input type="text" name="contoh[${contohCounter}][kode]">
+            <input type="text" name="contoh[${currentCounter}][kode]">
             
             <label>Catatan Contoh:</label>
-            <textarea name="contoh[${contohCounter}][catatan]" rows="2"></textarea>
+            <textarea name="contoh[${currentCounter}][catatan]" rows="2"></textarea>
         `;
         container.appendChild(div);
         
-        // Listener untuk baku mutu "Lainnya..."
-        document.getElementById(`baku_mutu_${contohCounter}`).addEventListener('change', function() {
+        document.getElementById(`baku_mutu_${currentCounter}`).addEventListener('change', function() {
             const lainnyaInput = document.getElementById(`baku_mutu_lainnya_${this.id.split('_')[2]}`);
             lainnyaInput.style.display = (this.value === 'Lainnya') ? 'block' : 'none';
+            if (this.value !== 'Lainnya') lainnyaInput.value = '';
         });
 
         contohCounter++;
+    }
+    
+    function hapusContoh(id) {
+        const item = document.getElementById(`contoh_item_${id}`);
+        if (item) {
+            item.remove();
+        }
     }
 
     function updateDynamicFields(id) {
@@ -170,41 +336,69 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
 
         const jenisContohWrapper = document.getElementById(`jenis_contoh_wrapper_${id}`);
         const jenisContohSelect = document.getElementById(`jenis_contoh_${id}`);
-        const parameterContainer = document.getElementById(`parameter_container_${id}`);
-        const prosedurSelect = document.getElementById(`prosedur_${id}`);
         const tipeLaporanInput = document.getElementById(`tipe_laporan_${id}`);
 
-        // Set Tipe Laporan (air/udara)
         tipeLaporanInput.value = (selectedNamaContoh.includes("Udara") || selectedNamaContoh.includes("Kebisingan") || selectedNamaContoh.includes("Getaran")) ? 'udara' : 'air';
 
-        // Update Jenis Contoh
         if (data && data.jenisContoh) {
             jenisContohWrapper.style.display = 'block';
-            jenisContohSelect.disabled = false;
             jenisContohSelect.innerHTML = '<option value="">-- Pilih Jenis --</option>' + data.jenisContoh.map(jc => `<option value="${jc}">${jc}</option>`).join('');
         } else {
-            jenisContohWrapper.style.display = 'none'; // Sembunyikan jika tidak ada
-            jenisContohSelect.disabled = true;
-            jenisContohSelect.innerHTML = '<option value="N/A">N/A</option>';
+            jenisContohWrapper.style.display = 'none';
+            jenisContohSelect.innerHTML = '';
         }
 
-        // Update Parameter
-        if (data && data.parameter) {
-            parameterContainer.innerHTML = data.parameter.map(p => 
+        updateParameters(id);
+        updateProsedur(id);
+    }
+
+    function updateParameters(id) {
+        const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
+        const selectedJenisContoh = document.getElementById(`jenis_contoh_${id}`).value;
+        const data = dataSampling[selectedNamaContoh];
+        const parameterContainer = document.getElementById(`parameter_container_${id}`);
+
+        let parameters = [];
+        if (data) {
+            if (Array.isArray(data.parameter)) {
+                parameters = data.parameter;
+            } else if (typeof data.parameter === 'object' && selectedJenisContoh) {
+                parameters = data.parameter[selectedJenisContoh] || [];
+            }
+        }
+        
+        if (parameters.length > 0) {
+            parameterContainer.innerHTML = parameters.map(p => 
                 `<label><input type="checkbox" name="contoh[${id}][parameter][]" value="${p}"> ${p}</label>`
             ).join('');
         } else {
-            parameterContainer.innerHTML = '<p>-- Pilih Nama Contoh dulu --</p>';
+            parameterContainer.innerHTML = '<p>Pilih Nama dan Jenis Contoh terlebih dahulu.</p>';
         }
-        
-        // Update Prosedur
-        if (data && data.prosedur) {
-            prosedurSelect.innerHTML = '<option value="">-- Pilih Prosedur --</option>' + data.prosedur.map(p => `<option value="${p}">${p}</option>`).join('');
+    }
+    
+    function updateProsedur(id) {
+        const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
+        const selectedJenisContoh = document.getElementById(`jenis_contoh_${id}`).value;
+        const data = dataSampling[selectedNamaContoh];
+        const prosedurSelect = document.getElementById(`prosedur_${id}`);
+
+        let prosedur = [];
+        if (data) {
+            if (Array.isArray(data.prosedur)) {
+                prosedur = data.prosedur;
+            } else if (typeof data.prosedur === 'object' && selectedJenisContoh) {
+                prosedur = data.prosedur[selectedJenisContoh] || [];
+            }
+        }
+
+        if(prosedur.length > 0) {
+            prosedurSelect.innerHTML = '<option value="">-- Pilih Prosedur --</option>' + prosedur.map(p => `<option value="${p}">${p}</option>`).join('');
         } else {
-            prosedurSelect.innerHTML = '<option value="">-- Pilih Nama Contoh dulu --</option>';
+            prosedurSelect.innerHTML = '<option value="">-- Pilihan tidak tersedia --</option>';
         }
     }
 </script>
+
 
 </body>
 </html>

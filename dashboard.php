@@ -42,16 +42,31 @@ switch ($role_id) {
                         ORDER BY l.updated_at ASC";
         $stmt = $conn->prepare($sql_laporan);
         break;
-        
-    // Tambahkan case untuk Manajer Teknis (3) dan Penerima Contoh (4) di sini nanti
-    default:
-        // Default query untuk peran lain (misal: tampilkan semua yang sudah selesai)
+
+    case 3: // Manajer Teknis
+        $pesan_dashboard = "Laporan yang Membutuhkan Persetujuan Anda";
         $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
                         FROM laporan l
                         JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.status = 'Selesai'
-                        ORDER BY l.updated_at DESC";
+                        WHERE l.status = 'Menunggu Persetujuan MT'
+                        ORDER BY l.updated_at ASC";
         $stmt = $conn->prepare($sql_laporan);
+        break;
+
+    case 4: // Penerima Contoh
+        $pesan_dashboard = "Laporan Final yang Siap Dicetak";
+        $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
+                        FROM laporan l
+                        JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
+                        WHERE l.status = 'Disetujui, Siap Dicetak'
+                        ORDER BY l.updated_at ASC";
+        $stmt = $conn->prepare($sql_laporan);
+        break;
+
+    default:
+        // Jika ada peran lain, tampilkan daftar kosong
+        $daftar_laporan = [];
+        $stmt = null; // Tidak ada statement yang perlu dieksekusi
         break;
 }
 
@@ -69,46 +84,33 @@ if ($stmt) {
 <head>
     <meta charset="UTF-8">
     <title>Dashboard - <?php echo htmlspecialchars($role_name); ?></title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f7f6; }
-        .header { background-color: #2c3e50; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .header h1 { margin: 0; font-size: 22px; }
-        .user-info { text-align: right; }
-        .user-info span { display: block; }
-        .user-info a { color: #e74c3c; text-decoration: none; font-size: 14px; }
-        .container { padding: 25px; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .card-header { padding: 15px; border-bottom: 1px solid #eee; }
-        .card-header h2 { margin: 0; font-size: 18px; }
-        .card-body { padding: 15px; }
-        .btn { display: inline-block; padding: 8px 12px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px; font-size: 14px; }
-        .btn-green { background-color: #2ecc71; }
-        .table-laporan { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .table-laporan th, .table-laporan td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .table-laporan th { background-color: #f2f2f2; }
-        .status { padding: 5px 8px; border-radius: 15px; color: white; font-size: 12px; text-align: center; }
-        .status-menunggu { background-color: #f39c12; }
-    </style>
+    <link href="css/styles.css" rel="stylesheet" />
 </head>
 <body>
 
-<header class="header">
-    <h1>Sistem Pelaporan Sampling</h1>
+<header class="header-dashboard">
+    <div class="header-title">
+        <img src="https://yt3.googleusercontent.com/7uw0pH3SFyMHSYFo0OqwrLmv9LE28VF3TCK2dotW-Ruee1A6VVDYI8fiB0HEcYDb7WQYWcqU5w=s900-c-k-c0x00ffffff-no-rj" alt="Logo BSPJI" class="header-logo">
+        <h1 style="font-size:2.1em;">Sistem Pelaporan Sampling</h1>
+    </div>
     <div class="user-info">
-        <span><?php echo htmlspecialchars($nama_lengkap); ?></span>
-        <small>Peran: <strong><?php echo htmlspecialchars($role_name); ?></strong></small>
-        <div><a href="logout.php">Logout</a></div>
+        <span style="font-size:1.3em;">Selamat Datang, <strong><?php echo htmlspecialchars($nama_lengkap); ?></strong></span>
+        <span style="font-size:1.3em; font-weight:400;">Peran: <?php echo htmlspecialchars($role_name); ?></span>
+        <a href="logout.php">Logout</a>
     </div>
 </header>
 
-<div class="container">
+<div class="container-dashboard">
     
-    <?php if ($role_id == 1): ?>
-        <div class="card">
-            <div class="card-header"><h2>Tugas Anda</h2></div>
+    <?php if ($role_id == 1): // Tampilkan hanya untuk PPC ?>
+        <div class="card card-cta">
             <div class="card-body">
-                <p>Silakan buat laporan baru atau lihat riwayat laporan Anda.</p>
-                <a href="formulir_sampling.php" class="btn btn-green">Buat Laporan Sampling Baru</a>
+                <h2>Siap untuk Laporan Baru?</h2>
+                <p>Klik tombol di bawah ini untuk memulai pengisian formulir pengambilan contoh yang baru.</p>
+                <a href="formulir_sampling.php" class="btn btn-primary-dashboard">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
+                    Buat Laporan Sampling Baru
+                </a>
             </div>
         </div>
     <?php endif; ?>
@@ -121,34 +123,38 @@ if ($stmt) {
             <?php if (empty($daftar_laporan)): ?>
                 <p>Belum ada laporan yang tersedia untuk Anda saat ini.</p>
             <?php else: ?>
-                <table class="table-laporan">
-                    <thead>
-                        <tr>
-                            <th>ID Laporan</th>
-                            <th>Jenis</th>
-                            <th>Perusahaan</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($daftar_laporan as $laporan): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($laporan['id']); ?></td>
-                            <td><?php echo ucfirst(htmlspecialchars($laporan['jenis_laporan'])); ?></td>
-                            <td><?php echo htmlspecialchars($laporan['perusahaan']); ?></td>
-                            <td><?php echo date('d M Y', strtotime($laporan['tanggal'])); ?></td>
-                            <td>
-                                <span class="status status-menunggu"><?php echo htmlspecialchars($laporan['status']); ?></span>
-                            </td>
-                            <td>
-                                <a href="detail_laporan.php?id=<?php echo $laporan['id']; ?>" class="btn">Lihat Detail</a>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table-laporan">
+                        <thead>
+                            <tr>
+                                <th>ID Laporan</th>
+                                <th>Jenis</th>
+                                <th>Perusahaan</th>
+                                <th>Tanggal Sampling</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($daftar_laporan as $laporan): ?>
+                            <tr>
+                                <td>#<?php echo htmlspecialchars($laporan['id']); ?></td>
+                                <td><?php echo ucfirst(htmlspecialchars($laporan['jenis_laporan'])); ?></td>
+                                <td><?php echo htmlspecialchars($laporan['perusahaan']); ?></td>
+                                <td><?php echo date('d M Y', strtotime($laporan['tanggal'])); ?></td>
+                                <td>
+                                    <span class="status <?php echo 'status-' . strtolower(str_replace(' ', '-', $laporan['status'])); ?>">
+                                        <?php echo htmlspecialchars($laporan['status']); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="detail_laporan.php?id=<?php echo $laporan['id']; ?>" class="btn btn-secondary-dashboard">Lihat Detail</a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             <?php endif; ?>
         </div>
     </div>

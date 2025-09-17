@@ -55,29 +55,35 @@ $conn->close();
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Login - Sistem Pelaporan Sampling</title>
-  <style>
-    body { font-family: Arial, sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-    .login-box { width: 320px; background: white; border: 1px solid #ddd; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .login-box h3 { text-align: center; margin-bottom: 20px; color: #333; }
-    .error-msg { color: #d9534f; background-color: #f2dede; border: 1px solid #ebccd1; padding: 10px; border-radius: 4px; margin-bottom: 15px; text-align: center; font-size: 14px; }
-    input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-    button:hover { background: #1976d2; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Pelaporan Sampling</title>
+    <link href="css/styles.css" rel="stylesheet" />
 </head>
-<body>
-  <div class="login-box">
-    <h3>Sistem Pelaporan Sampling</h3>
-    <?php if (!empty($error_message)): ?>
-        <p class="error-msg"><?php echo $error_message; ?></p>
-    <?php endif; ?>
-    <form method="post" action="login.php">
-      <input type="text" name="username" placeholder="Username" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit" name="login">Login</button>
-    </form>
-  </div>
+<body class="bg-login">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h2>BSPJI MEDAN</h2>
+                <h3>Sistem Pelaporan Sampling Mutu Lingkungan</h3>
+            </div>
+            
+            <?php if (!empty($error_message)): ?>
+                <div class="alert alert-danger"><?php echo $error_message; ?></div>
+            <?php endif; ?>
+            
+            <form method="post" action="login.php">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" name="login" class="btn btn-primary btn-block">Login</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

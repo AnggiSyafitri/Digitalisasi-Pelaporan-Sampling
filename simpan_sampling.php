@@ -44,8 +44,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
             $sql_contoh = "INSERT INTO contoh_air (formulir_id, nama_contoh, jenis_contoh, merek, kode, prosedur, parameter, baku_mutu, catatan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt_contoh = $conn->prepare($sql_contoh);
             foreach ($laporan_air_items as $item) {
-                $jenis_contoh = $item['jenis_contoh'] ?? 'N/A';
-                $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
+                // PENYESUAIAN DI SINI
+                $jenis_contoh = $item['jenis_contoh'] ?? 'N/A'; // Jika jenis_contoh tidak ada, isi dengan 'N/A'
+                $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : ''; // Jika parameter tidak ada, isi dengan string kosong
                 $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
                 
                 $stmt_contoh->bind_param("issssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $item['prosedur'], $parameter, $baku_mutu, $item['catatan']);
@@ -72,8 +73,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
             $sql_contoh = "INSERT INTO contoh_udara (formulir_id, nama_contoh, jenis_contoh, merek, kode, prosedur, parameter, baku_mutu, catatan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt_contoh = $conn->prepare($sql_contoh);
             foreach ($laporan_udara_items as $item) {
-                $jenis_contoh = $item['jenis_contoh'] ?? 'N/A';
-                $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
+                // PENYESUAIAN DI SINI JUGA
+                $jenis_contoh = $item['jenis_contoh'] ?? 'N/A'; // Jika jenis_contoh tidak ada, isi dengan 'N/A'
+                $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : ''; // Jika parameter tidak ada, isi dengan string kosong
                 $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
 
                 $stmt_contoh->bind_param("issssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $item['prosedur'], $parameter, $baku_mutu, $item['catatan']);
