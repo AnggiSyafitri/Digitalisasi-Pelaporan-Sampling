@@ -244,12 +244,13 @@ require_once '../templates/header.php';
     }
 
     function updateParameters(id) {
-        // ...
+        // Fungsi ini diubah untuk menangani parameter yang berbasis objek
         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
         const selectedJenisContoh = document.getElementById(`jenis_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const parameterContainer = document.getElementById(`parameter_container_${id}`);
         let parameters = [];
+
         if (data) {
             if (Array.isArray(data.parameter)) {
                 parameters = data.parameter;
@@ -267,12 +268,13 @@ require_once '../templates/header.php';
     }
     
     function updateProsedur(id) {
-        // ...
-         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
+        // Fungsi ini untuk memperbarui prosedur berdasarkan nama dan jenis contoh
+        const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
         const selectedJenisContoh = document.getElementById(`jenis_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const prosedurSelect = document.getElementById(`prosedur_${id}`);
         let prosedur = [];
+
         if (data) {
             prosedurSelect.disabled = false;
             if (Array.isArray(data.prosedur)) {
