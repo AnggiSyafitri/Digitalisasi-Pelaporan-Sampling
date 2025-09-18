@@ -1,10 +1,13 @@
 <?php
-session_start();
-include 'koneksi.php'; // Pastikan file koneksi.php sudah ada
+// public/login.php
+
+// Gantikan session_start() dan include 'koneksi.php' dengan satu baris ini.
+require_once '../app/config.php';
 
 // Jika sudah login, langsung redirect ke dashboard
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+    // Gunakan BASE_URL agar redirect selalu benar
+    header("Location: " . BASE_URL . "/dashboard.php");
     exit();
 }
 
@@ -35,30 +38,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
                 $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
                 $_SESSION['role_id'] = $user['role_id'];
                 $_SESSION['role_name'] = $user['nama_role'];
-
-                header("Location: dashboard.php");
+                
+                // Gunakan BASE_URL untuk redirect
+                header("Location: " . BASE_URL . "/dashboard.php");
                 exit();
             } else {
-                // Password salah
                 $error_message = "Login gagal. Username atau password salah.";
             }
         } else {
-            // Username tidak ditemukan
             $error_message = "Login gagal. Username atau password salah.";
         }
         $stmt->close();
     }
 }
-$conn->close();
-?>
 
+// Set judul halaman untuk template
+$page_title = 'Login - Sistem Pelaporan Sampling';
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Pelaporan Sampling</title>
-    <link href="css/styles.css" rel="stylesheet" />
+    <title><?php echo $page_title; ?></title>
+    <link href="<?php echo BASE_URL; ?>/assets/css/styles.css" rel="stylesheet" />
 </head>
 <body class="bg-login">
     <div class="login-container">
