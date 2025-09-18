@@ -1,96 +1,105 @@
 <?php
 // public/dashboard.php
 
-// 1. Panggil file config.php
-// Path '../app/config.php' artinya "keluar dari folder public, lalu masuk ke folder app"
 require_once '../app/config.php';
 
-// 2. Pengecekan Sesi (Keamanan)
-// Jika tidak ada user_id di session, tendang ke halaman login
 if (!isset($_SESSION['user_id'])) {
-    // Gunakan BASE_URL untuk redirect yang pasti benar
     header("Location: " . BASE_URL . "/login.php");
     exit();
 }
 
-// 3. Ambil data user dari session (sudah aman karena sudah dicek di atas)
 $user_id = $_SESSION['user_id'];
 $role_id = $_SESSION['role_id'];
 
-// 4. Logika untuk mengambil data laporan sesuai peran (sama seperti kodemu sebelumnya)
-$sql_laporan = "";
-// ... (Kode query SELECT berdasarkan role_id tetap sama seperti yang sudah kamu buat) ...
-// NOTE: Seluruh blok 'switch ($role_id)' kamu dari file dashboard.php lama bisa ditaruh di sini.
-// Pastikan tidak ada duplikasi variabel.
-
-// (Untuk contoh, saya salin kembali logikanya ke sini)
 $daftar_laporan = [];
+$laporan_riwayat = []; 
 $pesan_dashboard = "Daftar Laporan Terkini";
+$pesan_riwayat = "Riwayat Laporan"; // Pesan default untuk riwayat
+
+$query_part = "
+    SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal, l.ppc_id, l.updated_at
+    FROM laporan l
+    JOIN (
+        SELECT id as form_id, perusahaan, tanggal FROM formulir_air
+        UNION ALL
+        SELECT id as form_id, perusahaan, tanggal FROM formulir_udara
+    ) f ON l.form_id = f.form_id AND l.jenis_laporan IN ('air', 'udara')
+";
+
+$where_clause = "";
+$params = [];
+$types = "";
+
 switch ($role_id) {
     case 1: // PPC
         $pesan_dashboard = "Riwayat Laporan yang Anda Buat";
-        $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
-                        FROM laporan l JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.ppc_id = ? ORDER BY l.updated_at DESC";
-        $stmt = $conn->prepare($sql_laporan);
-        $stmt->bind_param("i", $user_id);
+        $where_clause = " WHERE l.ppc_id = ? ORDER BY l.updated_at DESC";
+        $types = "i";
+        $params[] = $user_id;
         break;
+
     case 2: // Penyelia
         $pesan_dashboard = "Laporan yang Membutuhkan Verifikasi Anda";
-        $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
-                        FROM laporan l JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.status = 'Menunggu Verifikasi' ORDER BY l.updated_at ASC";
-        $stmt = $conn->prepare($sql_laporan);
+        $pesan_riwayat = "Riwayat Laporan yang Telah Anda Proses";
+        $where_clause = " WHERE l.status = 'Menunggu Verifikasi' ORDER BY l.updated_at ASC";
+        
+        $sql_riwayat = $query_part . " WHERE l.penyelia_id = ? ORDER BY l.updated_at DESC";
+        $stmt_riwayat = $conn->prepare($sql_riwayat);
+        $stmt_riwayat->bind_param("i", $user_id);
         break;
-    // ... (case 3 dan 4 sama seperti sebelumnya) ...
+
     case 3: // Manajer Teknis
         $pesan_dashboard = "Laporan yang Membutuhkan Persetujuan Anda";
-        $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
-                        FROM laporan l JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.status = 'Menunggu Persetujuan MT' ORDER BY l.updated_at ASC";
-        $stmt = $conn->prepare($sql_laporan);
+        $pesan_riwayat = "Riwayat Laporan yang Telah Anda Setujui/Revisi";
+        $where_clause = " WHERE l.status = 'Menunggu Persetujuan MT' ORDER BY l.updated_at ASC";
+
+        $sql_riwayat = $query_part . " WHERE l.mt_id = ? ORDER BY l.updated_at DESC";
+        $stmt_riwayat = $conn->prepare($sql_riwayat);
+        $stmt_riwayat->bind_param("i", $user_id);
         break;
+
     case 4: // Penerima Contoh
         $pesan_dashboard = "Laporan Final yang Siap Dicetak";
-        $sql_laporan = "SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal 
-                        FROM laporan l JOIN formulir_air f ON l.form_id = f.id AND l.jenis_laporan = 'air'
-                        WHERE l.status = 'Disetujui, Siap Dicetak' ORDER BY l.updated_at ASC";
-        $stmt = $conn->prepare($sql_laporan);
-        break;
-    default:
-        $stmt = null;
+        $pesan_riwayat = "Riwayat Laporan yang Telah Anda Selesaikan";
+        $where_clause = " WHERE l.status = 'Disetujui, Siap Dicetak' ORDER BY l.updated_at ASC";
+
+        $sql_riwayat = $query_part . " WHERE l.penerima_id = ? ORDER BY l.updated_at DESC";
+        $stmt_riwayat = $conn->prepare($sql_riwayat);
+        $stmt_riwayat->bind_param("i", $user_id);
         break;
 }
 
-if ($stmt) {
-    $stmt->execute();
-    $result = $stmt->get_result();
-    while ($row = $result->fetch_assoc()) {
-        $daftar_laporan[] = $row;
+// Eksekusi query utama untuk tugas aktif
+$sql_laporan = $query_part . $where_clause;
+$stmt = $conn->prepare($sql_laporan);
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $daftar_laporan[] = $row;
+}
+$stmt->close();
+
+// Eksekusi query riwayat jika statementnya ada (untuk role 2, 3, dan 4)
+if (isset($stmt_riwayat)) {
+    $stmt_riwayat->execute();
+    $result_riwayat = $stmt_riwayat->get_result();
+    while ($row = $result_riwayat->fetch_assoc()) {
+        $laporan_riwayat[] = $row;
     }
-    $stmt->close();
+    $stmt_riwayat->close();
 }
 
-// 5. Atur judul halaman
 $page_title = 'Dashboard';
-
-// 6. Panggil template header
 require_once '../templates/header.php';
 ?>
 
 <div class="container-dashboard">
-    
-    <?php if ($role_id == 1): // Tampilkan hanya untuk PPC ?>
+    <?php if ($role_id == 1): ?>
         <div class="card card-cta">
-            <div class="card-body">
-                <h2>Siap untuk Laporan Baru?</h2>
-                <p>Klik tombol di bawah ini untuk memulai pengisian formulir pengambilan contoh yang baru.</p>
-                <a href="formulir_sampling.php" class="btn btn-primary-dashboard">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
-                    Buat Laporan Sampling Baru
-                </a>
-            </div>
-        </div>
+             </div>
     <?php endif; ?>
 
     <div class="card">
@@ -136,11 +145,55 @@ require_once '../templates/header.php';
             <?php endif; ?>
         </div>
     </div>
+
+    <?php if (in_array($role_id, [2, 3, 4])): ?>
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2><?php echo htmlspecialchars($pesan_riwayat); ?></h2>
+        </div>
+        <div class="card-body">
+            <?php if (empty($laporan_riwayat)): ?>
+                <p>Anda belum memiliki riwayat laporan.</p>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table-laporan">
+                        <thead>
+                            <tr>
+                                <th>ID Laporan</th>
+                                <th>Jenis</th>
+                                <th>Perusahaan</th>
+                                <th>Tanggal Sampling</th>
+                                <th>Status Terakhir</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($laporan_riwayat as $laporan): ?>
+                            <tr>
+                                <td>#<?php echo htmlspecialchars($laporan['id']); ?></td>
+                                <td><?php echo ucfirst(htmlspecialchars($laporan['jenis_laporan'])); ?></td>
+                                <td><?php echo htmlspecialchars($laporan['perusahaan']); ?></td>
+                                <td><?php echo date('d M Y', strtotime($laporan['tanggal'])); ?></td>
+                                <td>
+                                    <span class="status <?php echo 'status-' . strtolower(str_replace(' ', '-', $laporan['status'])); ?>">
+                                        <?php echo htmlspecialchars($laporan['status']); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="detail_laporan.php?id=<?php echo $laporan['id']; ?>" class="btn btn-secondary-dashboard">Lihat Detail</a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+    
 </div>
+
 <?php
-// 7. Panggil template footer (untuk saat ini footer bisa kosong atau hanya berisi tag penutup)
-// require_once '../templates/footer.php'; 
-// Note: Kita akan buat file footer di langkah selanjutnya, untuk sekarang bisa di-comment dulu.
+require_once '../templates/footer.php';
 ?>
-</body>
-</html>

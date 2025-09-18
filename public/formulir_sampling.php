@@ -88,7 +88,6 @@ require_once '../templates/header.php';
 
 <script>
     document.getElementById('pengambil_sampel').addEventListener('change', function() {
-        // ... (Fungsi ini tidak diubah)
         const subKontrakWrapper = document.getElementById('sub_kontrak_wrapper');
         if (this.value === 'Sub Kontrak') {
             subKontrakWrapper.style.display = 'block';
@@ -98,28 +97,31 @@ require_once '../templates/header.php';
     });
 
     const dataSampling = {
-        // ... (Objek dataSampling tidak diubah)
         "Air Limbah": {
             jenisContoh: ["Air Limbah Industri", "Air Limbah Domestik"],
-            parameter: ["Total Suspensi Solid", "pH", "Amonia sebagai NH3-N", "COD sebagai O2", "Minyak dan Lemak", "Sulfat", "Cadmium (Cd)total", "Nikel (Ni) total", "Chrom (Cr) total", "Seng (Zn) total", "Mangan (Mn) terlarut", "Tembaga (Cu) total", "Timbal (Pb) total", "Besi (Fe) Terlarut", "Barium (Ba) total", "Cobalt (Co) total", "Padatan Terlarut Total (TDS Meter)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Krom Hexavalen (Cr-VI)", "Nitrit ( NO2 )", "Total Coliform"],
+            parameter: ["Total Suspensi Solid", "pH", "Kekeruhan", "Amonia sebagai NH3-N", "COD sebagai O2", "Minyak dan Lemak", "Sulfat", "Cadmium (Cd)total", "Nikel (Ni) total", "Chrom (Cr) total", "Seng (Zn) total", "Mangan (Mn) terlarut", "Tembaga (Cu) total", "Timbal (Pb) total", "Besi (Fe) Terlarut", "Barium (Ba) total", "Cobalt (Co) total", "Padatan Terlarut Total (TDS Meter)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Krom Hexavalen (Cr-VI)", "Nitrit ( NO2 )", "Total Coliform"],
             prosedur: ["SNI 8990 : 2021 (Metode Pangambilan Contoh Air Limbah)", "SNI 9063:2022 (Metode pengambilan contoh uji air dan air limbah untuk parameter mikrobiologi)"]
         },
         "Air Permukaan": {
             jenisContoh: ["Air Sungai", "Air Danau", "Air Waduk", "Air Kolam", "Air Parit", "Air Irigasi"],
-            parameter: ["Total Suspensi Solid", "pH", "Amonia sebagai NH3-N", "Sulfat", "Cadmium (Cd) terlarut", "Nikel (Ni) terlarut", "Chrom (Cr) Terlarut", "Seng (Zn) terlarut", "Mangan (Mn) terlarut", "Tembaga (Cu) terlarut", "Timbal (Pb) Terlarut", "Besi (Fe) terlarut", "Barium (Ba) terlarut", "Kobalt (Co) terlarut", "Padatan Terlarut Total (TDS)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Argentum (Ag) terlarut", "Krom Hexavalen (Cr-VI)", "Khlorida ( CI )", "Angka Permanganat (KMnO4)", "Fluorida", "Nitrit ( NO2 )", "Total Coliform", "Fecal Coliform"],
-            prosedur: ["SNI 8995 : 2021 (Metode Pengambilan Contoh Uji Air Untuk Pengujian Fisika dan Kimia)", "SNI 9063:2022 (Metode pengambilan contoh uji air dan air limbah untuk parameter mikrobiologi)"]
+            parameter: ["Total Suspensi Solid", "pH", "Kekeruhan", "Amonia sebagai NH3-N", "Sulfat", "Cadmium (Cd) terlarut", "Nikel (Ni) terlarut", "Chrom (Cr) Terlarut", "Seng (Zn) terlarut", "Mangan (Mn) terlarut", "Tembaga (Cu) terlarut", "Timbal (Pb) Terlarut", "Besi (Fe) terlarut", "Barium (Ba) terlarut", "Kobalt (Co) terlarut", "Padatan Terlarut Total (TDS)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Argentum (Ag) terlarut", "Krom Hexavalen (Cr-VI)", "Khlorida ( CI )", "Angka Permanganat (KMnO4)", "Fluorida", "Nitrit ( NO2 )", "Total Coliform", "Fecal Coliform"],
+            prosedur: ["SNI 6989.57:2008 (Metode Pengambilan Contoh Air Permukaan)", "SNI 8995 : 2021 (Metode Pengambilan Contoh Uji Air Untuk Pengujian Fisika dan Kimia)", "SNI 9063:2022 (Metode pengambilan contoh uji air dan air limbah untuk parameter mikrobiologi)"]
         },
         "Air Tanah": {
             jenisContoh: ["Air Sumur Bor", "Air Sumur", "Sumur Artesis", "Sumber Mata Air"],
-            parameter: ["Total Suspensi Solid", "pH", "Amonia sebagai NH3-N", "Sulfat", "Cadmium (Cd) terlarut", "Nikel (Ni) terlarut", "Chrom (Cr) Terlarut", "Seng (Zn) terlarut", "Mangan (Mn) terlarut", "Tembaga (Cu) terlarut", "Timbal (Pb) Terlarut", "Besi (Fe) terlarut", "Barium (Ba) terlarut", "Aluminium (Al) terlarut", "Kalium (K) terlarut", "Kobalt (Co) terlarut", "Padatan Terlarut Total (TDS)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Argentum (Ag) terlarut", "Krom Hexavalen (Cr-VI)", "Khlorida ( CI )", "Angka Permanganat (KMnO4)", "Fluorida", "Nitrit ( NO2 )", "Escherichia coli", "Total Coliform"],
+            parameter: ["Total Suspensi Solid", "pH", "Kekeruhan", "Amonia sebagai NH3-N", "Sulfat", "Cadmium (Cd) terlarut", "Nikel (Ni) terlarut", "Chrom (Cr) Terlarut", "Seng (Zn) terlarut", "Mangan (Mn) terlarut", "Tembaga (Cu) terlarut", "Timbal (Pb) Terlarut", "Besi (Fe) terlarut", "Barium (Ba) terlarut", "Aluminium (Al) terlarut", "Kalium (K) terlarut", "Kobalt (Co) terlarut", "Padatan Terlarut Total (TDS)", "Temperatur", "OrthoPosfat", "Total Fosfor", "Padatan Terlarut Total (TDS) Grav", "Daya Hantar Listrik (DHL)", "Argentum (Ag) terlarut", "Krom Hexavalen (Cr-VI)", "Khlorida ( CI )", "Angka Permanganat (KMnO4)", "Fluorida", "Nitrit ( NO2 )", "Escherichia coli", "Total Coliform"],
             prosedur: ["SNI 8995 : 2021 (Metode Pengambilan Contoh Uji Air Untuk Pengujian Fisika dan Kimia)", "SNI 9063:2022 (Metode pengambilan contoh uji air dan air limbah untuk parameter mikrobiologi)"]
         },
         "Udara": {
             jenisContoh: ["Udara Emisi dari sumber bergerak", "Udara Emisi dari sumber tidak bergerak", "Udara Ambien"],
-            parameter: { "Udara Emisi dari sumber bergerak": ["Opasitas"], "Udara Ambien": ["Sulfur dioksida (SO2)", "Nitrogen dioksida (NO2)", "Carbon monoksida (CO)", "TSP", "Timbal (Pb)", "Oksidan (O3)", "Amoniak (NH3)", "Hidrogen sulfida (H2S)"], "Udara Emisi dari sumber tidak bergerak": ["Sulfur dioksida (SO2)", "Nitrogen dioksida (NO2)", "Karbon monoksida (CO)", "Nitrogen Oksida (NOx)", "Oksigen (O2)", "Karbon dioksida (CO2)", "Opasitas", "Kecepatan Linier/Laju alir (velocity)", "Berat Molekul kering", "Kadar Uap Air", "Partikulat"] },
-            prosedur: { "Udara Emisi dari sumber bergerak": ["M-LP-714-SMO (Smoke Meter Opacity) (Pengambilan contoh uji udara sumber emisi bergerak)"], "Udara Ambien": ["SNI 19-7119.6-2005 (Metode Pengambilan Contoh Udara Ambien)", "SNI 19-7119.9-2005 (Metode Pengambilan Contoh Udara Roadside)"], "Udara Emisi dari sumber tidak bergerak": ["SNI 7117.13-2009 (Pengambilan contoh uji udara emisi tidak bergerak)"] }
+            parameter: {
+                "Udara Emisi dari sumber bergerak": ["Opasitas"],
+                "Udara Ambien": ["Sulfur dioksida (SO2)", "Nitrogen dioksida (NO2)", "Carbon monoksida (CO)", "TSP", "Timbal (Pb)", "Oksidan (O3)", "Amoniak (NH3)", "Hidrogen sulfida (H2S)"],
+                "Udara Emisi dari sumber tidak bergerak": ["Sulfur dioksida (SO2)", "Nitrogen dioksida (NO2)", "Karbon monoksida (CO)", "Nitrogen Oksida (NOx)", "Oksigen (O2)", "Karbon dioksida (CO2)", "Opasitas", "Kecepatan Linier/Laju alir (velocity)", "Berat Molekul kering", "Kadar Uap Air", "Partikulat"]
+            },
+            prosedur: ["M-LP-714-SMO (Smoke Meter Opacity) (Pengambilan contoh uji udara sumber emisi bergerak)", "SNI 19-7119.6-2005 (Metode Pengambilan Contoh Udara Ambien)", "SNI 19-7119.9-2005 (Metode Pengambilan Contoh Udara Roadside)", "SNI 7117.13-2009 (Pengambilan contoh uji udara emisi tidak bergerak)"]
         },
-        "Tingkat Kebisingan": { jenisContoh: null, parameter: ["Kebisingan"], prosedur: ["SNI 8427 : 2017 (Metode Pengambilan contoh uji kebisingan)"] },
+        "Tingkat Kebisingan": { jenisContoh: null, parameter: ["Kebisingan"], prosedur: ["SNI 7231:2009 (Tingkat Kebisingan Lingkungan)", "SNI 8427 : 2017 (Metode Pengambilan contoh uji kebisingan)"] },
         "Tingkat Getaran": { jenisContoh: null, parameter: ["Getaran"], prosedur: ["M-LP-711-GET (Vibration Meter) (Metode Pengambilan contoh uji Getaran)"] }
     };
 
@@ -184,11 +186,12 @@ require_once '../templates/header.php';
                     <option value="PP RI No. 22 Tahun 2021, Lampiran I">PP RI No. 22 Tahun 2021, Lampiran I</option>
                     <option value="PP RI No. 22 Tahun 2021, Lampiran III">PP RI No. 22 Tahun 2021, Lampiran III</option>
                     <option value="PP RI No. 22 Tahun 2021, Lampiran IV">PP RI No. 22 Tahun 2021, Lampiran IV</option>
+                    <option value="PP RI No. 22 Tahun 2021, Lampiran VI">PP RI No. 22 Tahun 2021, Lampiran VI</option>
                     <option value="PP RI No. 22 Tahun 2021, Lampiran VII">PP RI No. 22 Tahun 2021, Lampiran VII</option>
                     <option value="PERMENLH No. 05 Tahun 2014 Lampiran III">PERMENLH No. 05 Tahun 2014 Lampiran III</option>
                     <option value="PERMEN LHK No. 14 Tahun 2020">Permen LHK No. 14 Tahun 2020</option>
-                    <option value="Keputusan Menteri Lingkungan Hidup No. 48 Tahun 1996">Keputusan Menteri Lingkungan Hidup No. 48 Tahun 1996</option>
-                    <option value="Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996">Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996</option>                
+                    <option value="Keputusan Menteri Lingkungan Hidup No. 48 Tahun 1996 (Tingkat Kebisingan)">Keputusan Menteri Lingkungan Hidup No. 48 Tahun 1996 (Tingkat Kebisingan)</option>
+                    <option value="Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996 (Tingkat Getaran)">Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996 (Tingkat Getaran)</option>                
                     <option value="Lainnya">Lainnya...</option>
                 </select>
                 <input type="text" class="form-control mt-2" name="contoh[${currentCounter}][baku_mutu_lainnya]" id="baku_mutu_lainnya_${currentCounter}" style="display:none;" placeholder="Masukkan baku mutu lainnya">
@@ -201,7 +204,6 @@ require_once '../templates/header.php';
         `;
         container.appendChild(div);
         document.getElementById(`baku_mutu_${currentCounter}`).addEventListener('change', function() {
-            // ... (Fungsi ini tidak diubah)
             const lainnyaInput = document.getElementById(`baku_mutu_lainnya_${this.id.split('_')[2]}`);
             lainnyaInput.style.display = (this.value === 'Lainnya') ? 'block' : 'none';
             if (this.value !== 'Lainnya') lainnyaInput.value = '';
@@ -209,14 +211,11 @@ require_once '../templates/header.php';
         contohCounter++;
     }
 
-    // Semua fungsi JavaScript di bawah ini tidak diubah
     function hapusContoh(id) {
-        // ...
         document.getElementById(`contoh_item_${id}`).remove();
     }
 
     function updateDynamicFields(id) {
-        // ...
         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const jenisContohSelect = document.getElementById(`jenis_contoh_${id}`);
@@ -242,24 +241,23 @@ require_once '../templates/header.php';
         updateParameters(id);
         updateProsedur(id);
     }
-
+    
     function updateParameters(id) {
-        // Fungsi ini diubah untuk menangani parameter yang berbasis objek
         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
         const selectedJenisContoh = document.getElementById(`jenis_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const parameterContainer = document.getElementById(`parameter_container_${id}`);
         let parameters = [];
 
-        if (data) {
+        if (data && data.parameter) {
             if (Array.isArray(data.parameter)) {
                 parameters = data.parameter;
-            } else if (typeof data.parameter === 'object' && selectedJenisContoh && data.parameter[selectedJenisContoh]) {
-                parameters = data.parameter[selectedJenisContoh];
-            } else if (typeof data.parameter === 'object' && !data.jenisContoh) {
-                 parameters = data.parameter;
+            } 
+            else if (typeof data.parameter === 'object' && selectedJenisContoh) {
+                parameters = data.parameter[selectedJenisContoh] || [];
             }
         }
+        
         if (parameters.length > 0) {
             parameterContainer.innerHTML = parameters.map(p => `<label class="form-check"><input class="form-check-input" type="checkbox" name="contoh[${id}][parameter][]" value="${p}"><span class="form-check-label">${p}</span></label>`).join('');
         } else {
@@ -268,21 +266,19 @@ require_once '../templates/header.php';
     }
     
     function updateProsedur(id) {
-        // Fungsi ini untuk memperbarui prosedur berdasarkan nama dan jenis contoh
         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
         const selectedJenisContoh = document.getElementById(`jenis_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const prosedurSelect = document.getElementById(`prosedur_${id}`);
         let prosedur = [];
 
-        if (data) {
+        if (data && data.prosedur) {
             prosedurSelect.disabled = false;
             if (Array.isArray(data.prosedur)) {
                 prosedur = data.prosedur;
-            } else if (typeof data.prosedur === 'object' && selectedJenisContoh && data.prosedur[selectedJenisContoh]) {
-                prosedur = data.prosedur[selectedJenisContoh];
-            } else  if (typeof data.prosedur === 'object' && !data.jenisContoh) {
-                 prosedur = data.prosedur;
+            } 
+            else if (typeof data.prosedur === 'object' && selectedJenisContoh) {
+                prosedur = data.prosedur[selectedJenisContoh] || [];
             }
         }
         
@@ -294,6 +290,11 @@ require_once '../templates/header.php';
         }
     }
 </script>
+
+<?php
+// TAMBAHKAN BARIS INI DI AKHIR
+require_once '../templates/footer.php';
+?>
 
 </body>
 </html>
