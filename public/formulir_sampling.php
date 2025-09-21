@@ -21,13 +21,15 @@ require_once '../templates/header.php';
             <h2>Formulir Pengambilan Contoh</h2>
         </div>
         <div class="card-body">
-            <form action="../actions/simpan_sampling.php" method="post">
+            <div id="validation-error-container" class="alert alert-danger" style="display:none;"></div>
+
+            <form id="samplingForm" action="../actions/simpan_sampling.php" method="post">
 
                 <div class="form-section" style="border:none; padding-bottom:1rem;">
                     <h3>Informasi Kegiatan Sampling</h3>
                     
                     <div class="form-group">
-                        <label for="jenis_kegiatan">Jenis Kegiatan</label>
+                        <label for="jenis_kegiatan">Jenis Kegiatan <span class="text-danger">*</span></label>
                         <select id="jenis_kegiatan" name="jenis_kegiatan" class="form-control" required>
                             <option value="">-- Pilih Jenis Kegiatan --</option>
                             <option value="Sampling">Sampling</option>
@@ -37,30 +39,31 @@ require_once '../templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label for="perusahaan">Nama Perusahaan</label>
+                        <label for="perusahaan">Nama Perusahaan <span class="text-danger">*</span></label>
                         <input type="text" id="perusahaan" name="perusahaan" class="form-control" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="alamat">Alamat Perusahaan</label>
+                        <label for="alamat">Alamat Perusahaan <span class="text-danger">*</span></label>
                         <textarea id="alamat" name="alamat" rows="3" class="form-control" required></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="tanggal">Tanggal Pelaksanaan</label>
+                        <label for="tanggal">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
                         <input type="date" id="tanggal" name="tanggal" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="pengambil_sampel">Pengambil Sampel</label>
+                        <label for="pengambil_sampel">Pengambil Sampel <span class="text-danger">*</span></label>
                         <select id="pengambil_sampel" name="pengambil_sampel" class="form-control" required>
+                            <option value="">-- Pilih Pengambil Sampel --</option>
                             <option value="BSPJI Medan">BSPJI Medan</option>
                             <option value="Sub Kontrak">Sub Kontrak</option>
                         </select>
                     </div>
 
                     <div class="form-group" id="sub_kontrak_wrapper" style="display:none;">
-                        <label for="sub_kontrak_nama">Nama Perusahaan Sub Kontrak:</label>
+                        <label for="sub_kontrak_nama">Nama Perusahaan Sub Kontrak <span class="text-danger">*</span></label>
                         <input type="text" id="sub_kontrak_nama" name="sub_kontrak_nama" class="form-control">
                     </div>
                 </div>
@@ -87,12 +90,29 @@ require_once '../templates/header.php';
 </div>
 
 <script>
+    // --- BLOK BARU UNTUK LOGIKA PENGUNCIAN JENIS ---
+    let jenisLaporanTerpilih = null;
+
+    function getTipeLaporanDariNama(namaContoh) {
+        if (!namaContoh) return '';
+        if (namaContoh.includes("Air")) return 'air';
+        if (namaContoh.includes("Udara")) return 'udara';
+        if (namaContoh.includes("Kebisingan")) return 'kebisingan';
+        if (namaContoh.includes("Getaran")) return 'getaran';
+        return '';
+    }
+    // --- AKHIR BLOK BARU ---
+
+
     document.getElementById('pengambil_sampel').addEventListener('change', function() {
         const subKontrakWrapper = document.getElementById('sub_kontrak_wrapper');
+        const subKontrakInput = document.getElementById('sub_kontrak_nama');
         if (this.value === 'Sub Kontrak') {
             subKontrakWrapper.style.display = 'block';
+            subKontrakInput.required = true;
         } else {
             subKontrakWrapper.style.display = 'none';
+            subKontrakInput.required = false;
         }
     });
 
@@ -133,7 +153,18 @@ require_once '../templates/header.php';
         div.className = "contoh-item card card-body mb-3";
         div.id = `contoh_item_${contohCounter}`;
         const currentCounter = contohCounter;
-        const namaContohOptions = Object.keys(dataSampling).map(key => `<option value="${key}">${key}</option>`).join('');
+
+        // --- MULAI PERUBAHAN ---
+        // Filter pilihan 'Nama Contoh' jika jenis laporan sudah ditentukan
+        let namaContohOptions = '';
+        const semuaNamaContoh = Object.keys(dataSampling);
+        if (jenisLaporanTerpilih) {
+            const filteredNamaContoh = semuaNamaContoh.filter(nama => getTipeLaporanDariNama(nama) === jenisLaporanTerpilih);
+            namaContohOptions = filteredNamaContoh.map(key => `<option value="${key}">${key}</option>`).join('');
+        } else {
+            namaContohOptions = semuaNamaContoh.map(key => `<option value="${key}">${key}</option>`).join('');
+        }
+        // --- AKHIR PERUBAHAN ---
 
         div.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -143,45 +174,45 @@ require_once '../templates/header.php';
             <input type="hidden" name="contoh[${currentCounter}][tipe_laporan]" id="tipe_laporan_${currentCounter}">
             
             <div class="form-group">
-                <label for="nama_contoh_${currentCounter}">Nama Contoh</label>
+                <label for="nama_contoh_${currentCounter}">Nama Contoh <span class="text-danger">*</span></label>
                 <select class="form-control" name="contoh[${currentCounter}][nama_contoh]" id="nama_contoh_${currentCounter}" onchange="updateDynamicFields(${currentCounter})" required>
                     <option value="">-- Pilih Bahan --</option>${namaContohOptions}
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="jenis_contoh_${currentCounter}">Jenis Contoh</label>
-                <select class="form-control" name="contoh[${currentCounter}][jenis_contoh]" id="jenis_contoh_${currentCounter}" onchange="updateParameters(${currentCounter})" disabled>
+                <label for="jenis_contoh_${currentCounter}">Jenis Contoh <span id="jenis_contoh_star_${currentCounter}" class="text-danger">*</span></label>
+                <select class="form-control" name="contoh[${currentCounter}][jenis_contoh]" id="jenis_contoh_${currentCounter}" onchange="updateParameters(${currentCounter})" disabled required>
                     <option value="">-- Pilih Nama Contoh terlebih dahulu --</option>
                 </select>
             </div>
             
             <div class="form-row">
                 <div class="form-group col-md-6">
-                    <label for="merek_${currentCounter}">Etiket / Merek</label>
-                    <input type="text" id="merek_${currentCounter}" class="form-control" name="contoh[${currentCounter}][merek]">
+                    <label for="merek_${currentCounter}">Etiket / Merek <span class="text-danger">*</span></label>
+                    <input type="text" id="merek_${currentCounter}" class="form-control" name="contoh[${currentCounter}][merek]" required>
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="kode_${currentCounter}">Kode</label>
-                    <input type="text" id="kode_${currentCounter}" class="form-control" name="contoh[${currentCounter}][kode]">
+                    <label for="kode_${currentCounter}">Kode <span class="text-danger">*</span></label>
+                    <input type="text" id="kode_${currentCounter}" class="form-control" name="contoh[${currentCounter}][kode]" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="prosedur_${currentCounter}">Prosedur Pengambilan Contoh</label>
+                <label for="prosedur_${currentCounter}">Prosedur Pengambilan Contoh <span class="text-danger">*</span></label>
                 <select class="form-control" name="contoh[${currentCounter}][prosedur]" id="prosedur_${currentCounter}" required disabled>
                      <option value="">-- Pilih Nama Contoh terlebih dahulu --</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label>Parameter Uji</label>
+                <label>Parameter Uji <span class="text-danger">*</span></label>
                 <div class="parameter-grid" id="parameter_container_${currentCounter}"><small class="text-muted">Pilih Nama dan Jenis Contoh terlebih dahulu.</small></div>
             </div>
 
             <div class="form-group">
-                <label for="baku_mutu_${currentCounter}">Baku Mutu</label>
-                <select class="form-control" name="contoh[${currentCounter}][baku_mutu]" id="baku_mutu_${currentCounter}">
+                <label for="baku_mutu_${currentCounter}">Baku Mutu <span class="text-danger">*</span></label>
+                <select class="form-control" name="contoh[${currentCounter}][baku_mutu]" id="baku_mutu_${currentCounter}" required>
                     <option value="">-- Pilih Baku Mutu --</option>
                     <option value="PP RI No. 22 Tahun 2021, Lampiran I">PP RI No. 22 Tahun 2021, Lampiran I</option>
                     <option value="PP RI No. 22 Tahun 2021, Lampiran III">PP RI No. 22 Tahun 2021, Lampiran III</option>
@@ -198,14 +229,15 @@ require_once '../templates/header.php';
             </div>
 
             <div class="form-group">
-                <label for="catatan_${currentCounter}">Catatan Tambahan</label>
-                <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2"></textarea>
+                <label for="catatan_${currentCounter}">Catatan Tambahan <span class="text-danger">*</span></label>
+                <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2" required></textarea>
             </div>
         `;
         container.appendChild(div);
         document.getElementById(`baku_mutu_${currentCounter}`).addEventListener('change', function() {
             const lainnyaInput = document.getElementById(`baku_mutu_lainnya_${this.id.split('_')[2]}`);
             lainnyaInput.style.display = (this.value === 'Lainnya') ? 'block' : 'none';
+            lainnyaInput.required = (this.value === 'Lainnya');
             if (this.value !== 'Lainnya') lainnyaInput.value = '';
         });
         contohCounter++;
@@ -213,15 +245,46 @@ require_once '../templates/header.php';
 
     function hapusContoh(id) {
         document.getElementById(`contoh_item_${id}`).remove();
+        // --- MULAI PERUBAHAN ---
+        // Jika tidak ada contoh uji tersisa, reset jenis laporan yang dipilih
+        const sisaContoh = document.querySelectorAll('.contoh-item');
+        if (sisaContoh.length === 0) {
+            jenisLaporanTerpilih = null;
+            const infoDiv = document.getElementById('jenis-terpilih-info');
+            if(infoDiv) infoDiv.remove(); // Hapus pesan info
+        }
+        // --- AKHIR PERUBAHAN ---
     }
 
     function updateDynamicFields(id) {
         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const jenisContohSelect = document.getElementById(`jenis_contoh_${id}`);
+        const jenisContohStar = document.getElementById(`jenis_contoh_star_${id}`);
         const tipeLaporanInput = document.getElementById(`tipe_laporan_${id}`);
 
-        tipeLaporanInput.value = (selectedNamaContoh.includes("Udara") || selectedNamaContoh.includes("Kebisingan") || selectedNamaContoh.includes("Getaran")) ? 'udara' : 'air';
+        const tipeLaporan = getTipeLaporanDariNama(selectedNamaContoh);
+        tipeLaporanInput.value = tipeLaporan;
+        
+        // --- MULAI PERUBAHAN ---
+        // Kunci jenis laporan jika ini adalah pilihan pertama
+        const sisaContoh = document.querySelectorAll('.contoh-item');
+        if (sisaContoh.length > 0 && jenisLaporanTerpilih === null && tipeLaporan) {
+            jenisLaporanTerpilih = tipeLaporan;
+            
+            const container = document.getElementById('contohContainer');
+            // Hapus pesan lama jika ada
+            const infoDivLama = document.getElementById('jenis-terpilih-info');
+            if(infoDivLama) infoDivLama.remove();
+
+            // Buat pesan baru
+            const infoDiv = document.createElement("div");
+            infoDiv.id = 'jenis-terpilih-info';
+            infoDiv.className = 'alert alert-info';
+            infoDiv.innerHTML = `Jenis laporan telah diatur sebagai <strong>${tipeLaporan.charAt(0).toUpperCase() + tipeLaporan.slice(1)}</strong>. Anda hanya dapat menambahkan contoh uji dari jenis yang sama.`;
+            container.prepend(infoDiv);
+        }
+        // --- AKHIR PERUBAHAN ---
 
         const jenisKegiatanSelect = document.getElementById('jenis_kegiatan');
         const kegiatanDetailText = document.getElementById('kegiatan_detail_text');
@@ -233,10 +296,14 @@ require_once '../templates/header.php';
 
         if (data && data.jenisContoh) {
             jenisContohSelect.disabled = false;
+            jenisContohSelect.required = true;
+            jenisContohStar.style.display = 'inline';
             jenisContohSelect.innerHTML = '<option value="">-- Pilih Jenis --</option>' + data.jenisContoh.map(jc => `<option value="${jc}">${jc}</option>`).join('');
         } else {
             jenisContohSelect.disabled = true;
-            jenisContohSelect.innerHTML = '<option value="">-- Tidak ada jenis contoh --</option>';
+            jenisContohSelect.required = false;
+            jenisContohStar.style.display = 'none';
+            jenisContohSelect.innerHTML = '<option value="">-- Tidak Ada --</option>';
         }
         updateParameters(id);
         updateProsedur(id);
@@ -267,34 +334,97 @@ require_once '../templates/header.php';
     
     function updateProsedur(id) {
         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
-        const selectedJenisContoh = document.getElementById(`jenis_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const prosedurSelect = document.getElementById(`prosedur_${id}`);
         let prosedur = [];
 
         if (data && data.prosedur) {
             prosedurSelect.disabled = false;
-            if (Array.isArray(data.prosedur)) {
-                prosedur = data.prosedur;
-            } 
-            else if (typeof data.prosedur === 'object' && selectedJenisContoh) {
-                prosedur = data.prosedur[selectedJenisContoh] || [];
-            }
+            prosedur = data.prosedur;
         }
         
         if (prosedur.length > 0) {
             prosedurSelect.innerHTML = '<option value="">-- Pilih Prosedur --</option>' + prosedur.map(p => `<option value="${p}">${p}</option>`).join('');
         } else {
-             prosedurSelect.disabled = true;
+            prosedurSelect.disabled = true;
             prosedurSelect.innerHTML = '<option value="">-- Pilihan tidak tersedia --</option>';
         }
     }
+
+    document.getElementById('samplingForm').addEventListener('submit', function(event) {
+        const errors = [];
+        const errorContainer = document.getElementById('validation-error-container');
+        errorContainer.innerHTML = '';
+
+        const requiredFields = {
+            'jenis_kegiatan': 'Jenis Kegiatan',
+            'perusahaan': 'Nama Perusahaan',
+            'alamat': 'Alamat Perusahaan',
+            'tanggal': 'Tanggal Pelaksanaan',
+            'pengambil_sampel': 'Pengambil Sampel'
+        };
+
+        for (const id in requiredFields) {
+            const field = document.getElementById(id);
+            if (!field.value.trim()) {
+                errors.push(`<b>Informasi Kegiatan:</b> ${requiredFields[id]} wajib diisi.`);
+            }
+        }
+
+        const pengambilSampel = document.getElementById('pengambil_sampel').value;
+        const subKontrakNama = document.getElementById('sub_kontrak_nama').value;
+        if (pengambilSampel === 'Sub Kontrak' && !subKontrakNama.trim()) {
+            errors.push('<b>Informasi Kegiatan:</b> Nama Perusahaan Sub Kontrak wajib diisi.');
+        }
+
+        const contohItems = document.querySelectorAll('.contoh-item');
+        if (contohItems.length === 0) {
+            errors.push('<b>Data Contoh Uji:</b> Anda harus menambahkan minimal satu Contoh Uji.');
+        }
+
+        contohItems.forEach((item, index) => {
+            const counter = item.id.split('_')[2];
+            const prefix = `<b>Contoh Uji #${index + 1}:</b>`;
+            
+            const requiredContohFields = {
+                [`nama_contoh_${counter}`]: 'Nama Contoh',
+                [`jenis_contoh_${counter}`]: 'Jenis Contoh',
+                [`merek_${counter}`]: 'Etiket / Merek',
+                [`kode_${counter}`]: 'Kode',
+                [`prosedur_${counter}`]: 'Prosedur Pengambilan Contoh',
+                [`baku_mutu_${counter}`]: 'Baku Mutu',
+                [`catatan_${counter}`]: 'Catatan Tambahan'
+            };
+
+            for (const id in requiredContohFields) {
+                const field = document.getElementById(id);
+                if (field && !field.disabled && !field.value.trim()) {
+                    errors.push(`${prefix} ${requiredContohFields[id]} wajib diisi.`);
+                }
+            }
+
+            const checkedParams = item.querySelectorAll(`#parameter_container_${counter} input[type="checkbox"]:checked`);
+            if (checkedParams.length === 0) {
+                errors.push(`${prefix} Parameter Uji wajib dipilih minimal satu.`);
+            }
+        });
+
+        if (errors.length > 0) {
+            event.preventDefault();
+            errorContainer.style.display = 'block';
+            errorContainer.innerHTML = '<strong>Harap perbaiki kesalahan berikut:</strong><ul>' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
+            window.scrollTo(0, 0);
+        } else {
+            errorContainer.style.display = 'none';
+        }
+    });
+
 </script>
 
 <?php
-// TAMBAHKAN BARIS INI DI AKHIR
 require_once '../templates/footer.php';
 ?>
 
 </body>
 </html>
+

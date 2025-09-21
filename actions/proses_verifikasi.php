@@ -40,10 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $status_tujuan = 'Revisi PPC';
 
-            // 2. Update status laporan menjadi 'Revisi PPC'
-            $sql_update = "UPDATE laporan SET status = ?, penyelia_id = ?, catatan_revisi = ? WHERE id = ?";
+            // 2. Update status, tapi KOSONGKAN ID Penyelia karena direvisi
+            $sql_update = "UPDATE laporan SET status = ?, penyelia_id = NULL, catatan_revisi = ? WHERE id = ?";
             $stmt_update = $conn->prepare($sql_update);
-            $stmt_update->bind_param("sisi", $status_tujuan, $penyelia_id, $catatan_revisi, $laporan_id);
+            $stmt_update->bind_param("ssi", $status_tujuan, $catatan_revisi, $laporan_id);
             $stmt_update->execute();
             $stmt_update->close();
 

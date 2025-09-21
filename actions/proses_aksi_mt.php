@@ -42,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Sesuai alur, laporan langsung kembali ke PPC untuk diedit
             $status_tujuan = 'Revisi PPC'; 
 
-            // 2. Update status laporan menjadi 'Revisi PPC'
-            $sql_update = "UPDATE laporan SET status = ?, mt_id = ?, catatan_revisi = ? WHERE id = ?";
+            // 2. Update status, tapi KOSONGKAN ID MT karena direvisi
+            $sql_update = "UPDATE laporan SET status = ?, mt_id = NULL, catatan_revisi = ? WHERE id = ?";
             $stmt_update = $conn->prepare($sql_update);
-            $stmt_update->bind_param("sisi", $status_tujuan, $mt_id, $catatan_revisi_mt, $laporan_id);
+            $stmt_update->bind_param("ssi", $status_tujuan, $catatan_revisi_mt, $laporan_id);
             $stmt_update->execute();
             $stmt_update->close();
 
