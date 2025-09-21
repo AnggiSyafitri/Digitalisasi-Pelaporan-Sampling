@@ -14,7 +14,7 @@ $role_id = $_SESSION['role_id'];
 $daftar_laporan = [];
 $laporan_riwayat = []; 
 $pesan_dashboard = "Daftar Laporan Terkini";
-$pesan_riwayat = "Riwayat Laporan"; // Pesan default untuk riwayat
+$pesan_riwayat = "Riwayat Laporan";
 
 $query_part = "
     SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal, l.ppc_id, l.updated_at
@@ -69,7 +69,6 @@ switch ($role_id) {
         break;
 }
 
-// Eksekusi query utama untuk tugas aktif
 $sql_laporan = $query_part . $where_clause;
 $stmt = $conn->prepare($sql_laporan);
 if (!empty($params)) {
@@ -82,7 +81,6 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// Eksekusi query riwayat jika statementnya ada (untuk role 2, 3, dan 4)
 if (isset($stmt_riwayat)) {
     $stmt_riwayat->execute();
     $result_riwayat = $stmt_riwayat->get_result();
@@ -99,7 +97,15 @@ require_once '../templates/header.php';
 <div class="container-dashboard">
     <?php if ($role_id == 1): ?>
         <div class="card card-cta">
-             </div>
+            <div class="card-body">
+                <h2>Siap untuk Laporan Baru?</h2>
+                <p>Klik tombol di bawah ini untuk memulai pengisian formulir pengambilan contoh yang baru.</p>
+                <a href="formulir_sampling.php" class="btn btn-primary-dashboard">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/></svg>
+                    Buat Laporan Sampling Baru
+                </a>
+            </div>
+        </div>
     <?php endif; ?>
 
     <div class="card">

@@ -91,9 +91,6 @@ $contoh_result = $conn->query("SELECT * FROM $tabel_contoh WHERE formulir_id = $
 </body>
 </html>
 
-//...
-//...
-
 <?php
 $conn->close();
 exit;
@@ -156,3 +153,7 @@ require_once '../templates/header.php';
             <?php endif; ?>
         </div>
     </div>
+
+<?php
+require_once '../templates/footer.php';
+?>
