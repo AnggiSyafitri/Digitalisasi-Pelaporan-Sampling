@@ -30,72 +30,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
         }
     }
 
-    $conn->begin_transaction(); 
+// ... (menggabungkan logika penyimpanan ke dalam satu transaksi)
 
-    try {
-        if (!empty($laporan_air_items)) {
-            // PERBARUI SQL INSERT DENGAN KOLOM BARU
-            $sql_form = "INSERT INTO formulir_air (perusahaan, alamat, tanggal, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt_form = $conn->prepare($sql_form);
-            $stmt_form->bind_param("ssssssi", $perusahaan, $alamat, $tanggal, $jenis_kegiatan, $pengambil_sampel, $sub_kontrak_nama, $ppc_id);
-            $stmt_form->execute();
-            $form_id = $conn->insert_id;
-            $stmt_form->close();
-            
-            // ... (Kode insert contoh_air & laporan tetap sama)
-            $sql_contoh = "INSERT INTO contoh_air (formulir_id, nama_contoh, jenis_contoh, merek, kode, prosedur, parameter, baku_mutu, catatan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt_contoh = $conn->prepare($sql_contoh);
-            foreach ($laporan_air_items as $item) {
-                $jenis_contoh = $item['jenis_contoh'] ?? 'N/A';
-                $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
-                $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
-                $catatan = $item['catatan'] ?? '';
-                
-                $stmt_contoh->bind_param("issssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $item['prosedur'], $parameter, $baku_mutu, $catatan);
-                $stmt_contoh->execute();
-            }
-            $stmt_contoh->close();
+$conn->begin_transaction();
 
-            $sql_laporan = "INSERT INTO laporan (jenis_laporan, form_id, ppc_id, status) VALUES ('air', ?, ?, 'Menunggu Verifikasi')";
-            $stmt_laporan = $conn->prepare($sql_laporan);
-            $stmt_laporan->bind_param("ii", $form_id, $ppc_id);
-            $stmt_laporan->execute();
-            $stmt_laporan->close();
+try {
+    // Fungsi untuk memproses dan menyimpan satu jenis laporan
+    function prosesLaporan($jenis, $items, $conn, $ppc_id, $perusahaan, $alamat, $tanggal, $jenis_kegiatan, $pengambil_sampel, $sub_kontrak_nama) {
+        if (empty($items)) {
+            return;
         }
 
-        if (!empty($laporan_udara_items)) {
-            // PERBARUI SQL INSERT DENGAN KOLOM BARU
-            $sql_form = "INSERT INTO formulir_udara (perusahaan, alamat, tanggal, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt_form = $conn->prepare($sql_form);
-            $stmt_form->bind_param("ssssssi", $perusahaan, $alamat, $tanggal, $jenis_kegiatan, $pengambil_sampel, $sub_kontrak_nama, $ppc_id);
-            $stmt_form->execute();
-            $form_id = $conn->insert_id;
-            $stmt_form->close();
+        // 1. Simpan ke tabel `formulir` yang baru
+        $sql_form = "INSERT INTO formulir (jenis_laporan, perusahaan, alamat, tanggal, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt_form = $conn->prepare($sql_form);
+        $stmt_form->bind_param("sssssssi", $jenis, $perusahaan, $alamat, $tanggal, $jenis_kegiatan, $pengambil_sampel, $sub_kontrak_nama, $ppc_id);
+        $stmt_form->execute();
+        $form_id = $conn->insert_id;
+        $stmt_form->close();
 
-            // ... (Kode insert contoh_udara & laporan tetap sama)
-            $sql_contoh = "INSERT INTO contoh_udara (formulir_id, nama_contoh, jenis_contoh, merek, kode, prosedur, parameter, baku_mutu, catatan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt_contoh = $conn->prepare($sql_contoh);
-            foreach ($laporan_udara_items as $item) {
-                $jenis_contoh = $item['jenis_contoh'] ?? 'N/A';
-                $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
-                $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
-                $catatan = $item['catatan'] ?? '';
+        // 2. Simpan setiap item contoh ke tabel `contoh` yang baru
+        $sql_contoh = "INSERT INTO contoh (formulir_id, nama_contoh, jenis_contoh, merek, kode, prosedur, parameter, baku_mutu, catatan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt_contoh = $conn->prepare($sql_contoh);
+        foreach ($items as $item) {
+            $jenis_contoh = $item['jenis_contoh'] ?? 'N/A';
+            $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
+            $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
+            $catatan = $item['catatan'] ?? '';
 
-                $stmt_contoh->bind_param("issssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $item['prosedur'], $parameter, $baku_mutu, $catatan);
-                $stmt_contoh->execute();
-            }
-            $stmt_contoh->close();
-
-            $sql_laporan = "INSERT INTO laporan (jenis_laporan, form_id, ppc_id, status) VALUES ('udara', ?, ?, 'Menunggu Verifikasi')";
-            $stmt_laporan = $conn->prepare($sql_laporan);
-            $stmt_laporan->bind_param("ii", $form_id, $ppc_id);
-            $stmt_laporan->execute();
-            $stmt_laporan->close();
+            $stmt_contoh->bind_param("issssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $item['prosedur'], $parameter, $baku_mutu, $catatan);
+            $stmt_contoh->execute();
         }
+        $stmt_contoh->close();
 
-        $conn->commit();
-        header("Location: " . BASE_URL . "/dashboard.php?status=sukses");
-        exit();
+        // 3. Simpan ke tabel `laporan` (struktur ini tidak berubah)
+        $sql_laporan = "INSERT INTO laporan (jenis_laporan, form_id, ppc_id, status) VALUES (?, ?, ?, 'Menunggu Verifikasi')";
+        $stmt_laporan = $conn->prepare($sql_laporan);
+        $stmt_laporan->bind_param("sii", $jenis, $form_id, $ppc_id);
+        $stmt_laporan->execute();
+        $stmt_laporan->close();
+    }
+
+    // Jalankan fungsi untuk masing-masing jenis laporan
+    prosesLaporan('air', $laporan_air_items, $conn, $ppc_id, $perusahaan, $alamat, $tanggal, $jenis_kegiatan, $pengambil_sampel, $sub_kontrak_nama);
+    prosesLaporan('udara', $laporan_udara_items, $conn, $ppc_id, $perusahaan, $alamat, $tanggal, $jenis_kegiatan, $pengambil_sampel, $sub_kontrak_nama);
+
+    $conn->commit();
+    header("Location: " . BASE_URL . "/dashboard.php?status=sukses");
+    exit();
+
+// ... (semua catch dan rollback tetap sama)
 
     } catch (Exception $e) {
         $conn->rollback();

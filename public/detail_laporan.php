@@ -15,7 +15,7 @@ if (!isset($_GET['id'])) {
 $laporan_id = (int)$_GET['id'];
 $role_id = $_SESSION['role_id'];
 
-// Query SQL yang diperbarui untuk mengambil data dari kedua jenis formulir
+// Query SQL yang disederhanakan untuk mengambil data dari tabel 'formulir' yang baru
 $sql_utama = "
     SELECT 
         l.*, 
@@ -25,11 +25,7 @@ $sql_utama = "
         u_mt.nama_lengkap as nama_mt,
         u_penerima.nama_lengkap as nama_penerima
     FROM laporan l
-    LEFT JOIN (
-        SELECT id, perusahaan, alamat, tanggal, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama FROM formulir_air
-        UNION ALL
-        SELECT id, perusahaan, alamat, tanggal, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama FROM formulir_udara
-    ) f ON l.form_id = f.id
+    LEFT JOIN formulir f ON l.form_id = f.id
     LEFT JOIN users u_ppc ON l.ppc_id = u_ppc.id
     LEFT JOIN users u_penyelia ON l.penyelia_id = u_penyelia.id
     LEFT JOIN users u_mt ON l.mt_id = u_mt.id
@@ -47,9 +43,8 @@ if (!$data_laporan) {
     die("Data laporan tidak ditemukan.");
 }
 
-// Ambil data detail contoh berdasarkan jenis laporan
-$tabel_contoh = ($data_laporan['jenis_laporan'] == 'air') ? 'contoh_air' : 'contoh_udara';
-$sql_contoh = "SELECT * FROM $tabel_contoh WHERE formulir_id = ?";
+// Ambil data detail contoh dari tabel 'contoh' yang baru
+$sql_contoh = "SELECT * FROM contoh WHERE formulir_id = ?";
 $stmt_contoh = $conn->prepare($sql_contoh);
 $stmt_contoh->bind_param("i", $data_laporan['form_id']);
 $stmt_contoh->execute();
@@ -58,6 +53,29 @@ $data_contoh = [];
 while($row = $result_contoh->fetch_assoc()){
     $data_contoh[] = $row;
 }
+
+// --- MULAI BLOK BARU ---
+// Ambil data riwayat revisi dari tabel baru
+$sql_riwayat = "
+    SELECT 
+        rr.*,
+        u.nama_lengkap as nama_perevisi,
+        r.nama_role as role_perevisi
+    FROM riwayat_revisi rr
+    JOIN users u ON rr.revisi_oleh_id = u.id
+    JOIN roles r ON u.role_id = r.id
+    WHERE rr.laporan_id = ?
+    ORDER BY rr.tanggal_revisi_diminta ASC
+";
+$stmt_riwayat = $conn->prepare($sql_riwayat);
+$stmt_riwayat->bind_param("i", $laporan_id);
+$stmt_riwayat->execute();
+$result_riwayat = $stmt_riwayat->get_result();
+$riwayat_revisi = [];
+while($row = $result_riwayat->fetch_assoc()){
+    $riwayat_revisi[] = $row;
+}
+// --- AKHIR BLOK BARU ---
 
 $page_title = 'Detail Laporan #' . $laporan_id;
 require_once '../templates/header.php';
@@ -104,7 +122,27 @@ require_once '../templates/header.php';
             </table>
         </div>
     </div>
-    
+
+    <?php if (!empty($riwayat_revisi)): ?>
+    <div class="card mt-4">
+        <div class="card-header"><h2>Riwayat Revisi Laporan</h2></div>
+        <div class="card-body">
+            <?php foreach ($riwayat_revisi as $index => $revisi): ?>
+                <div class="revisi-item <?php echo $index > 0 ? 'mt-3' : ''; ?>">
+                    <strong>Revisi ke-<?php echo $index + 1; ?></strong> - 
+                    Diminta oleh: <strong><?php echo htmlspecialchars($revisi['nama_perevisi']); ?></strong> (<?php echo htmlspecialchars($revisi['role_perevisi']); ?>)
+                    <small class="text-muted d-block">
+                        Pada: <?php echo date('d F Y, H:i', strtotime($revisi['tanggal_revisi_diminta'])); ?>
+                    </small>
+                    <div class="card card-body bg-light mt-2">
+                        <p class="mb-0"><strong>Catatan:</strong> <?php echo nl2br(htmlspecialchars($revisi['catatan_revisi'])); ?></p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <?php if(!empty($data_laporan['catatan_revisi'])): ?>
     <div class="card card-revisi mt-4">
          <div class="card-header"><h3>Catatan Revisi</h3></div>

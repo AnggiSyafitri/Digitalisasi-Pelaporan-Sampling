@@ -19,11 +19,7 @@ $pesan_riwayat = "Riwayat Laporan";
 $query_part = "
     SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal, l.ppc_id, l.updated_at
     FROM laporan l
-    JOIN (
-        SELECT id as form_id, perusahaan, tanggal FROM formulir_air
-        UNION ALL
-        SELECT id as form_id, perusahaan, tanggal FROM formulir_udara
-    ) f ON l.form_id = f.form_id AND l.jenis_laporan IN ('air', 'udara')
+    JOIN formulir f ON l.form_id = f.id
 ";
 
 $where_clause = "";
@@ -33,7 +29,7 @@ $types = "";
 switch ($role_id) {
     case 1: // PPC
         $pesan_dashboard = "Riwayat Laporan yang Anda Buat";
-        $where_clause = " WHERE l.ppc_id = ? ORDER BY l.updated_at DESC";
+        $where_clause = " WHERE l.ppc_id = ? ORDER BY l.status = 'Revisi PPC' DESC, l.updated_at DESC";
         $types = "i";
         $params[] = $user_id;
         break;
@@ -141,7 +137,16 @@ require_once '../templates/header.php';
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="detail_laporan.php?id=<?php echo $laporan['id']; ?>" class="btn btn-secondary-dashboard">Lihat Detail</a>
+                                    <?php // Tampilkan tombol 'Edit' hanya untuk PPC jika statusnya 'Revisi PPC' ?>
+                                    <?php if ($role_id == 1 && $laporan['status'] == 'Revisi PPC'): ?>
+                                        <a href="edit_laporan.php?laporan_id=<?php echo $laporan['id']; ?>" class="btn btn-warning">
+                                            Edit Laporan
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="detail_laporan.php?id=<?php echo $laporan['id']; ?>" class="btn btn-secondary-dashboard">
+                                            Lihat Detail
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
