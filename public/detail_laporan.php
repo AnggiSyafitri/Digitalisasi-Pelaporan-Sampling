@@ -163,7 +163,19 @@ require_once '../templates/header.php';
                 <tr><td>Parameter</td><td><?php echo htmlspecialchars($contoh['parameter']); ?></td></tr>
                 <tr><td>Baku Mutu</td><td><?php echo htmlspecialchars($contoh['baku_mutu']); ?></td></tr>
                 <tr><td>Catatan Tambahan</td><td><?php echo nl2br(htmlspecialchars($contoh['catatan'])); ?></td></tr>
-            </table>
+
+                <?php if (!empty($contoh['dokumen_pendukung'])): ?>
+                <tr>
+                    <td>Dokumen Pendukung</td>
+                    <td>
+                        <a href="<?php echo BASE_URL . '/uploads/' . htmlspecialchars($contoh['dokumen_pendukung']); ?>" target="_blank" class="btn btn-info btn-sm">
+                            Lihat Dokumen
+                        </a>
+                    </td>
+                </tr>
+                <?php endif; ?>
+                </table>
+
         </div>
     </div>
     <?php endforeach; ?>

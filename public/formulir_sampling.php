@@ -20,10 +20,19 @@ require_once '../templates/header.php';
         <div class="card-header">
             <h2>Formulir Pengambilan Contoh</h2>
         </div>
+
         <div class="card-body">
             <div id="validation-error-container" class="alert alert-danger" style="display:none;"></div>
 
-            <form id="samplingForm" action="../actions/simpan_sampling.php" method="post">
+            <?php if (isset($_SESSION['flash_error'])): ?>
+                <div class="alert alert-danger">
+                    <?php 
+                        echo $_SESSION['flash_error']; 
+                        unset($_SESSION['flash_error']); // Hapus pesan setelah ditampilkan
+                    ?>
+                </div>
+            <?php endif; ?>
+            <form id="samplingForm" action="../actions/simpan_sampling.php" method="post" enctype="multipart/form-data">
 
                 <div class="form-section" style="border:none; padding-bottom:1rem;">
                     <h3>Informasi Kegiatan Sampling</h3>
@@ -231,6 +240,12 @@ require_once '../templates/header.php';
             <div class="form-group">
                 <label for="catatan_${currentCounter}">Catatan Tambahan <span class="text-danger">*</span></label>
                 <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="dokumen_pendukung_${currentCounter}">Upload Dokumen (Opsional)</label>
+                <input type="file" id="dokumen_pendukung_${currentCounter}" name="contoh[${currentCounter}][dokumen_pendukung]" class="form-control-file">
+                <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
             </div>
         `;
         container.appendChild(div);

@@ -58,9 +58,20 @@ require_once '../templates/header.php';
             <h2>Edit Laporan Sampling #<?php echo htmlspecialchars($laporan_id); ?></h2>
             <p class="mb-0">Anda sedang mengedit laporan yang dikembalikan untuk revisi.</p>
         </div>
+
         <div class="card-body">
+            <!-- Menampilkan pesan error validasi dari session -->
+            <?php if (isset($_SESSION['flash_error'])): ?>
+                <div class="alert alert-danger">
+                    <?php 
+                        echo $_SESSION['flash_error']; 
+                        unset($_SESSION['flash_error']);
+                    ?>
+                </div>
+            <?php endif; ?>
+
             <!-- Form akan dikirim ke file action baru: update_laporan.php -->
-            <form action="../actions/update_laporan.php" method="post">
+            <form action="../actions/update_laporan.php" method="post" enctype="multipart/form-data">
                 
                 <!-- Hidden input untuk mengirim ID yang diperlukan -->
                 <input type="hidden" name="laporan_id" value="<?php echo $laporan_id; ?>">
@@ -251,6 +262,28 @@ require_once '../templates/header.php';
                 <label for="catatan_${currentCounter}">Catatan Tambahan</label>
                 <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2">${data ? data.catatan : ''}</textarea>
             </div>
+
+            <!-- ===== BLOK BARU UNTUK UPLOAD FILE ===== -->
+            <div class="form-group">
+                <label for="dokumen_pendukung_${currentCounter}">Upload Dokumen (Opsional)</label>
+
+                <!-- Hidden input untuk menyimpan nama file lama -->
+                <input type="hidden" name="contoh[${currentCounter}][dokumen_pendukung_lama]" value="${data && data.dokumen_pendukung ? data.dokumen_pendukung : ''}">
+
+                <!-- Menampilkan link ke file yang sudah ada -->
+                ${data && data.dokumen_pendukung ? `
+                    <p class="form-text text-muted mb-2">
+                        File saat ini: 
+                        <a href="<?php echo BASE_URL; ?>/uploads/${data.dokumen_pendukung}" target="_blank">${data.dokumen_pendukung}</a>
+                        <br><small>Mengupload file baru akan menggantikan file yang lama.</small>
+                    </p>
+                ` : ''}
+
+                <input type="file" id="dokumen_pendukung_${currentCounter}" name="contoh[${currentCounter}][dokumen_pendukung]" class="form-control-file">
+                <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+            </div>
+            <!-- ===== AKHIR BLOK BARU ===== -->
+
         `;
         container.appendChild(div);
 
