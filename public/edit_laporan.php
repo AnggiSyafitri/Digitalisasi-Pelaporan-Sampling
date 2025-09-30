@@ -17,12 +17,12 @@ if (!isset($_GET['laporan_id'])) {
 $laporan_id = (int)$_GET['laporan_id'];
 $user_id = $_SESSION['user_id'];
 
-// Ambil data laporan dan formulir
+// Ambil data laporan dan formulir, izinkan status 'Draft' dan 'Revisi PPC'
 $sql_laporan = "
     SELECT l.*, f.*
     FROM laporan l
     JOIN formulir f ON l.form_id = f.id
-    WHERE l.id = ? AND l.ppc_id = ? AND l.status = 'Revisi PPC'";
+    WHERE l.id = ? AND l.ppc_id = ? AND l.status IN ('Draft', 'Revisi PPC')";
 
 $stmt_laporan = $conn->prepare($sql_laporan);
 $stmt_laporan->bind_param("ii", $laporan_id, $user_id);
@@ -31,7 +31,7 @@ $result_laporan = $stmt_laporan->get_result();
 $data_laporan = $result_laporan->fetch_assoc();
 
 if (!$data_laporan) {
-    die("Laporan tidak ditemukan, tidak dapat diakses, atau statusnya bukan 'Revisi PPC'.");
+    die("Laporan tidak ditemukan, tidak dapat diakses, atau statusnya tidak valid untuk diedit.");
 }
 
 // Ambil data contoh-contoh yang terkait
@@ -49,6 +49,27 @@ $page_title = 'Edit Laporan #' . $laporan_id;
 require_once '../templates/header.php';
 ?>
 
+<!-- ===== TAMBAHAN CSS UNTUK LOADING OVERLAY ===== -->
+<style>
+    .loading-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.7); display: none;
+        justify-content: center; align-items: center; z-index: 9999;
+        color: white; font-size: 1.2rem; font-family: sans-serif;
+    }
+    .file-error-message { font-size: 0.8em; }
+    .parameter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 0.5rem;
+    }
+</style>
+
+<!-- ===== TAMBAHAN HTML UNTUK LOADING OVERLAY ===== -->
+<div class="loading-overlay" id="loadingOverlay">
+    <p>Memperbarui data, mohon tunggu...</p>
+</div>
+
 <div class="container-dashboard" style="padding: 2rem;">
     
     <a href="<?php echo BASE_URL; ?>/dashboard.php" class="back-to-dashboard">« Kembali ke Dashboard</a>
@@ -56,11 +77,13 @@ require_once '../templates/header.php';
     <div class="card" style="margin-top: 1.5rem;">
         <div class="card-header">
             <h2>Edit Laporan Sampling #<?php echo htmlspecialchars($laporan_id); ?></h2>
-            <p class="mb-0">Anda sedang mengedit laporan yang dikembalikan untuk revisi.</p>
+            <p class="mb-0">
+                <?php echo $data_laporan['status'] == 'Draft' ? 'Anda sedang mengedit draft laporan.' : 'Anda sedang mengedit laporan yang dikembalikan untuk revisi.'; ?>
+            </p>
         </div>
 
         <div class="card-body">
-            <!-- Menampilkan pesan error validasi dari session -->
+            <!-- Menampilkan pesan error dari session -->
             <?php if (isset($_SESSION['flash_error'])): ?>
                 <div class="alert alert-danger">
                     <?php 
@@ -70,10 +93,8 @@ require_once '../templates/header.php';
                 </div>
             <?php endif; ?>
 
-            <!-- Form akan dikirim ke file action baru: update_laporan.php -->
-            <form action="../actions/update_laporan.php" method="post" enctype="multipart/form-data">
+            <form id="editForm" action="../actions/update_laporan.php" method="post" enctype="multipart/form-data">
                 
-                <!-- Hidden input untuk mengirim ID yang diperlukan -->
                 <input type="hidden" name="laporan_id" value="<?php echo $laporan_id; ?>">
                 <input type="hidden" name="form_id" value="<?php echo $data_laporan['form_id']; ?>">
 
@@ -81,7 +102,7 @@ require_once '../templates/header.php';
                     <h3>Informasi Kegiatan Sampling</h3>
                     
                     <div class="form-group">
-                        <label for="jenis_kegiatan">Jenis Kegiatan</label>
+                        <label for="jenis_kegiatan">Jenis Kegiatan <span class="text-danger">*</span></label>
                         <select id="jenis_kegiatan" name="jenis_kegiatan" class="form-control" required>
                             <option value="">-- Pilih Jenis Kegiatan --</option>
                             <option value="Sampling" <?php echo ($data_laporan['jenis_kegiatan'] == 'Sampling') ? 'selected' : ''; ?>>Sampling</option>
@@ -90,22 +111,22 @@ require_once '../templates/header.php';
                     </div>
 
                     <div class="form-group">
-                        <label for="perusahaan">Nama Perusahaan</label>
+                        <label for="perusahaan">Nama Perusahaan <span class="text-danger">*</span></label>
                         <input type="text" id="perusahaan" name="perusahaan" class="form-control" value="<?php echo htmlspecialchars($data_laporan['perusahaan']); ?>" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="alamat">Alamat Perusahaan</label>
+                        <label for="alamat">Alamat Perusahaan <span class="text-danger">*</span></label>
                         <textarea id="alamat" name="alamat" rows="3" class="form-control" required><?php echo htmlspecialchars($data_laporan['alamat']); ?></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="tanggal">Tanggal Pelaksanaan</label>
+                        <label for="tanggal">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
                         <input type="date" id="tanggal" name="tanggal" class="form-control" value="<?php echo htmlspecialchars($data_laporan['tanggal']); ?>" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="pengambil_sampel">Pengambil Sampel</label>
+                        <label for="pengambil_sampel">Pengambil Sampel <span class="text-danger">*</span></label>
                         <select id="pengambil_sampel" name="pengambil_sampel" class="form-control" required>
                             <option value="BSPJI Medan" <?php echo ($data_laporan['pengambil_sampel'] == 'BSPJI Medan') ? 'selected' : ''; ?>>BSPJI Medan</option>
                             <option value="Sub Kontrak" <?php echo ($data_laporan['pengambil_sampel'] == 'Sub Kontrak') ? 'selected' : ''; ?>>Sub Kontrak</option>
@@ -113,7 +134,7 @@ require_once '../templates/header.php';
                     </div>
 
                     <div class="form-group" id="sub_kontrak_wrapper" style="display:<?php echo ($data_laporan['pengambil_sampel'] == 'Sub Kontrak') ? 'block' : 'none'; ?>;">
-                        <label for="sub_kontrak_nama">Nama Perusahaan Sub Kontrak:</label>
+                        <label for="sub_kontrak_nama">Nama Perusahaan Sub Kontrak <span class="text-danger">*</span></label>
                         <input type="text" id="sub_kontrak_nama" name="sub_kontrak_nama" class="form-control" value="<?php echo htmlspecialchars($data_laporan['sub_kontrak_nama']); ?>">
                     </div>
                 </div>
@@ -132,8 +153,11 @@ require_once '../templates/header.php';
                 </div>
 
                 <div class="button-group mt-4">
-                    <button type="submit" class="btn btn-success">
-                        Simpan Perubahan & Ajukan Kembali
+                     <button type="submit" name="aksi" value="draft" class="btn btn-secondary">
+                        Simpan Perubahan Draft
+                    </button>
+                    <button type="submit" name="aksi" value="ajukan" class="btn btn-success">
+                        Ajukan ke Penyelia
                     </button>
                 </div>
             </form>
@@ -141,20 +165,19 @@ require_once '../templates/header.php';
     </div>
 </div>
 
-<!-- Semua JavaScript dari formulir_sampling.php disalin ke sini dengan sedikit modifikasi -->
+
 <script>
-    // Menyimpan data contoh dari PHP ke dalam variabel JavaScript
     const dataContohLama = <?php echo json_encode($data_contoh); ?>;
-
-    // Sisa JavaScript (fungsi tambahContoh, updateDynamicFields, dll) sama persis dengan yang ada di formulir_sampling.php
-    // Kita akan copy-paste di bawah ini dan menambahkan fungsi untuk memuat data lama.
-
+    
     document.getElementById('pengambil_sampel').addEventListener('change', function() {
         const subKontrakWrapper = document.getElementById('sub_kontrak_wrapper');
+        const subKontrakInput = document.getElementById('sub_kontrak_nama');
         if (this.value === 'Sub Kontrak') {
             subKontrakWrapper.style.display = 'block';
+            subKontrakInput.required = true;
         } else {
             subKontrakWrapper.style.display = 'none';
+            subKontrakInput.required = false;
         }
     });
 
@@ -183,8 +206,16 @@ require_once '../templates/header.php';
             },
             prosedur: ["M-LP-714-SMO (Smoke Meter Opacity) (Pengambilan contoh uji udara sumber emisi bergerak)", "SNI 19-7119.6-2005 (Metode Pengambilan Contoh Udara Ambien)", "SNI 19-7119.9-2005 (Metode Pengambilan Contoh Udara Roadside)", "SNI 7117.13-2009 (Pengambilan contoh uji udara emisi tidak bergerak)"]
         },
-        "Tingkat Kebisingan": { jenisContoh: null, parameter: ["Kebisingan"], prosedur: ["SNI 7231:2009 (Tingkat Kebisingan Lingkungan)", "SNI 8427 : 2017 (Metode Pengambilan contoh uji kebisingan)"] },
-        "Tingkat Getaran": { jenisContoh: null, parameter: ["Getaran"], prosedur: ["M-LP-711-GET (Vibration Meter) (Metode Pengambilan contoh uji Getaran)"] }
+        "Tingkat Kebisingan": { 
+            jenisContoh: ["Tingkat kebisingan"], 
+            parameter: ["Tingkat Kebisingan", "Tingkat kebisingan sesaat"], 
+            prosedur: ["SNI 19-7119.6-2005 (Metode Pengambilan Contoh Udara Ambien)", "SNI 19-7119.9-2005 (Metode Pengambilan Contoh Udara Roadside)", "SNI 7231:2009 (Tingkat Kebisingan Lingkungan)", "SNI 8427 : 2017 (Metode Pengambilan contoh uji kebisingan)"] 
+        },
+        "Tingkat Getaran": { 
+            jenisContoh: ["Tingkat Getaran", "Tingkat Getaran Lingkungan Kerja"], 
+            parameter: ["Tingkat Getaran", "Getaran Pemaparan Seluruh Tubuh", "Getaran Pemaparan Tangan dan Lengan"], 
+            prosedur: ["M-LP-711-GET (Vibration Meter) (Metode Pengambilan contoh uji Getaran)", "SNI IEC 60034-14-2009 (Getaran Mesin)", "SNI 8428 : 2017 (Metode Pengambilan contoh uji getaran)"] 
+        }
     };
 
     let contohCounter = 0;
@@ -204,45 +235,45 @@ require_once '../templates/header.php';
             </div>
             
             <div class="form-group">
-                <label for="nama_contoh_${currentCounter}">Nama Contoh</label>
+                <label for="nama_contoh_${currentCounter}">Nama Contoh <span class="text-danger">*</span></label>
                 <select class="form-control" name="contoh[${currentCounter}][nama_contoh]" id="nama_contoh_${currentCounter}" onchange="updateDynamicFields(${currentCounter})" required>
                     <option value="">-- Pilih Bahan --</option>${namaContohOptions}
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="jenis_contoh_${currentCounter}">Jenis Contoh</label>
-                <select class="form-control" name="contoh[${currentCounter}][jenis_contoh]" id="jenis_contoh_${currentCounter}" onchange="updateParameters(${currentCounter})" disabled>
+                <label for="jenis_contoh_${currentCounter}">Jenis Contoh <span id="jenis_contoh_star_${currentCounter}" class="text-danger">*</span></label>
+                <select class="form-control" name="contoh[${currentCounter}][jenis_contoh]" id="jenis_contoh_${currentCounter}" onchange="updateParameters(${currentCounter})" disabled required>
                     <option value="">-- Pilih Nama Contoh terlebih dahulu --</option>
                 </select>
             </div>
             
             <div class="form-row">
                 <div class="form-group col-md-6">
-                    <label for="merek_${currentCounter}">Etiket / Merek</label>
-                    <input type="text" id="merek_${currentCounter}" class="form-control" name="contoh[${currentCounter}][merek]" value="${data ? data.merek : ''}">
+                    <label for="merek_${currentCounter}">Etiket / Merek <span class="text-danger">*</span></label>
+                    <input type="text" id="merek_${currentCounter}" class="form-control" name="contoh[${currentCounter}][merek]" value="${data ? data.merek : ''}" required>
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="kode_${currentCounter}">Kode</label>
-                    <input type="text" id="kode_${currentCounter}" class="form-control" name="contoh[${currentCounter}][kode]" value="${data ? data.kode : ''}">
+                    <label for="kode_${currentCounter}">Kode <span class="text-danger">*</span></label>
+                    <input type="text" id="kode_${currentCounter}" class="form-control" name="contoh[${currentCounter}][kode]" value="${data ? data.kode : ''}" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="prosedur_${currentCounter}">Prosedur Pengambilan Contoh</label>
+                <label for="prosedur_${currentCounter}">Prosedur Pengambilan Contoh <span class="text-danger">*</span></label>
                 <select class="form-control" name="contoh[${currentCounter}][prosedur]" id="prosedur_${currentCounter}" required disabled>
-                     <option value="">-- Pilih Nama Contoh terlebih dahulu --</option>
+                     <option value="">-- Pilih Prosedur --</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label>Parameter Uji</label>
-                <div class="parameter-grid" id="parameter_container_${currentCounter}"><small class="text-muted">Pilih Nama dan Jenis Contoh terlebih dahulu.</small></div>
+                <label>Parameter Uji <span class="text-danger">*</span></label>
+                <div class="parameter-grid" id="parameter_container_${currentCounter}"><small class="text-muted">Pilih Nama dan Jenis Contoh.</small></div>
             </div>
 
             <div class="form-group">
-                <label for="baku_mutu_${currentCounter}">Baku Mutu</label>
-                <select class="form-control" name="contoh[${currentCounter}][baku_mutu]" id="baku_mutu_${currentCounter}">
+                <label for="baku_mutu_${currentCounter}">Baku Mutu <span class="text-danger">*</span></label>
+                <select class="form-control" name="contoh[${currentCounter}][baku_mutu]" id="baku_mutu_${currentCounter}" required>
                     <option value="">-- Pilih Baku Mutu --</option>
                     <option value="PP RI No. 22 Tahun 2021, Lampiran I">PP RI No. 22 Tahun 2021, Lampiran I</option>
                     <option value="PP RI No. 22 Tahun 2021, Lampiran III">PP RI No. 22 Tahun 2021, Lampiran III</option>
@@ -255,66 +286,61 @@ require_once '../templates/header.php';
                     <option value="Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996 (Tingkat Getaran)">Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996 (Tingkat Getaran)</option>                
                     <option value="Lainnya">Lainnya...</option>
                 </select>
-                <input type="text" class="form-control mt-2" name="contoh[${currentCounter}][baku_mutu_lainnya]" id="baku_mutu_lainnya_${currentCounter}" style="display:none;" placeholder="Masukkan baku mutu lainnya">
+                <input type="text" class="form-control mt-2" name="contoh[${currentCounter}][baku_mutu_lainnya]" id="baku_mutu_lainnya_${currentCounter}" style="display:none;">
             </div>
 
             <div class="form-group">
-                <label for="catatan_${currentCounter}">Catatan Tambahan</label>
-                <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2">${data ? data.catatan : ''}</textarea>
+                <label for="catatan_${currentCounter}">Catatan Tambahan <span class="text-danger">*</span></label>
+                <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2" required>${data ? data.catatan : ''}</textarea>
             </div>
 
-            <!-- ===== BLOK BARU UNTUK UPLOAD FILE ===== -->
-            <div class="form-group">
-                <label for="dokumen_pendukung_${currentCounter}">Upload Dokumen (Opsional)</label>
-
-                <!-- Hidden input untuk menyimpan nama file lama -->
-                <input type="hidden" name="contoh[${currentCounter}][dokumen_pendukung_lama]" value="${data && data.dokumen_pendukung ? data.dokumen_pendukung : ''}">
-
-                <!-- Menampilkan link ke file yang sudah ada -->
-                ${data && data.dokumen_pendukung ? `
-                    <p class="form-text text-muted mb-2">
-                        File saat ini: 
-                        <a href="<?php echo BASE_URL; ?>/uploads/${data.dokumen_pendukung}" target="_blank">${data.dokumen_pendukung}</a>
-                        <br><small>Mengupload file baru akan menggantikan file yang lama.</small>
-                    </p>
-                ` : ''}
-
-                <input type="file" id="dokumen_pendukung_${currentCounter}" name="contoh[${currentCounter}][dokumen_pendukung]" class="form-control-file">
-                <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="file_berita_acara_${currentCounter}">Upload Berita Acara (Opsional)</label>
+                    <input type="hidden" name="contoh[${currentCounter}][file_berita_acara_lama]" value="${data && data.file_berita_acara ? data.file_berita_acara : ''}">
+                    ${data && data.file_berita_acara ? `<p class="form-text text-muted mb-1 small">File saat ini: <a href="<?php echo BASE_URL; ?>/uploads/${data.file_berita_acara}" target="_blank">Lihat</a></p>` : ''}
+                    <input type="file" id="file_berita_acara_${currentCounter}" name="contoh[${currentCounter}][file_berita_acara]" class="form-control-file" onchange="validateFile(this)">
+                    <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+                    <div class="file-error-message text-danger small mt-1"></div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="file_sppc_${currentCounter}">Upload SPPC (Opsional)</label>
+                    <input type="hidden" name="contoh[${currentCounter}][file_sppc_lama]" value="${data && data.file_sppc ? data.file_sppc : ''}">
+                    ${data && data.file_sppc ? `<p class="form-text text-muted mb-1 small">File saat ini: <a href="<?php echo BASE_URL; ?>/uploads/${data.file_sppc}" target="_blank">Lihat</a></p>` : ''}
+                    <input type="file" id="file_sppc_${currentCounter}" name="contoh[${currentCounter}][file_sppc]" class="form-control-file" onchange="validateFile(this)">
+                    <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+                    <div class="file-error-message text-danger small mt-1"></div>
+                </div>
             </div>
-            <!-- ===== AKHIR BLOK BARU ===== -->
-
         `;
         container.appendChild(div);
 
-        // Bagian untuk menangani baku mutu 'Lainnya'
-        const bakuMutuSelect = document.getElementById(`baku_mutu_${currentCounter}`);
-        const lainnyaInput = document.getElementById(`baku_mutu_lainnya_${currentCounter}`);
-
-        if(data) {
-            const bakuMutuOptions = Array.from(bakuMutuSelect.options).map(opt => opt.value);
-            if (!bakuMutuOptions.includes(data.baku_mutu)) {
-                bakuMutuSelect.value = 'Lainnya';
-                lainnyaInput.value = data.baku_mutu;
-                lainnyaInput.style.display = 'block';
-            } else {
-                bakuMutuSelect.value = data.baku_mutu;
-            }
+        // Panggil fungsi-fungsi update untuk mengisi data
+        if(data){
+             updateDynamicFields(currentCounter, data.jenis_contoh, data.prosedur, data.parameter);
+             
+             const bakuMutuSelect = document.getElementById(`baku_mutu_${currentCounter}`);
+             const bakuMutuLainnya = document.getElementById(`baku_mutu_lainnya_${currentCounter}`);
+             const bakuMutuOptions = Array.from(bakuMutuSelect.options).map(opt => opt.value);
+             if (!bakuMutuOptions.includes(data.baku_mutu)) {
+                 bakuMutuSelect.value = 'Lainnya';
+                 bakuMutuLainnya.value = data.baku_mutu;
+                 bakuMutuLainnya.style.display = 'block';
+             } else {
+                 bakuMutuSelect.value = data.baku_mutu;
+             }
         }
         
-        bakuMutuSelect.addEventListener('change', function() {
+        document.getElementById(`baku_mutu_${currentCounter}`).addEventListener('change', function() {
+            const lainnyaInput = document.getElementById(`baku_mutu_lainnya_${this.id.split('_')[2]}`);
             lainnyaInput.style.display = (this.value === 'Lainnya') ? 'block' : 'none';
+            lainnyaInput.required = (this.value === 'Lainnya');
             if (this.value !== 'Lainnya') lainnyaInput.value = '';
         });
 
-        // Panggil fungsi update untuk mengisi dropdown dan parameter
-        if(data){
-             updateDynamicFields(currentCounter, data.jenis_contoh, data.prosedur, data.parameter);
-        }
-
         contohCounter++;
     }
-
+    
     function hapusContoh(id) {
         document.getElementById(`contoh_item_${id}`).remove();
     }
@@ -323,13 +349,20 @@ require_once '../templates/header.php';
         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const jenisContohSelect = document.getElementById(`jenis_contoh_${id}`);
+        const jenisContohStar = document.getElementById(`jenis_contoh_star_${id}`);
 
         if (data && data.jenisContoh) {
             jenisContohSelect.disabled = false;
+            jenisContohSelect.required = true;
+            jenisContohStar.style.display = 'inline';
             jenisContohSelect.innerHTML = '<option value="">-- Pilih Jenis --</option>' + data.jenisContoh.map(jc => `<option value="${jc}" ${selectedJenis === jc ? 'selected' : ''}>${jc}</option>`).join('');
         } else {
             jenisContohSelect.disabled = true;
+            jenisContohSelect.required = false;
+            jenisContohStar.style.display = 'none';
             jenisContohSelect.innerHTML = '<option value="">-- Tidak ada jenis contoh --</option>';
+            // Kosongkan nilai jika tidak ada jenis, agar validasi tidak gagal
+            jenisContohSelect.value = '';
         }
         updateParameters(id, selectedParams);
         updateProsedur(id, selectedProsedur);
@@ -362,19 +395,13 @@ require_once '../templates/header.php';
     
     function updateProsedur(id, selectedProsedur = null) {
         const selectedNamaContoh = document.getElementById(`nama_contoh_${id}`).value;
-        const selectedJenisContoh = document.getElementById(`jenis_contoh_${id}`).value;
         const data = dataSampling[selectedNamaContoh];
         const prosedurSelect = document.getElementById(`prosedur_${id}`);
         let prosedur = [];
 
         if (data && data.prosedur) {
             prosedurSelect.disabled = false;
-            if (Array.isArray(data.prosedur)) {
-                prosedur = data.prosedur;
-            } 
-            else if (typeof data.prosedur === 'object' && selectedJenisContoh) {
-                prosedur = data.prosedur[selectedJenisContoh] || [];
-            }
+            prosedur = data.prosedur;
         }
         
         if (prosedur.length > 0) {
@@ -385,13 +412,50 @@ require_once '../templates/header.php';
         }
     }
     
-    // Fungsi untuk memuat data contoh yang sudah ada saat halaman dibuka
     document.addEventListener('DOMContentLoaded', function() {
         dataContohLama.forEach(contoh => {
             tambahContoh(contoh);
         });
     });
 
+    function validateFile(input) {
+        const file = input.files[0];
+        const errorMessageContainer = input.parentElement.querySelector('.file-error-message');
+        errorMessageContainer.textContent = '';
+        if (!file) return true;
+        const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.pdf)$/i;
+        if (!allowedExtensions.exec(file.name)) {
+            errorMessageContainer.textContent = 'Format salah! Hanya .pdf, .jpg, .jpeg, .png';
+            input.value = '';
+            return false;
+        }
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            errorMessageContainer.textContent = 'Ukuran terlalu besar! Maksimal 5MB.';
+            input.value = '';
+            return false;
+        }
+        return true;
+    }
+
+    document.getElementById('editForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        let allFilesAreValid = true;
+        this.querySelectorAll('input[type="file"]').forEach(input => {
+            if (input.parentElement.querySelector('.file-error-message').textContent !== '') {
+                allFilesAreValid = false;
+            }
+        });
+
+        if (!allFilesAreValid) {
+            alert("Terdapat file yang tidak sesuai ketentuan. Harap periksa kembali pesan kesalahan di bawah setiap input file.");
+            return;
+        }
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        this.submit();
+    });
 </script>
 
 <?php
@@ -399,3 +463,4 @@ require_once '../templates/footer.php';
 ?>
 </body>
 </html>
+

@@ -138,9 +138,9 @@ require_once '../templates/header.php';
                                 </td>
                                 <td>
                                     <?php // Tampilkan tombol 'Edit' hanya untuk PPC jika statusnya 'Revisi PPC' ?>
-                                    <?php if ($role_id == 1 && $laporan['status'] == 'Revisi PPC'): ?>
+                                    <?php if ($role_id == 1 && in_array($laporan['status'], ['Draft', 'Revisi PPC'])): ?>
                                         <a href="edit_laporan.php?laporan_id=<?php echo $laporan['id']; ?>" class="btn btn-warning">
-                                            Edit Laporan
+                                            Edit
                                         </a>
                                     <?php else: ?>
                                         <a href="detail_laporan.php?id=<?php echo $laporan['id']; ?>" class="btn btn-secondary-dashboard">

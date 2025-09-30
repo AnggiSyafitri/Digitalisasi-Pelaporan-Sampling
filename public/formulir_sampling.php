@@ -11,6 +11,32 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
 $page_title = 'Formulir Pengambilan Contoh';
 require_once '../templates/header.php';
 ?>
+<!-- ===== TAMBAHAN CSS UNTUK LOADING OVERLAY ===== -->
+<style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none; /* Disembunyikan secara default */
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: white;
+        font-size: 1.2rem;
+        font-family: sans-serif;
+    }
+    .file-error-message {
+        font-size: 0.8em;
+    }
+</style>
+
+<!-- ===== TAMBAHAN HTML UNTUK LOADING OVERLAY (Diletakkan setelah <body>) ===== -->
+<div class="loading-overlay" id="loadingOverlay">
+    <p>Menyimpan data dan mengunggah file, mohon tunggu...</p>
+</div>
 
 <div class="container-dashboard" style="padding: 2rem;">
     
@@ -22,16 +48,19 @@ require_once '../templates/header.php';
         </div>
 
         <div class="card-body">
+            <!-- Container untuk menampilkan error validasi JS -->
             <div id="validation-error-container" class="alert alert-danger" style="display:none;"></div>
 
+            <!-- Menampilkan pesan error dari server (PHP) -->
             <?php if (isset($_SESSION['flash_error'])): ?>
                 <div class="alert alert-danger">
                     <?php 
                         echo $_SESSION['flash_error']; 
-                        unset($_SESSION['flash_error']); // Hapus pesan setelah ditampilkan
+                        unset($_SESSION['flash_error']);
                     ?>
                 </div>
             <?php endif; ?>
+
             <form id="samplingForm" action="../actions/simpan_sampling.php" method="post" enctype="multipart/form-data">
 
                 <div class="form-section" style="border:none; padding-bottom:1rem;">
@@ -89,8 +118,11 @@ require_once '../templates/header.php';
                 </div>
 
                 <div class="button-group mt-4">
-                    <button type="submit" class="btn btn-success">
-                        Simpan & Ajukan Laporan
+                    <button type="submit" name="aksi" value="draft" class="btn btn-secondary">
+                        Simpan sebagai Draft
+                    </button>
+                    <button type="submit" name="aksi" value="ajukan" class="btn btn-success">
+                        Ajukan ke Penyelia
                     </button>
                 </div>
             </form>
@@ -99,7 +131,6 @@ require_once '../templates/header.php';
 </div>
 
 <script>
-    // --- BLOK BARU UNTUK LOGIKA PENGUNCIAN JENIS ---
     let jenisLaporanTerpilih = null;
 
     function getTipeLaporanDariNama(namaContoh) {
@@ -110,8 +141,6 @@ require_once '../templates/header.php';
         if (namaContoh.includes("Getaran")) return 'getaran';
         return '';
     }
-    // --- AKHIR BLOK BARU ---
-
 
     document.getElementById('pengambil_sampel').addEventListener('change', function() {
         const subKontrakWrapper = document.getElementById('sub_kontrak_wrapper');
@@ -150,8 +179,16 @@ require_once '../templates/header.php';
             },
             prosedur: ["M-LP-714-SMO (Smoke Meter Opacity) (Pengambilan contoh uji udara sumber emisi bergerak)", "SNI 19-7119.6-2005 (Metode Pengambilan Contoh Udara Ambien)", "SNI 19-7119.9-2005 (Metode Pengambilan Contoh Udara Roadside)", "SNI 7117.13-2009 (Pengambilan contoh uji udara emisi tidak bergerak)"]
         },
-        "Tingkat Kebisingan": { jenisContoh: null, parameter: ["Kebisingan"], prosedur: ["SNI 7231:2009 (Tingkat Kebisingan Lingkungan)", "SNI 8427 : 2017 (Metode Pengambilan contoh uji kebisingan)"] },
-        "Tingkat Getaran": { jenisContoh: null, parameter: ["Getaran"], prosedur: ["M-LP-711-GET (Vibration Meter) (Metode Pengambilan contoh uji Getaran)"] }
+        "Tingkat Kebisingan": { 
+            jenisContoh: ["Tingkat kebisingan"], 
+            parameter: ["Tingkat Kebisingan", "Tingkat kebisingan sesaat"], 
+            prosedur: ["SNI 19-7119.6-2005 (Metode Pengambilan Contoh Udara Ambien)", "SNI 19-7119.9-2005 (Metode Pengambilan Contoh Udara Roadside)", "SNI 7231:2009 (Tingkat Kebisingan Lingkungan)", "SNI 8427 : 2017 (Metode Pengambilan contoh uji kebisingan)"] 
+        },
+        "Tingkat Getaran": { 
+            jenisContoh: ["Tingkat Getaran", "Tingkat Getaran Lingkungan Kerja"], 
+            parameter: ["Tingkat Getaran", "Getaran Pemaparan Seluruh Tubuh", "Getaran Pemaparan Tangan dan Lengan"], 
+            prosedur: ["M-LP-711-GET (Vibration Meter) (Metode Pengambilan contoh uji Getaran)", "SNI IEC 60034-14-2009 (Getaran Mesin)", "SNI 8428 : 2017 (Metode Pengambilan contoh uji getaran)"] 
+        }
     };
 
     let contohCounter = 0;
@@ -163,8 +200,6 @@ require_once '../templates/header.php';
         div.id = `contoh_item_${contohCounter}`;
         const currentCounter = contohCounter;
 
-        // --- MULAI PERUBAHAN ---
-        // Filter pilihan 'Nama Contoh' jika jenis laporan sudah ditentukan
         let namaContohOptions = '';
         const semuaNamaContoh = Object.keys(dataSampling);
         if (jenisLaporanTerpilih) {
@@ -173,7 +208,6 @@ require_once '../templates/header.php';
         } else {
             namaContohOptions = semuaNamaContoh.map(key => `<option value="${key}">${key}</option>`).join('');
         }
-        // --- AKHIR PERUBAHAN ---
 
         div.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -210,7 +244,7 @@ require_once '../templates/header.php';
             <div class="form-group">
                 <label for="prosedur_${currentCounter}">Prosedur Pengambilan Contoh <span class="text-danger">*</span></label>
                 <select class="form-control" name="contoh[${currentCounter}][prosedur]" id="prosedur_${currentCounter}" required disabled>
-                     <option value="">-- Pilih Nama Contoh terlebih dahulu --</option>
+                     <option value="">-- Pilih Prosedur --</option>
                 </select>
             </div>
             
@@ -241,11 +275,20 @@ require_once '../templates/header.php';
                 <label for="catatan_${currentCounter}">Catatan Tambahan <span class="text-danger">*</span></label>
                 <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2" required></textarea>
             </div>
-
-            <div class="form-group">
-                <label for="dokumen_pendukung_${currentCounter}">Upload Dokumen (Opsional)</label>
-                <input type="file" id="dokumen_pendukung_${currentCounter}" name="contoh[${currentCounter}][dokumen_pendukung]" class="form-control-file">
-                <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+            
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="file_berita_acara_${currentCounter}">Upload Berita Acara (Opsional)</label>
+                    <input type="file" id="file_berita_acara_${currentCounter}" name="contoh[${currentCounter}][file_berita_acara]" class="form-control-file" onchange="validateFile(this)">
+                    <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+                    <div class="file-error-message text-danger small mt-1"></div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="file_sppc_${currentCounter}">Upload SPPC (Opsional)</label>
+                    <input type="file" id="file_sppc_${currentCounter}" name="contoh[${currentCounter}][file_sppc]" class="form-control-file" onchange="validateFile(this)">
+                    <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+                    <div class="file-error-message text-danger small mt-1"></div>
+                </div>
             </div>
         `;
         container.appendChild(div);
@@ -260,15 +303,12 @@ require_once '../templates/header.php';
 
     function hapusContoh(id) {
         document.getElementById(`contoh_item_${id}`).remove();
-        // --- MULAI PERUBAHAN ---
-        // Jika tidak ada contoh uji tersisa, reset jenis laporan yang dipilih
         const sisaContoh = document.querySelectorAll('.contoh-item');
         if (sisaContoh.length === 0) {
             jenisLaporanTerpilih = null;
             const infoDiv = document.getElementById('jenis-terpilih-info');
-            if(infoDiv) infoDiv.remove(); // Hapus pesan info
+            if(infoDiv) infoDiv.remove();
         }
-        // --- AKHIR PERUBAHAN ---
     }
 
     function updateDynamicFields(id) {
@@ -281,25 +321,18 @@ require_once '../templates/header.php';
         const tipeLaporan = getTipeLaporanDariNama(selectedNamaContoh);
         tipeLaporanInput.value = tipeLaporan;
         
-        // --- MULAI PERUBAHAN ---
-        // Kunci jenis laporan jika ini adalah pilihan pertama
         const sisaContoh = document.querySelectorAll('.contoh-item');
         if (sisaContoh.length > 0 && jenisLaporanTerpilih === null && tipeLaporan) {
             jenisLaporanTerpilih = tipeLaporan;
-            
             const container = document.getElementById('contohContainer');
-            // Hapus pesan lama jika ada
             const infoDivLama = document.getElementById('jenis-terpilih-info');
             if(infoDivLama) infoDivLama.remove();
-
-            // Buat pesan baru
             const infoDiv = document.createElement("div");
             infoDiv.id = 'jenis-terpilih-info';
             infoDiv.className = 'alert alert-info';
             infoDiv.innerHTML = `Jenis laporan telah diatur sebagai <strong>${tipeLaporan.charAt(0).toUpperCase() + tipeLaporan.slice(1)}</strong>. Anda hanya dapat menambahkan contoh uji dari jenis yang sama.`;
             container.prepend(infoDiv);
         }
-        // --- AKHIR PERUBAHAN ---
 
         const jenisKegiatanSelect = document.getElementById('jenis_kegiatan');
         const kegiatanDetailText = document.getElementById('kegiatan_detail_text');
@@ -366,11 +399,41 @@ require_once '../templates/header.php';
         }
     }
 
+    // ===== FUNGSI BARU UNTUK VALIDASI FILE REAL-TIME =====
+    function validateFile(input) {
+        const file = input.files[0];
+        const errorMessageContainer = input.parentElement.querySelector('.file-error-message');
+        errorMessageContainer.textContent = ''; // Kosongkan pesan error
+
+        if (!file) {
+            return true; // Tidak ada file, valid karena opsional
+        }
+
+        const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.pdf)$/i;
+        if (!allowedExtensions.exec(file.name)) {
+            errorMessageContainer.textContent = 'Format salah! Hanya .pdf, .jpg, .jpeg, .png';
+            input.value = ''; // Batalkan pilihan file
+            return false;
+        }
+
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            errorMessageContainer.textContent = 'Ukuran terlalu besar! Maksimal 5MB.';
+            input.value = ''; // Batalkan pilihan file
+            return false;
+        }
+        
+        return true; // File valid
+    }
+
     document.getElementById('samplingForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Selalu hentikan submit untuk validasi
+
         const errors = [];
         const errorContainer = document.getElementById('validation-error-container');
         errorContainer.innerHTML = '';
 
+        // Validasi isian wajib
         const requiredFields = {
             'jenis_kegiatan': 'Jenis Kegiatan',
             'perusahaan': 'Nama Perusahaan',
@@ -413,7 +476,7 @@ require_once '../templates/header.php';
 
             for (const id in requiredContohFields) {
                 const field = document.getElementById(id);
-                if (field && !field.disabled && !field.value.trim()) {
+                if (field && field.required && !field.value.trim()) {
                     errors.push(`${prefix} ${requiredContohFields[id]} wajib diisi.`);
                 }
             }
@@ -423,14 +486,31 @@ require_once '../templates/header.php';
                 errors.push(`${prefix} Parameter Uji wajib dipilih minimal satu.`);
             }
         });
+        
+        // Validasi semua input file sekali lagi
+        let allFilesAreValid = true;
+        this.querySelectorAll('input[type="file"]').forEach(input => {
+            if (!validateFile(input)) {
+                allFilesAreValid = false;
+            }
+        });
 
+        if (!allFilesAreValid) {
+            errors.push("<b>Dokumen Pendukung:</b> Terdapat file yang tidak sesuai ketentuan. Harap periksa pesan kesalahan di bawah setiap input file.");
+        }
+
+        // Tampilkan error atau submit form
         if (errors.length > 0) {
-            event.preventDefault();
             errorContainer.style.display = 'block';
             errorContainer.innerHTML = '<strong>Harap perbaiki kesalahan berikut:</strong><ul>' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
             window.scrollTo(0, 0);
         } else {
             errorContainer.style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Menyimpan...';
+            this.submit();
         }
     });
 
@@ -442,4 +522,3 @@ require_once '../templates/footer.php';
 
 </body>
 </html>
-
