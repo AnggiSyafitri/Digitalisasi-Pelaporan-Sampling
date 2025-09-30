@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role_id'] != 1) {
 }
 
 /**
- * Fungsi helper yang sama dari simpan_sampling.php
+ * Fungsi helper untuk memvalidasi dan memindahkan satu file upload.
  */
 function processUploadedFile($file_info, $index, $file_type_name, &$processed_files) {
     if ($file_info && $file_info['error'] == 0) {
@@ -53,6 +53,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['laporan_id']) && isset
     }
 
     $processed_files_tracker = [];
+    $files_to_delete_on_success = [];
+
     $conn->begin_transaction();
 
     try {
@@ -71,29 +73,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['laporan_id']) && isset
         $stmt_form->execute();
         $stmt_form->close();
 
-        // 2. Kumpulkan file lama untuk kemungkinan dihapus
-        $old_files_map = [];
-        $sql_select_old_files = "SELECT id, file_berita_acara, file_sppc FROM contoh WHERE formulir_id = ?";
+        // 2. Kumpulkan daftar file lama untuk dihapus nanti
+        $sql_select_old_files = "SELECT file_berita_acara, file_sppc FROM contoh WHERE formulir_id = ?";
         $stmt_select = $conn->prepare($sql_select_old_files);
         $stmt_select->bind_param("i", $form_id);
         $stmt_select->execute();
         $result_files = $stmt_select->get_result();
         while ($row = $result_files->fetch_assoc()) {
-            $old_files_map[$row['id']] = [
-                'file_berita_acara' => $row['file_berita_acara'],
-                'file_sppc' => $row['file_sppc']
-            ];
+            if ($row['file_berita_acara']) $files_to_delete_on_success[] = '../public/uploads/' . $row['file_berita_acara'];
+            if ($row['file_sppc']) $files_to_delete_on_success[] = '../public/uploads/' . $row['file_sppc'];
         }
         $stmt_select->close();
 
-        // Hapus entri contoh lama dari database
+
+        // 3. Hapus semua entri contoh LAMA dari database
         $sql_delete_contoh = "DELETE FROM contoh WHERE formulir_id = ?";
         $stmt_delete = $conn->prepare($sql_delete_contoh);
         $stmt_delete->bind_param("i", $form_id);
         $stmt_delete->execute();
         $stmt_delete->close();
         
-        // 3. Masukkan kembali semua data contoh yang baru dari form
+        // 4. Masukkan kembali semua data contoh BARU dari form
         if (isset($_POST['contoh'])) {
             $sql_contoh = "INSERT INTO contoh (formulir_id, nama_contoh, jenis_contoh, merek, kode, prosedur, parameter, baku_mutu, catatan, file_berita_acara, file_sppc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt_contoh = $conn->prepare($sql_contoh);
@@ -101,29 +101,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['laporan_id']) && isset
 
             foreach ($_POST['contoh'] as $index => $item) {
                 
-                // Proses Berita Acara
+                // Proses file baru atau gunakan file lama
                 $file_info_ba = isset($files_data['name'][$index]['file_berita_acara']) && !empty($files_data['name'][$index]['file_berita_acara']) ? ['name'=>$files_data['name'][$index]['file_berita_acara'], 'error'=>$files_data['error'][$index]['file_berita_acara'], 'tmp_name'=>$files_data['tmp_name'][$index]['file_berita_acara'], 'size'=>$files_data['size'][$index]['file_berita_acara']] : null;
-                $nama_file_ba = processUploadedFile($file_info_ba, $index, 'Berita Acara', $processed_files_tracker);
-                if ($nama_file_ba === null) { 
-                    $nama_file_ba = $item['file_berita_acara_lama'] ?? null;
-                } else {
-                    // Jika file baru berhasil diupload, tandai file lama untuk dihapus
-                    if (!empty($item['file_berita_acara_lama'])) {
-                        $files_to_delete[] = '../public/uploads/' . $item['file_berita_acara_lama'];
-                    }
-                }
+                $nama_file_ba = processUploadedFile($file_info_ba, $index, 'Berita Acara', $processed_files_tracker) ?? ($item['file_berita_acara_lama'] ?? null);
 
-                // Proses SPPC
                 $file_info_sppc = isset($files_data['name'][$index]['file_sppc']) && !empty($files_data['name'][$index]['file_sppc']) ? ['name'=>$files_data['name'][$index]['file_sppc'], 'error'=>$files_data['error'][$index]['file_sppc'], 'tmp_name'=>$files_data['tmp_name'][$index]['file_sppc'], 'size'=>$files_data['size'][$index]['file_sppc']] : null;
-                $nama_file_sppc = processUploadedFile($file_info_sppc, $index, 'SPPC', $processed_files_tracker);
-                if ($nama_file_sppc === null) {
-                    $nama_file_sppc = $item['file_sppc_lama'] ?? null;
-                } else {
-                    if (!empty($item['file_sppc_lama'])) {
-                        $files_to_delete[] = '../public/uploads/' . $item['file_sppc_lama'];
-                    }
-                }
+                $nama_file_sppc = processUploadedFile($file_info_sppc, $index, 'SPPC', $processed_files_tracker) ?? ($item['file_sppc_lama'] ?? null);
 
+                // Data teks
                 $jenis_contoh = $item['jenis_contoh'] ?? 'N/A';
                 $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
                 $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
@@ -135,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['laporan_id']) && isset
             $stmt_contoh->close();
         }
 
-        // 4. Update status laporan kembali ke status yang ditentukan
+        // 5. Update status laporan dengan status yang sudah ditentukan di awal
         $sql_laporan = "UPDATE laporan SET status = ?, catatan_revisi = NULL WHERE id = ?";
         $stmt_laporan = $conn->prepare($sql_laporan);
         $stmt_laporan->bind_param("si", $status_laporan, $laporan_id);
@@ -144,9 +129,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['laporan_id']) && isset
         
         $conn->commit();
 
-        // Jika commit berhasil, hapus file-file lama yang digantikan
-        foreach ($files_to_delete as $filepath) {
-            if (file_exists($filepath)) {
+        // 6. Jika semua berhasil, baru hapus file fisik yang lama
+        foreach ($files_to_delete_on_success as $filepath) {
+            // Cek agar tidak menghapus file yang baru saja di-upload jika namanya kebetulan sama
+            if (file_exists($filepath) && !in_array($filepath, $processed_files_tracker)) {
                 unlink($filepath);
             }
         }
@@ -162,13 +148,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['laporan_id']) && isset
                 unlink($filepath);
             }
         }
-        $_SESSION['flash_error'] = "Terjadi error saat memperbarui data: " . $e->getMessage();
+        $_SESSION['flash_error'] = "Terjadi error: " . $e->getMessage();
         header("Location: " . BASE_URL . "/edit_laporan.php?laporan_id=" . $laporan_id);
         exit();
     }
 } else {
+    // Jika akses tidak sah
     header("Location: " . BASE_URL . "/dashboard.php");
     exit();
 }
 ?>
-
