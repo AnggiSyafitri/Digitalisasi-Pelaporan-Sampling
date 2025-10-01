@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     try {
         if ($aksi == 'setuju') {
-            // Jika disetujui, hanya update status laporan seperti biasa
-            $sql = "UPDATE laporan SET status = 'Menunggu Persetujuan MT', penyelia_id = ? WHERE id = ?";
+            // Jika disetujui, update status dan catat waktu verifikasi
+            $sql = "UPDATE laporan SET status = 'Menunggu Persetujuan MT', penyelia_id = ?, waktu_verifikasi_penyelia = NOW() WHERE id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ii", $penyelia_id, $laporan_id);
             $stmt->execute();

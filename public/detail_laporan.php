@@ -111,14 +111,59 @@ require_once '../templates/header.php';
         </div>
     </div>
 
-     <div class="card mt-4">
+    <div class="card mt-4">
         <div class="card-header"><h2>Riwayat Persetujuan</h2></div>
         <div class="card-body">
+            <?php
+            // Helper untuk format waktu, sekarang hanya mengembalikan string waktu
+            function formatWaktu($waktu) {
+                if (empty($waktu)) return null; // Kembalikan null jika waktu kosong
+
+                // Buat objek DateTime dari string waktu database
+                $dt = new DateTime($waktu);
+                // Atur zona waktu ke WIB
+                $dt->setTimezone(new DateTimeZone('Asia/Jakarta'));
+                // Kembalikan string yang sudah diformat
+                return $dt->format('d M Y, H:i') . ' WIB';
+            }
+            ?>
             <table class="table-meta">
-                <tr><td><strong>Dibuat oleh (PPC)</strong></td><td><?php echo htmlspecialchars($data_laporan['nama_ppc'] ?? 'N/A'); ?></td></tr>
-                <tr><td><strong>Diverifikasi oleh (Penyelia)</strong></td><td><?php echo htmlspecialchars($data_laporan['nama_penyelia'] ?? '-'); ?></td></tr>
-                <tr><td><strong>Disetujui oleh (Manajer Teknis)</strong></td><td><?php echo htmlspecialchars($data_laporan['nama_mt'] ?? '-'); ?></td></tr>
-                <tr><td><strong>Diselesaikan oleh (Penerima Contoh)</strong></td><td><?php echo htmlspecialchars($data_laporan['nama_penerima'] ?? '-'); ?></td></tr>
+                <tr>
+                    <td><strong>Dibuat oleh (PPC)</strong></td>
+                    <td>
+                        <?php echo htmlspecialchars($data_laporan['nama_ppc'] ?? 'N/A'); ?>
+                        <?php if ($waktu = formatWaktu($data_laporan['created_at'])): ?>
+                            - <small class="text-muted"><?php echo $waktu; ?></small>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Diverifikasi oleh (Penyelia)</strong></td>
+                    <td>
+                        <?php echo htmlspecialchars($data_laporan['nama_penyelia'] ?? '-'); ?>
+                        <?php if ($waktu = formatWaktu($data_laporan['waktu_verifikasi_penyelia'])): ?>
+                            - <small class="text-muted"><?php echo $waktu; ?></small>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Disetujui oleh (Manajer Teknis)</strong></td>
+                    <td>
+                        <?php echo htmlspecialchars($data_laporan['nama_mt'] ?? '-'); ?>
+                        <?php if ($waktu = formatWaktu($data_laporan['waktu_persetujuan_mt'])): ?>
+                            - <small class="text-muted"><?php echo $waktu; ?></small>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Diselesaikan oleh (Penerima Contoh)</strong></td>
+                    <td>
+                        <?php echo htmlspecialchars($data_laporan['nama_penerima'] ?? '-'); ?>
+                        <?php if ($waktu = formatWaktu($data_laporan['waktu_penyelesaian_penerima'])): ?>
+                            - <small class="text-muted"><?php echo $waktu; ?></small>
+                        <?php endif; ?>
+                    </td>
+                </tr>
             </table>
         </div>
     </div>

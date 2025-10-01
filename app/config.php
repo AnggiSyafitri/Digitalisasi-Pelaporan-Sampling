@@ -21,9 +21,11 @@ if ($conn->connect_error) {
 }
 
 // 4. Konfigurasi URL Utama (Base URL)
-// Ini penting agar semua link, gambar, dan redirect berfungsi dengan benar.
-// Ganti 'digitalisasi-pelaporan.test' sesuai dengan nama virtual host di Laragon kamu.
+// Ini agar semua link, gambar, dan redirect berfungsi dengan benar.
+// Ganti 'digitalisasi-pelaporan.test' sesuai dengan nama virtual host di lingkungan server kamu (aku Laragon).
 // Atau jika kamu akses via localhost, ganti menjadi 'http://localhost/digitalisasi-pelaporan-sampling/public'
 define('BASE_URL', 'http://digitalisasi-pelaporan-sampling.test/public'); 
 
+// 5. Muat dan jalankan otorisasi waktu
+require_once 'otorisasi_waktu.php';
 ?>

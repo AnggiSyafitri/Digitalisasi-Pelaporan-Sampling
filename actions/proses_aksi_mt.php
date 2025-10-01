@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     try {
         if ($aksi == 'setuju') {
-            // Jika disetujui, update status seperti biasa dan pastikan catatan revisi bersih
-            $sql = "UPDATE laporan SET status = 'Disetujui, Siap Dicetak', mt_id = ?, catatan_revisi = NULL WHERE id = ?";
+            // Jika disetujui, update status, catat waktu, dan pastikan catatan revisi bersih
+            $sql = "UPDATE laporan SET status = 'Disetujui, Siap Dicetak', mt_id = ?, waktu_persetujuan_mt = NOW(), catatan_revisi = NULL WHERE id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ii", $mt_id, $laporan_id);
             $stmt->execute();

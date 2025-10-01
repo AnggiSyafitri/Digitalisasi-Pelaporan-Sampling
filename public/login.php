@@ -6,7 +6,6 @@ require_once '../app/config.php';
 
 // Jika sudah login, langsung redirect ke dashboard
 if (isset($_SESSION['user_id'])) {
-    // Gunakan BASE_URL agar redirect selalu benar
     header("Location: " . BASE_URL . "/dashboard.php");
     exit();
 }
@@ -32,16 +31,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
         if ($user = $result->fetch_assoc()) {
             // Verifikasi password
             if (password_verify($password, $user['password'])) {
-                // Login berhasil, simpan data ke session
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
-                $_SESSION['role_id'] = $user['role_id'];
-                $_SESSION['role_name'] = $user['nama_role'];
-                
-                // Gunakan BASE_URL untuk redirect
-                header("Location: " . BASE_URL . "/dashboard.php");
-                exit();
+                // Pengecekan waktu akses sebelum membuat session
+                if (cekWaktuAkses($user['role_id'])) {
+                    // Waktu diizinkan, login berhasil, simpan data ke session
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
+                    $_SESSION['role_id'] = $user['role_id'];
+                    $_SESSION['role_name'] = $user['nama_role'];
+                    
+                    header("Location: " . BASE_URL . "/dashboard.php");
+                    exit();
+                } else {
+                    // Waktu tidak diizinkan
+                    $error_message = "Akses ditolak. Anda mencoba login di luar jam kerja yang telah ditentukan.";
+                }
             } else {
                 $error_message = "Login gagal. Username atau password salah.";
             }
@@ -71,9 +75,17 @@ $page_title = 'Login - Sistem Pelaporan Sampling';
                 <h3>Sistem Pelaporan Sampling Mutu Lingkungan</h3>
             </div>
             
-            <?php if (!empty($error_message)): ?>
-                <div class="alert alert-danger"><?php echo $error_message; ?></div>
-            <?php endif; ?>
+            <?php 
+            // Mengambil pesan error dari proses login ATAU dari redirect sesi (flash message)
+            $display_error = $error_message ?: ($_SESSION['flash_error'] ?? '');
+            if (!empty($display_error)): 
+            ?>
+                <div class="alert alert-danger"><?php echo $display_error; ?></div>
+            <?php 
+                // Hapus flash error dari session setelah ditampilkan agar tidak muncul lagi
+                unset($_SESSION['flash_error']);
+            endif; 
+            ?>
             
             <form method="post" action="login.php">
                 <div class="form-group">
