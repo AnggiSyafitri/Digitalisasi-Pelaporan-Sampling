@@ -300,7 +300,7 @@ require_once '../templates/header.php';
                     <input type="hidden" name="contoh[${currentCounter}][file_berita_acara_lama]" value="${data && data.file_berita_acara ? data.file_berita_acara : ''}">
                     ${data && data.file_berita_acara ? `<p class="form-text text-muted mb-1 small">File saat ini: <a href="<?php echo BASE_URL; ?>/uploads/${data.file_berita_acara}" target="_blank">Lihat</a></p>` : ''}
                     <input type="file" id="file_berita_acara_${currentCounter}" name="contoh[${currentCounter}][file_berita_acara]" class="form-control-file" onchange="validateFile(this)">
-                    <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+                    <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
                     <div class="file-error-message text-danger small mt-1"></div>
                 </div>
                 <div class="form-group col-md-6">
@@ -308,7 +308,7 @@ require_once '../templates/header.php';
                     <input type="hidden" name="contoh[${currentCounter}][file_sppc_lama]" value="${data && data.file_sppc ? data.file_sppc : ''}">
                     ${data && data.file_sppc ? `<p class="form-text text-muted mb-1 small">File saat ini: <a href="<?php echo BASE_URL; ?>/uploads/${data.file_sppc}" target="_blank">Lihat</a></p>` : ''}
                     <input type="file" id="file_sppc_${currentCounter}" name="contoh[${currentCounter}][file_sppc]" class="form-control-file" onchange="validateFile(this)">
-                    <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+                    <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
                     <div class="file-error-message text-danger small mt-1"></div>
                 </div>
             </div>

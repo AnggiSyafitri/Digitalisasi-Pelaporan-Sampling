@@ -280,13 +280,13 @@ require_once '../templates/header.php';
                 <div class="form-group col-md-6">
                     <label for="file_berita_acara_${currentCounter}">Upload Berita Acara (Opsional)</label>
                     <input type="file" id="file_berita_acara_${currentCounter}" name="contoh[${currentCounter}][file_berita_acara]" class="form-control-file" onchange="validateFile(this)">
-                    <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+                    <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
                     <div class="file-error-message text-danger small mt-1"></div>
                 </div>
                 <div class="form-group col-md-6">
                     <label for="file_sppc_${currentCounter}">Upload SPPC (Opsional)</label>
                     <input type="file" id="file_sppc_${currentCounter}" name="contoh[${currentCounter}][file_sppc]" class="form-control-file" onchange="validateFile(this)">
-                    <small class="form-text text-muted">PDF, JPG, PNG (Maks 5MB)</small>
+                    <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
                     <div class="file-error-message text-danger small mt-1"></div>
                 </div>
             </div>
