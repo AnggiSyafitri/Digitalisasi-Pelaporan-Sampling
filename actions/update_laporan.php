@@ -51,22 +51,6 @@ function processUploadedFile($file_info, $index, $file_type_name, &$processed_fi
     return $nama_file_unik;
 }
 
-function validateParameters($item, $index) {
-    if (!isset($item['parameter']) || empty($item['parameter'])) {
-        throw new Exception("Parameter tidak lengkap pada contoh #" . ($index + 1));
-    }
-
-    // Convert single parameter to array if needed
-    $parameters = is_array($item['parameter']) ? $item['parameter'] : [$item['parameter']];
-    
-    // Check if array is empty or contains empty values
-    if (empty($parameters) || count(array_filter($parameters)) !== count($parameters)) {
-        throw new Exception("Parameter tidak boleh kosong pada contoh #" . ($index + 1));
-    }
-
-    return $parameters;
-}
-
 try {
     $laporan_id = (int)$_POST['laporan_id'];
     $form_id = (int)$_POST['form_id'];
@@ -110,15 +94,21 @@ try {
     // Process samples
     $files_data = $_FILES['contoh'] ?? [];
     foreach ($_POST['contoh'] as $index => $item) {
-        // Validate parameters first
-        $parameters = validateParameters($item, $index);
+
+        // Ambil data parameter, default ke array kosong jika tidak ada
+        $parameters = $item['parameter'] ?? [];
+
+        // Lakukan validasi parameter HANYA JIKA aksi adalah 'ajukan'
+        if ($_POST['aksi'] === 'ajukan' && empty($parameters)) {
+            throw new Exception("Parameter Uji wajib dipilih minimal satu untuk Contoh Uji #" . ($index + 1));
+        }
 
         // Process BA file
-        $file_info_ba = isset($files_data['name'][$index]['file_berita_acara']) ? [
-            'name' => $files_data['name'][$index]['file_berita_acara'],
-            'error' => $files_data['error'][$index]['file_berita_acara'],
-            'tmp_name' => $files_data['tmp_name'][$index]['file_berita_acara'],
-            'size' => $files_data['size'][$index]['file_berita_acara']
+        $file_info_ba = isset($files_data['name']['file_berita_acara'][$index]) ? [
+            'name' => $files_data['name']['file_berita_acara'][$index],
+            'error' => $files_data['error']['file_berita_acara'][$index],
+            'tmp_name' => $files_data['tmp_name']['file_berita_acara'][$index],
+            'size' => $files_data['size']['file_berita_acara'][$index]
         ] : null;
 
         $nama_file_ba_baru = processUploadedFile($file_info_ba, $index, 'Berita Acara', $processed_files_tracker);
@@ -127,11 +117,11 @@ try {
         }
 
         // Process SPPC file
-        $file_info_sppc = isset($files_data['name'][$index]['file_sppc']) ? [
-            'name' => $files_data['name'][$index]['file_sppc'],
-            'error' => $files_data['error'][$index]['file_sppc'],
-            'tmp_name' => $files_data['tmp_name'][$index]['file_sppc'],
-            'size' => $files_data['size'][$index]['file_sppc']
+        $file_info_sppc = isset($files_data['name']['file_sppc'][$index]) ? [
+            'name' => $files_data['name']['file_sppc'][$index],
+            'error' => $files_data['error']['file_sppc'][$index],
+            'tmp_name' => $files_data['tmp_name']['file_sppc'][$index],
+            'size' => $files_data['size']['file_sppc'][$index]
         ] : null;
 
         $nama_file_sppc_baru = processUploadedFile($file_info_sppc, $index, 'SPPC', $processed_files_tracker);
@@ -146,7 +136,7 @@ try {
             'merek' => $item['merek'],
             'kode' => $item['kode'],
             'prosedur' => $item['prosedur'],
-            'parameter' => implode(', ', $parameters),
+            'parameter' => implode(', ', $parameters), // Implode akan bekerja dengan benar
             'baku_mutu' => ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? ''),
             'catatan' => $item['catatan'] ?? '',
             'file_berita_acara' => $nama_file_ba_baru ?? $item['file_berita_acara_lama'] ?? null,
