@@ -180,7 +180,22 @@ function terbilang($angka) {
         </section>
 
         <section class="ttd-section">
-            <div style="clear:both; margin-top: 30px;"></div>
+            <div class="ttd-penyelia" style="width: 60%; margin-left: 0; margin-bottom: 10px; text-align: left;">
+                <div style="display: flex; align-items: flex-end; justify-content: center; height: 100px;">
+
+                    <div style="line-height: 5; padding-left: 20px;">
+                        Penyelia
+                        <strong>( <?php echo htmlspecialchars($laporan['nama_penyelia'] ?? '.........................'); ?> )</strong>
+                    </div>
+                    <div style="width: 90px; flex-shrink: 0; text-align: center;">
+                        <?php if (!empty($laporan['ttd_penyelia'])): ?>
+                            <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_penyelia']); ?>" style="max-height: 60px;">
+                        <?php endif; ?>
+                    </div>
+
+                </div>
+            </div>
+
             <div class="ttd-left">
                 Mengetahui, <br>
                 Manajer Teknis
@@ -192,17 +207,18 @@ function terbilang($angka) {
                 <strong>( <?php echo htmlspecialchars($laporan['nama_mt_tercetak'] ?? '.........................'); ?> )</strong>
             </div>
             <div class="ttd-right">
-                Medan, <?php 
-                    $fmt = new IntlDateFormatter('id_ID', IntlDateFormatter::LONG, IntlDateFormatter::NONE); 
-                    echo $fmt->format(strtotime($laporan['waktu_verifikasi_penyelia'] ?? 'now')); 
-                ?><br>
-                Penyelia
+                <?php
+                    $tanggal_ttd = !empty($laporan['waktu_persetujuan_mt']) ? strtotime($laporan['waktu_persetujuan_mt']) : strtotime($laporan['tanggal']);
+                    $fmt = new IntlDateFormatter('id_ID', IntlDateFormatter::LONG, IntlDateFormatter::NONE, 'Asia/Jakarta');
+                ?>
+                Medan, <?php echo $fmt->format($tanggal_ttd); ?><br>
+                Petugas Sampling
                 <div class="ttd-space">
-                    <?php if (!empty($laporan['ttd_penyelia'])): ?>
-                        <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_penyelia']); ?>" style="max-height: 70px;">
+                    <?php if (!empty($laporan['ttd_ppc'])): ?>
+                        <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_ppc']); ?>" style="max-height: 70px;">
                     <?php endif; ?>
                 </div>
-                <strong>( <?php echo htmlspecialchars($laporan['nama_penyelia'] ?? '.........................'); ?> )</strong>
+                <strong>( <?php echo htmlspecialchars($laporan['nama_pembuat_laporan'] ?? '.........................'); ?> )</strong>
             </div>
         </section>
         

@@ -66,6 +66,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
     $conn->begin_transaction();
 
     try {
+        // Ambil data TTD PPC dari tabel users
+            $stmt_ttd = $conn->prepare("SELECT tanda_tangan FROM users WHERE id = ?");
+            $stmt_ttd->bind_param("i", $ppc_id);
+            $stmt_ttd->execute();
+            $ttd_ppc_file = $stmt_ttd->get_result()->fetch_assoc()['tanda_tangan'];
+            $stmt_ttd->close();
+
+            // Validasi: Jika aksi 'ajukan', PPC wajib punya TTD
+            if ($status_laporan === 'Menunggu Verifikasi' && empty($ttd_ppc_file)) {
+                throw new Exception("Aksi ditolak. Anda harus mengunggah tanda tangan di halaman profil Anda terlebih dahulu sebelum bisa mengajukan laporan.");
+            }
+
         // Ambil data utama dari form
         $jenis_kegiatan = $_POST['jenis_kegiatan'];
         $perusahaan = $_POST['perusahaan'];
@@ -122,10 +134,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
                 }
                 $stmt_contoh->close();
 
-                // 3. Buat entri di tabel `laporan` dengan status yang sesuai
-                $sql_laporan = "INSERT INTO laporan (jenis_laporan, form_id, ppc_id, status) VALUES (?, ?, ?, ?)";
+                // 3. Buat entri di tabel `laporan` dengan status dan TTD yang sesuai
+                $sql_laporan = "INSERT INTO laporan (jenis_laporan, form_id, ppc_id, ttd_ppc, status) VALUES (?, ?, ?, ?, ?)";
                 $stmt_laporan = $conn->prepare($sql_laporan);
-                $stmt_laporan->bind_param("siis", $jenis, $form_id, $ppc_id, $status_laporan);
+                $stmt_laporan->bind_param("siiss", $jenis, $form_id, $ppc_id, $ttd_ppc_file, $status_laporan);
                 $stmt_laporan->execute();
                 $stmt_laporan->close();
             }
