@@ -429,6 +429,10 @@ require_once '../templates/header.php';
     document.getElementById('samplingForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Selalu hentikan submit untuk validasi
 
+        // Dapatkan tombol mana yang diklik untuk memicu submit
+        const aksi = document.activeElement.value;
+
+        // --- VALIDASI (tetap sama seperti sebelumnya) ---
         const errors = [];
         const errorContainer = document.getElementById('validation-error-container');
         errorContainer.innerHTML = '';
@@ -487,17 +491,39 @@ require_once '../templates/header.php';
             }
         });
         
-        // Validasi semua input file sekali lagi
+        // Hanya lakukan validasi ketat jika aksi adalah 'ajukan'
+        if (aksi === 'ajukan') {
+            const requiredFields = {
+                'jenis_kegiatan': 'Jenis Kegiatan', 'perusahaan': 'Nama Perusahaan', 'alamat': 'Alamat Perusahaan', 'tanggal': 'Tanggal Pelaksanaan', 'pengambil_sampel': 'Pengambil Sampel'
+            };
+            for (const id in requiredFields) {
+                if (!document.getElementById(id).value.trim()) {
+                    errors.push(`<b>Informasi Kegiatan:</b> ${requiredFields[id]} wajib diisi.`);
+                }
+            }
+            if (document.getElementById('pengambil_sampel').value === 'Sub Kontrak' && !document.getElementById('sub_kontrak_nama').value.trim()) {
+                errors.push('<b>Informasi Kegiatan:</b> Nama Perusahaan Sub Kontrak wajib diisi.');
+            }
+            const contohItems = document.querySelectorAll('.contoh-item');
+            if (contohItems.length === 0) {
+                errors.push('<b>Data Contoh Uji:</b> Anda harus menambahkan minimal satu Contoh Uji.');
+            }
+            contohItems.forEach((item, index) => {
+                const counter = item.id.split('_')[2];
+                if (item.querySelectorAll(`#parameter_container_${counter} input[type="checkbox"]:checked`).length === 0) {
+                    errors.push(`<b>Contoh Uji #${index + 1}:</b> Parameter Uji wajib dipilih minimal satu.`);
+                }
+            });
+        }
+
         let allFilesAreValid = true;
         this.querySelectorAll('input[type="file"]').forEach(input => {
-            if (!validateFile(input)) {
-                allFilesAreValid = false;
-            }
+            if (!validateFile(input)) allFilesAreValid = false;
         });
-
         if (!allFilesAreValid) {
-            errors.push("<b>Dokumen Pendukung:</b> Terdapat file yang tidak sesuai ketentuan. Harap periksa pesan kesalahan di bawah setiap input file.");
+            errors.push("<b>Dokumen Pendukung:</b> Terdapat file yang tidak sesuai ketentuan.");
         }
+        // --- AKHIR VALIDASI ---
 
         // Tampilkan error atau submit form
         if (errors.length > 0) {
@@ -507,9 +533,15 @@ require_once '../templates/header.php';
         } else {
             errorContainer.style.display = 'none';
             document.getElementById('loadingOverlay').style.display = 'flex';
-            const submitButton = this.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Menyimpan...';
+
+            // BUAT INPUT TERSEMBUNYI UNTUK MEMBAWA NILAI 'aksi'
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'aksi';
+            hiddenInput.value = aksi;
+            this.appendChild(hiddenInput);
+
+            // Kirim form
             this.submit();
         }
     });

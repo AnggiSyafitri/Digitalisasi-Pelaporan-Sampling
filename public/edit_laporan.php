@@ -439,39 +439,8 @@ require_once '../templates/header.php';
     }
 
     document.getElementById('editForm').addEventListener('submit', function(event) {
-        // Hentikan submit untuk validasi, HANYA JIKA tombol 'Ajukan' yang diklik
-        const aksi = document.activeElement.getAttribute('name') === 'aksi' ? document.activeElement.getAttribute('value') : null;
-
-        if (aksi === 'ajukan') {
-            event.preventDefault(); // Hentikan hanya untuk aksi 'ajukan'
-
-            const errors = [];
-            const contohItems = document.querySelectorAll('.contoh-item');
-
-            if (contohItems.length === 0) {
-                errors.push('Anda harus memiliki minimal satu Contoh Uji untuk diajukan.');
-            }
-
-            contohItems.forEach((item, index) => {
-                const counter = item.id.split('_')[2];
-                const prefix = `<b>Contoh Uji #${index + 1}:</b>`;
-
-                const checkedParams = item.querySelectorAll(`#parameter_container_${counter} input[type="checkbox"]:checked`);
-                if (checkedParams.length === 0) {
-                    errors.push(`${prefix} Parameter Uji wajib dipilih minimal satu.`);
-                }
-            });
-
-            if (errors.length > 0) {
-                // Gunakan alert() sederhana untuk menampilkan error validasi
-                alert('Terdapat kesalahan:\n\n- ' + errors.join('\n- '));
-                return; // Hentikan proses
-            }
-        }
-
-        // Jika validasi lolos (atau jika tombol 'draft' yang diklik), tampilkan loading dan submit
+        // Saat form disubmit (baik draft atau ajukan), langsung tampilkan overlay loading.
         document.getElementById('loadingOverlay').style.display = 'flex';
-        this.submit();
     });
 </script>
 

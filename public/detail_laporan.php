@@ -164,16 +164,30 @@ require_once '../templates/header.php';
                 <tr><td>Baku Mutu</td><td><?php echo htmlspecialchars($contoh['baku_mutu']); ?></td></tr>
                 <tr><td>Catatan Tambahan</td><td><?php echo nl2br(htmlspecialchars($contoh['catatan'])); ?></td></tr>
 
-                <?php if (!empty($contoh['dokumen_pendukung'])): ?>
                 <tr>
-                    <td>Dokumen Pendukung</td>
+                    <td>File Berita Acara</td>
                     <td>
-                        <a href="<?php echo BASE_URL . '/uploads/' . htmlspecialchars($contoh['dokumen_pendukung']); ?>" target="_blank" class="btn btn-info btn-sm">
-                            Lihat Dokumen
-                        </a>
+                        <?php if (!empty($contoh['file_berita_acara'])): ?>
+                            <a href="<?php echo BASE_URL . '/uploads/' . htmlspecialchars($contoh['file_berita_acara']); ?>" target="_blank" class="btn btn-info btn-sm">
+                                Lihat File
+                            </a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
                     </td>
                 </tr>
-                <?php endif; ?>
+                <tr>
+                    <td>File SPPC</td>
+                    <td>
+                        <?php if (!empty($contoh['file_sppc'])): ?>
+                            <a href="<?php echo BASE_URL . '/uploads/' . htmlspecialchars($contoh['file_sppc']); ?>" target="_blank" class="btn btn-info btn-sm">
+                                Lihat File
+                            </a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
+                </tr>
                 </table>
 
         </div>
