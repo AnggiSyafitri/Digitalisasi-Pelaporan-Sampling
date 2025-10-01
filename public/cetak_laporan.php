@@ -180,26 +180,29 @@ function terbilang($angka) {
         </section>
 
         <section class="ttd-section">
-            <div class="ttd-penyelia">
-                Penyelia - <?php echo htmlspecialchars($laporan['nama_penyelia'] ?? '.........................'); ?>
-                <?php if ($laporan['penyelia_id']): ?>
-                    <i>(Telah diverifikasi secara digital)</i>
-                <?php endif; ?>
-            </div>
-
             <div style="clear:both; margin-top: 30px;"></div>
-
             <div class="ttd-left">
                 Mengetahui, <br>
                 Manajer Teknis
-                <div class="ttd-space"></div>
+                <div class="ttd-space">
+                    <?php if (!empty($laporan['ttd_mt'])): ?>
+                        <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_mt']); ?>" style="max-height: 70px;">
+                    <?php endif; ?>
+                </div>
                 <strong>( <?php echo htmlspecialchars($laporan['nama_mt_tercetak'] ?? '.........................'); ?> )</strong>
             </div>
             <div class="ttd-right">
-                Medan, <?php $fmt = new IntlDateFormatter('id_ID', IntlDateFormatter::LONG, IntlDateFormatter::NONE); echo $fmt->format(time()); ?><br>
-                Petugas Sampling
-                <div class="ttd-space"></div>
-                <strong>( <?php echo htmlspecialchars($laporan['nama_ppc_tercetak'] ?? '.........................'); ?> )</strong>
+                Medan, <?php 
+                    $fmt = new IntlDateFormatter('id_ID', IntlDateFormatter::LONG, IntlDateFormatter::NONE); 
+                    echo $fmt->format(strtotime($laporan['waktu_verifikasi_penyelia'] ?? 'now')); 
+                ?><br>
+                Penyelia
+                <div class="ttd-space">
+                    <?php if (!empty($laporan['ttd_penyelia'])): ?>
+                        <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_penyelia']); ?>" style="max-height: 70px;">
+                    <?php endif; ?>
+                </div>
+                <strong>( <?php echo htmlspecialchars($laporan['nama_penyelia'] ?? '.........................'); ?> )</strong>
             </div>
         </section>
         

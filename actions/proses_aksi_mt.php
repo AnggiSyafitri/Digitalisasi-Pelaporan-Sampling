@@ -17,10 +17,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     try {
         if ($aksi == 'setuju') {
-            // Jika disetujui, update status, catat waktu, dan pastikan catatan revisi bersih
-            $sql = "UPDATE laporan SET status = 'Disetujui, Siap Dicetak', mt_id = ?, waktu_persetujuan_mt = NOW(), catatan_revisi = NULL WHERE id = ?";
+            // Ambil TTD MT dari tabel user
+            $stmt_ttd = $conn->prepare("SELECT tanda_tangan FROM users WHERE id = ?");
+            $stmt_ttd->bind_param("i", $mt_id);
+            $stmt_ttd->execute();
+            $ttd_file = $stmt_ttd->get_result()->fetch_assoc()['tanda_tangan'];
+            $stmt_ttd->close();
+
+            if (empty($ttd_file)) {
+                throw new Exception("Aksi ditolak. Anda harus mengunggah tanda tangan di halaman profil terlebih dahulu.");
+            }
+
+            // Jika disetujui, update status, catat waktu, simpan TTD, dan pastikan catatan revisi bersih
+            $sql = "UPDATE laporan SET status = 'Disetujui, Siap Dicetak', mt_id = ?, waktu_persetujuan_mt = NOW(), ttd_mt = ?, catatan_revisi = NULL WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ii", $mt_id, $laporan_id);
+            $stmt->bind_param("isi", $mt_id, $ttd_file, $laporan_id);
             $stmt->execute();
 
         } elseif ($aksi == 'revisi') {
