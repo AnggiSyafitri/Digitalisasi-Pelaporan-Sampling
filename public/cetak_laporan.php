@@ -50,6 +50,19 @@ $stmt->execute();
 $result = $stmt->get_result();
 $laporan = $result->fetch_assoc();
 
+// Ambil TTD terbaru dari setiap user yang terlibat, langsung dari tabel 'users'
+$sql_ttd = "
+    SELECT 
+        (SELECT tanda_tangan FROM users WHERE id = ?) as ttd_ppc,
+        (SELECT tanda_tangan FROM users WHERE id = ?) as ttd_penyelia,
+        (SELECT tanda_tangan FROM users WHERE id = ?) as ttd_mt
+";
+$stmt_ttd = $conn->prepare($sql_ttd);
+$stmt_ttd->bind_param("iii", $laporan['ppc_id'], $laporan['penyelia_id'], $laporan['mt_id']);
+$stmt_ttd->execute();
+$ttd_terbaru = $stmt_ttd->get_result()->fetch_assoc();
+$stmt_ttd->close();
+
 if (!$laporan) {
     die("Laporan tidak ditemukan.");
 }

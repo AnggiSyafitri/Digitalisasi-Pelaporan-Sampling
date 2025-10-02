@@ -54,11 +54,45 @@ if ($aksi === 'ajukan') {
     }
 }
 
+// == BLOK BARU: VALIDASI TTD PPC SAAT MENGAJUKAN DARI HALAMAN EDIT ==
+    if ($aksi === 'ajukan') {
+        $ppc_id = $_SESSION['user_id'];
+        $stmt_ttd = $conn->prepare("SELECT tanda_tangan FROM users WHERE id = ?");
+        $stmt_ttd->bind_param("i", $ppc_id);
+        $stmt_ttd->execute();
+        $ttd_ppc_file = $stmt_ttd->get_result()->fetch_assoc()['tanda_tangan'];
+        $stmt_ttd->close();
+
+        if (empty($ttd_ppc_file)) {
+            throw new Exception("Aksi ditolak. Anda harus mengunggah tanda tangan di halaman profil Anda terlebih dahulu.");
+        }
+    } else {
+        $ttd_ppc_file = null; // Tidak perlu TTD jika hanya simpan draft
+    }
+    // == AKHIR BLOK BARU ==
+
 // --- PROSES PENYIMPANAN DATA ---
 $processed_files_tracker = [];
 $files_to_delete_on_success = [];
 
 $conn->begin_transaction();
+
+$ppc_id = $_SESSION['user_id'];
+$ttd_ppc_file = null; // Default null
+
+    // Jika aksi adalah 'ajukan', ambil file TTD dari database user
+    if ($aksi === 'ajukan') {
+        $stmt_ttd = $conn->prepare("SELECT tanda_tangan FROM users WHERE id = ?");
+        $stmt_ttd->bind_param("i", $ppc_id);
+        $stmt_ttd->execute();
+        $result_ttd = $stmt_ttd->get_result()->fetch_assoc();
+        $stmt_ttd->close();
+
+        if (empty($result_ttd['tanda_tangan'])) {
+            throw new Exception("Aksi ditolak. Anda harus mengunggah tanda tangan di halaman profil terlebih dahulu.");
+        }
+        $ttd_ppc_file = $result_ttd['tanda_tangan'];
+    }
 
 try {
     // 1. Update data utama di tabel 'formulir'
@@ -111,10 +145,10 @@ try {
         $stmt_contoh->close();
     }
 
-    // 5. Update status laporan
-    $sql_laporan = "UPDATE laporan SET status = ?, catatan_revisi = NULL WHERE id = ?";
+    // 5. Update status laporan dan TTD PPC di tabel 'laporan'
+    $sql_laporan = "UPDATE laporan SET status = ?, ttd_ppc = ?, catatan_revisi = NULL WHERE id = ?";
     $stmt_laporan = $conn->prepare($sql_laporan);
-    $stmt_laporan->bind_param("si", $status_laporan, $laporan_id);
+    $stmt_laporan->bind_param("ssi", $status_laporan, $ttd_ppc_file, $laporan_id);
     $stmt_laporan->execute();
     $stmt_laporan->close();
 

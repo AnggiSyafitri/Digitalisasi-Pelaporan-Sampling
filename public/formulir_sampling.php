@@ -508,12 +508,6 @@ require_once '../templates/header.php';
             if (contohItems.length === 0) {
                 errors.push('<b>Data Contoh Uji:</b> Anda harus menambahkan minimal satu Contoh Uji.');
             }
-            contohItems.forEach((item, index) => {
-                const counter = item.id.split('_')[2];
-                if (item.querySelectorAll(`#parameter_container_${counter} input[type="checkbox"]:checked`).length === 0) {
-                    errors.push(`<b>Contoh Uji #${index + 1}:</b> Parameter Uji wajib dipilih minimal satu.`);
-                }
-            });
         }
 
         let allFilesAreValid = true;
