@@ -286,14 +286,34 @@ require_once '../templates/header.php';
             </div>
         </div>
     </div>
+
     <?php endif; ?>
 
-</div>
+        <?php // BLOK TOMBOL CETAK UNTUK SEMUA ROLE KETIKA STATUS = "Selesai"
+        if ($status == 'Selesai'): ?>
+        <div class="card action-box mt-4">
+            <div class="card-header"><h3>Laporan Telah Selesai</h3></div>
+            <div class="card-body">
+                <p>Laporan ini telah diselesaikan dan dapat dicetak/didownload.</p>
+                <div class="action-buttons">
+                    <a href="cetak_laporan.php?id=<?php echo $data_laporan['id']; ?>" target="_blank" class="btn btn-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer" viewBox="0 0 16 16">
+                            <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                            <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                        </svg>
+                        Cetak/Download PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
 
-<?php
-// TAMBAHKAN BARIS INI DI AKHIR
-require_once '../templates/footer.php';
-?>
+    </div>
+
+    <?php
+    // TAMBAHKAN BARIS INI DI AKHIR
+    require_once '../templates/footer.php';
+    ?>
 
 </body>
 </html>

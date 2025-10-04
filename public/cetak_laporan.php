@@ -67,6 +67,20 @@ if (!$laporan) {
     die("Laporan tidak ditemukan.");
 }
 
+// VALIDASI AKSES: Hanya Penerima Contoh yang bisa akses laporan "Disetujui, Siap Dicetak"
+// Semua role bisa akses laporan yang sudah "Selesai"
+if ($role_id == 4) {
+    // Penerima Contoh bisa akses laporan "Disetujui, Siap Dicetak" dan "Selesai"
+    if (!in_array($laporan['status'], ['Disetujui, Siap Dicetak', 'Selesai'])) {
+        die("Anda tidak memiliki hak akses untuk mencetak laporan dengan status ini.");
+    }
+} else {
+    // Role lain hanya bisa akses laporan yang sudah "Selesai"
+    if ($laporan['status'] != 'Selesai') {
+        die("Laporan ini belum dapat dicetak. Status harus 'Selesai'.");
+    }
+}
+
 $sql_contoh = "SELECT * FROM contoh WHERE formulir_id = ? ORDER BY id ASC";
 $stmt_contoh = $conn->prepare($sql_contoh);
 $stmt_contoh->bind_param("i", $laporan['form_id']);
