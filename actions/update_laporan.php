@@ -92,6 +92,7 @@ try {
             $file_ba_final = $nama_file_ba_baru ?? $item['file_berita_acara_lama'] ?? null;
             $file_sppc_final = $nama_file_sppc_baru ?? $item['file_sppc_lama'] ?? null;
 
+            // BARIS INI YANG DIPERBAIKI
             $stmt_contoh->bind_param("issssssssss", $form_id, $item['nama_contoh'], $item['jenis_contoh'], $item['merek'], $item['kode'], $prosedur_str, $parameter_str, $baku_mutu, $item['catatan'], $file_ba_final, $file_sppc_final);
             $stmt_contoh->execute();
         }

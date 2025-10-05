@@ -89,6 +89,8 @@ require_once '../templates/header.php';
         </div>
 
         <div class="card-body">
+            <div id="validation-error-container" class="alert alert-danger" style="display:none;"></div>
+
             <?php if (isset($_SESSION['flash_error'])): ?>
                 <div class="alert alert-danger">
                     <?php 
@@ -500,8 +502,7 @@ function validateFile(input) {
 }
 
 document.getElementById('editForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    document.getElementById('loadingOverlay').style.display = 'flex';
+    event.preventDefault(); // <-- Selalu hentikan submit untuk validasi
 
     // Dapatkan tombol mana yang diklik
     const submitter = event.submitter;
@@ -528,8 +529,8 @@ document.getElementById('editForm').addEventListener('submit', function(event) {
     }
 
     const pengambilSampel = document.getElementById('pengambil_sampel').value;
-    const subKontrakNama = document.getElementById('sub_kontrak_nama').value;
-    if (pengambilSampel === 'Sub Kontrak' && !subKontrakNama.trim()) {
+    const subKontrakNama = document.getElementById('sub_kontrak_nama');
+    if (pengambilSampel === 'Sub Kontrak' && subKontrakNama && !subKontrakNama.value.trim()) {
         errors.push('<b>Informasi Kegiatan:</b> Nama Perusahaan Sub Kontrak wajib diisi.');
     }
 
@@ -553,11 +554,13 @@ document.getElementById('editForm').addEventListener('submit', function(event) {
 
         for (const id in requiredContohFields) {
             const field = document.getElementById(id);
-            if (field && field.required && !field.value.trim()) {
+            // Perbaikan logika: Cek apakah field ada dan diperlukan sebelum validasi
+            if (field && !field.value.trim()) {
                 errors.push(`${prefix} ${requiredContohFields[id]} wajib diisi.`);
             }
         }
-
+        
+        // Validasi checkbox untuk prosedur dan parameter
         const checkedProsedur = item.querySelectorAll(`#prosedur_container_${counter} input[type="checkbox"]:checked`);
         if (checkedProsedur.length === 0) {
             errors.push(`${prefix} Prosedur Pengambilan Contoh wajib dipilih minimal satu.`);
@@ -575,14 +578,15 @@ document.getElementById('editForm').addEventListener('submit', function(event) {
     if (!allFilesAreValid) {
         errors.push("<b>Dokumen Pendukung:</b> Terdapat file yang tidak sesuai ketentuan.");
     }
-
+    
+    // Tampilkan error atau submit form
     if (errors.length > 0) {
-        event.preventDefault();
         document.getElementById('loadingOverlay').style.display = 'none';
         errorContainer.style.display = 'block';
         errorContainer.innerHTML = '<strong>Harap perbaiki kesalahan berikut:</strong><ul>' + errors.map(e => `<li>${e}</li>`).join('') + '</ul>';
         window.scrollTo(0, 0);
     } else {
+        document.getElementById('loadingOverlay').style.display = 'flex';
         // Tambahkan input tersembunyi untuk aksi
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
