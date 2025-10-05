@@ -24,63 +24,16 @@ $form_id = (int)$_POST['form_id'];
 $aksi = $_POST['aksi'];
 $status_laporan = ($aksi === 'ajukan') ? 'Menunggu Verifikasi' : 'Draft';
 
-// --- VALIDASI DATA (HANYA JIKA DIAJUKAN) ---
-if ($aksi === 'ajukan') {
-    try {
-        // Validasi field utama
-        $required_fields = ['jenis_kegiatan', 'perusahaan', 'alamat', 'tanggal', 'pengambil_sampel'];
-        foreach ($required_fields as $field) {
-            if (empty(trim($_POST[$field]))) {
-                throw new Exception("Field '" . ucfirst(str_replace('_', ' ', $field)) . "' wajib diisi untuk mengajukan laporan.");
-            }
-        }
-        if ($_POST['pengambil_sampel'] === 'Sub Kontrak' && empty(trim($_POST['sub_kontrak_nama']))) {
-            throw new Exception("Nama Perusahaan Sub Kontrak wajib diisi.");
-        }
-
-        // Validasi contoh uji
-        if (empty($_POST['contoh'])) {
-            throw new Exception("Minimal harus ada satu contoh uji untuk diajukan.");
-        }
-        foreach ($_POST['contoh'] as $index => $item) {
-            if (empty($item['parameter'])) {
-                throw new Exception("Parameter Uji wajib dipilih minimal satu untuk Contoh Uji #" . ($index + 1));
-            }
-        }
-    } catch (Exception $e) {
-        $_SESSION['flash_error'] = $e->getMessage();
-        header("Location: " . BASE_URL . "/edit_laporan.php?laporan_id=" . $laporan_id);
-        exit();
-    }
-}
-
-// == BLOK BARU: VALIDASI TTD PPC SAAT MENGAJUKAN DARI HALAMAN EDIT ==
-    if ($aksi === 'ajukan') {
-        $ppc_id = $_SESSION['user_id'];
-        $stmt_ttd = $conn->prepare("SELECT tanda_tangan FROM users WHERE id = ?");
-        $stmt_ttd->bind_param("i", $ppc_id);
-        $stmt_ttd->execute();
-        $ttd_ppc_file = $stmt_ttd->get_result()->fetch_assoc()['tanda_tangan'];
-        $stmt_ttd->close();
-
-        if (empty($ttd_ppc_file)) {
-            throw new Exception("Aksi ditolak. Anda harus mengunggah tanda tangan di halaman profil Anda terlebih dahulu.");
-        }
-    } else {
-        $ttd_ppc_file = null; // Tidak perlu TTD jika hanya simpan draft
-    }
-    // == AKHIR BLOK BARU ==
-
 // --- PROSES PENYIMPANAN DATA ---
 $processed_files_tracker = [];
 $files_to_delete_on_success = [];
+$ppc_id = $_SESSION['user_id'];
+$ttd_ppc_file = null;
 
 $conn->begin_transaction();
 
-$ppc_id = $_SESSION['user_id'];
-$ttd_ppc_file = null; // Default null
-
-    // Jika aksi adalah 'ajukan', ambil file TTD dari database user
+try {
+    // Jika aksi adalah 'ajukan', ambil file TTD dari database user dan validasi
     if ($aksi === 'ajukan') {
         $stmt_ttd = $conn->prepare("SELECT tanda_tangan FROM users WHERE id = ?");
         $stmt_ttd->bind_param("i", $ppc_id);
@@ -94,7 +47,6 @@ $ttd_ppc_file = null; // Default null
         $ttd_ppc_file = $result_ttd['tanda_tangan'];
     }
 
-try {
     // 1. Update data utama di tabel 'formulir'
     $stmt_form = $conn->prepare("UPDATE formulir SET perusahaan = ?, alamat = ?, tanggal = ?, jenis_kegiatan = ?, pengambil_sampel = ?, sub_kontrak_nama = ? WHERE id = ?");
     $sub_kontrak_nama = ($_POST['pengambil_sampel'] === 'Sub Kontrak') ? $_POST['sub_kontrak_nama'] : null;
@@ -133,13 +85,14 @@ try {
             $file_info_sppc = (isset($files_data['name']['file_sppc'][$index]) && $files_data['error']['file_sppc'][$index] == 0) ? ['name' => $files_data['name']['file_sppc'][$index], 'error' => $files_data['error']['file_sppc'][$index], 'tmp_name' => $files_data['tmp_name']['file_sppc'][$index], 'size' => $files_data['size']['file_sppc'][$index]] : null;
             $nama_file_sppc_baru = processUploadedFile($file_info_sppc, $index, 'SPPC', $processed_files_tracker);
 
+            $prosedur_str = isset($item['prosedur']) ? implode(', ', $item['prosedur']) : '';
             $parameter_str = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
             $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
 
             $file_ba_final = $nama_file_ba_baru ?? $item['file_berita_acara_lama'] ?? null;
             $file_sppc_final = $nama_file_sppc_baru ?? $item['file_sppc_lama'] ?? null;
 
-            $stmt_contoh->bind_param("issssssssss", $form_id, $item['nama_contoh'], $item['jenis_contoh'], $item['merek'], $item['kode'], $item['prosedur'], $parameter_str, $baku_mutu, $item['catatan'], $file_ba_final, $file_sppc_final);
+            $stmt_contoh->bind_param("issssssssss", $form_id, $item['nama_contoh'], $item['jenis_contoh'], $item['merek'], $item['kode'], $prosedur_str, $parameter_str, $baku_mutu, $item['catatan'], $file_ba_final, $file_sppc_final);
             $stmt_contoh->execute();
         }
         $stmt_contoh->close();
@@ -157,13 +110,13 @@ try {
 
     // Hapus file lama HANYA jika file baru diupload untuk menggantikannya
     foreach ($_POST['contoh'] as $index => $item) {
-        $file_info_ba = (isset($files_data['name']['file_berita_acara'][$index]) && $files_data['error']['file_berita_acara'][$index] == 0);
-        $file_info_sppc = (isset($files_data['name']['file_sppc'][$index]) && $files_data['error']['file_sppc'][$index] == 0);
+        $file_info_ba_exists = isset($files_data['name']['file_berita_acara'][$index]) && $files_data['error']['file_berita_acara'][$index] == 0;
+        $file_info_sppc_exists = isset($files_data['name']['file_sppc'][$index]) && $files_data['error']['file_sppc'][$index] == 0;
 
-        if ($file_info_ba && !empty($item['file_berita_acara_lama']) && file_exists('../public/uploads/' . $item['file_berita_acara_lama'])) {
+        if ($file_info_ba_exists && !empty($item['file_berita_acara_lama']) && file_exists('../public/uploads/' . $item['file_berita_acara_lama'])) {
             unlink('../public/uploads/' . $item['file_berita_acara_lama']);
         }
-        if ($file_info_sppc && !empty($item['file_sppc_lama']) && file_exists('../public/uploads/' . $item['file_sppc_lama'])) {
+        if ($file_info_sppc_exists && !empty($item['file_sppc_lama']) && file_exists('../public/uploads/' . $item['file_sppc_lama'])) {
             unlink('../public/uploads/' . $item['file_sppc_lama']);
         }
     }

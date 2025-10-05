@@ -10693,6 +10693,15 @@ body {
 }
 
 /* STYLING UNTUK FITUR PENCARIAN DAN FILTER */
+.option-box {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
 .form-label {
     font-weight: 600;
     color: #495057;
