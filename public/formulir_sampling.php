@@ -132,6 +132,18 @@ require_once '../templates/header.php';
 </div>
 
 <script>
+    document.getElementById('pengambil_sampel').addEventListener('change', function() {
+        const subKontrakWrapper = document.getElementById('sub_kontrak_wrapper');
+        const subKontrakInput = document.getElementById('sub_kontrak_nama');
+        if (this.value === 'Sub Kontrak') {
+            subKontrakWrapper.style.display = 'block';
+            subKontrakInput.required = true;
+        } else {
+            subKontrakWrapper.style.display = 'none';
+            subKontrakInput.required = false;
+        }
+    });
+    
     const dataSampling = {
         "Air Limbah": {
             tipeLaporan: "air",
@@ -146,54 +158,54 @@ require_once '../templates/header.php';
         "Air Minum": {
             tipeLaporan: "air",
             parameter: ["Padatan tersuspensi total (TSS)", "derajat keasaman (pH)", "amonia (NH₃-N)", "sulfat (SO₄²⁻)", "kadmium terlarut (Cd)", "nikel terlarut (Ni)", "krom terlarut (Cr)", "seng terlarut (Zn)", "mangan terlarut (Mn)", "tembaga terlarut (Cu)", "timbal terlarut (Pb)", "besi terlarut (Fe)", "barium terlarut (Ba)", "aluminium terlarut (Al)", "kalium terlarut (K)", "kobalt terlarut (Co)", "padatan terlarut total (TDS) secara gravimetri", "suhu", "perak terlarut (Ag)", "ortofosfat", "total fosfor", "daya hantar listrik (DHL)", "krom heksavalen (Cr⁶⁺)", "klorida (Cl⁻)", "nilai permanganat", "fluorida (F⁻)", "nitrit terlarut (NO₂-N)", "total coliform", "Escherichia coli", "kekeruhan", "bau", "air raksa terlarut (Hg)", "arsen terlarut (As)", "selenium terlarut (Se)", "sianida terlarut (CN⁻)", "sulfida terlarut", "klor bebas", "nitrat terlarut (NO₃-N)", "surfaktan anionik (MBAS)", "fenol", "warna", "boron terlarut (B)", "toluena", "benzena", "dieldrin", "karbon organik total/hidrokarbon poliaromatis (PAH)", "parakuat diklorida", "aluminium fosfida", "magnesium fosfida", "sulfuril fluorida", "metil bromida", "seng fosfida", "dikuat dibromida", "etil format", "fosfin", "asam sulfat", "formaldehida", "metanol", "N-metilpirolidon", "piridin basa", "lindan", "heptaklor", "eldrin", "endosulfan", "residu karbamat", "organoklorin", "α-BHC", "4,4′-DDT", "khlordan", "toksafen", "mirex", "polychlorinated biphenyl (PCB)", "heksaklorobenzena (HCB)", "organofosfat", "piretroid", "profenofos", "senyawa diazo (zat pewarna sintetik)", "radioaktivitas gross-α", "radioaktivitas gross-β"],
-                prosedur: ["SNI 06-6989.3:2019 (pH)", "SNI 06-6989.9:2004 (COD)", "SNI 06-6989.11:2019 (TDS)", "SNI 06-6989.23:2005 (minyak & lemak)", "SNI 06-6989.27:2019 (Cd, AAS)", "SNI 06-6989.29:2005 (fenol)", "SNI 06-6989.30:2005 (BOD)", "SNI 06-6989.38:2005 (DO)", "SNI 6989.1:2019 (pengambilan contoh uji)", "SNI 6989.19:2009 (F⁻)", "SNI 6989.20:2019 (NO₂-N)", "SNI 6989.22:2004 (Cl⁻)", "SNI 6989.34:2009 (bau)", "SNI 6989.46:2009 (warna)", "SNI 6989.68:2009 (S²⁻)", "SNI 6989.69:2009 (NO₃-N)", "SNI 6989.71:2009 (total P)", "SNI 6989.84:2019 (logam berat, AAS)", "SNI 8995:2021 (MBAS)", "SNI 6989.31:2021 (NO₃-N)", "SNI 9063:2022 (total coliform & E. coli, MPN)", "M-LP-720-TDS (padatan terlarut total)", "ISO 9308-1:2014 (E. coli & coliform, filtrasi membran)"]
-            },
-            "Air Permukaan": {
-                tipeLaporan: "air",
-                parameter: ["Padatan tersuspensi total (TSS)", "derajat keasaman (pH)", "amonia (NH₃-N)", "kebutuhan oksigen kimiawi (COD)", "minyak dan lemak", "sulfat (SO₄²⁻)", "kadmium terlarut (Cd)", "nikel terlarut (Ni)", "krom terlarut (Cr)", "seng terlarut (Zn)", "mangan terlarut (Mn)", "tembaga terlarut (Cu)", "timbal terlarut (Pb)", "besi terlarut (Fe)", "barium terlarut (Ba)", "kobalt terlarut (Co)", "padatan terlarut total (TDS)", "suhu", "perak terlarut (Ag)", "ortofosfat", "total fosfor", "padatan terlarut total (TDS) secara gravimetri", "daya hantar listrik (DHL)", "krom heksavalen (Cr⁶⁺)", "klorida (Cl⁻)", "nilai permanganat", "fluorida (F⁻)", "nitrit (NO₂-N)", "total coliform", "fecal coliform", "air raksa terlarut (Hg)", "arsen terlarut (As)", "selenium terlarut (Se)", "sianida (CN⁻)", "sulfida", "klor bebas", "nitrat (NO₃-N)", "surfaktan anionik (MBAS)", "fenol", "warna", "kebutuhan oksigen biokimiawi (BOD)", "oksigen terlarut (DO)", "total nitrogen (sebagai N)", "boron terlarut (B)", "aldrin/dieldrin", "BHC", "khlordan", "DDT", "endrin", "heptaklor", "lindan", "metoksiklor", "toksafen", "radioaktivitas gross-α", "radioaktivitas gross-β", "klorofil-a", "sampah"],
-                prosedur: ["SNI 06-6989.3:2019 (pH)", "SNI 06-6989.9:2004 (COD)", "SNI 06-6989.11:2019 (TDS)", "SNI 06-6989.23:2005 (minyak & lemak)", "SNI 06-6989.27:2019 (Cd, AAS)", "SNI 06-6989.29:2005 (fenol)", "SNI 06-6989.30:2005 (BOD)", "SNI 06-6989.38:2005 (DO)", "SNI 6989.1:2019 (pengambilan contoh uji)", "SNI 6989.19:2009 (F⁻)", "SNI 6989.20:2019 (NO₂-N)", "SNI 6989.22:2004 (Cl⁻)", "SNI 6989.46:2009 (warna)", "SNI 6989.68:2009 (S²⁻)", "SNI 6989.71:2009 (total P)", "SNI 6989.84:2019 (logam berat, AAS)", "SNI 8995:2021 (MBAS)", "SNI 6989.31:2021 (NO₃-N)", "SNI 9063:2022 (total coliform & E. coli, MPN)", "M-LP-720-TDS (padatan terlarut total)", "SM APHA 23rd Ed., 9221B&C (2017) (coliform & E. coli, metode tabung ganda)", "SM APHA 23rd Ed., 9221B, C & E (2017) (total coliform, fecal coliform & E. coli, metode MPN)"]
-            },
-            "Air Bersih": {
-                tipeLaporan: "air",
-                parameter: ["Padatan tersuspensi total (TSS)", "derajat keasaman (pH)", "amonia (NH₃-N)", "sulfat (SO₄²⁻)", "kadmium terlarut (Cd)", "nikel terlarut (Ni)", "krom terlarut (Cr)", "seng terlarut (Zn)", "mangan terlarut (Mn)", "tembaga terlarut (Cu)", "timbal terlarut (Pb)", "besi terlarut (Fe)", "barium terlarut (Ba)", "aluminium terlarut (Al)", "kalium terlarut (K)", "kobalt terlarut (Co)", "padatan terlarut total (TDS) secara gravimetri", "suhu", "perak terlarut (Ag)", "ortofosfat", "total fosfor", "daya hantar listrik (DHL)", "krom heksavalen terlarut (Cr⁶⁺)", "klorida (Cl⁻)", "nilai permanganat", "fluorida (F⁻)", "nitrit terlarut (NO₂-N)", "total coliform", "Escherichia coli", "kekeruhan", "warna", "bau", "nitrat terlarut (NO₃-N)"],
-                prosedur: ["SNI 06-6989.3:2019 (pH)", "SNI 06-6989.9:2004 (COD)", "SNI 06-6989.11:2019 (TDS)", "SNI 06-6989.23:2005 (minyak & lemak)", "SNI 06-6989.27:2019 (Cd, AAS)", "SNI 06-6989.29:2005 (fenol)", "SNI 06-6989.30:2005 (BOD)", "SNI 06-6989.38:2005 (DO)", "SNI 6989.1:2019 (pengambilan contoh uji)", "SNI 6989.19:2009 (F⁻)", "SNI 6989.20:2019 (NO₂-N)", "SNI 6989.22:2004 (Cl⁻)", "SNI 6989.34:2009 (bau)", "SNI 6989.46:2009 (warna)", "SNI 6989.68:2009 (S²⁻)", "SNI 6989.69:2009 (NO₃-N)", "SNI 6989.71:2009 (total P)", "SNI 6989.84:2019 (logam berat, AAS)", "SNI 8995:2021 (MBAS)", "SNI 6989.31:2021 (NO₃-N)", "SNI 9063:2022 (total coliform & E. coli, MPN)", "M-LP-720-TDS (padatan terlarut total)", "ISO 9308-1:2014 (E. coli & coliform, metode filtrasi membran)"]
-            },
-            "Udara Ambien": {
-                tipeLaporan: "udara",
-                parameter: ["Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Oksidan fotokimia (Ox) sebagai ozon (O₃)", "Hidrokarbon Non Metana (NMHC)", "Partikel tersuspensi total (TSP)", "Partikel dengan ukuran ≤ 10 µm (PM 10)", "Partikel dengan ukuran ≤ 2,5 µm (PM 2,5)", "Timbal (Pb)", "Temperatur", "Amoniak (NH₃)", "Metil merkaptan (CH₃SH)", "Hidrogen sulfida (H₂S)", "Metil sulfida ((CH₃)₂)S", "Stirena (C₆H₈CHCH₂)"],
-                prosedur: ["SNI 7119-7:2017", "SNI 7119-2:2017", "M-LP-713-AMB (Portable Gas Monitor)", "SNI 7119-3:2017", "SNI 7119-4:2017", "SNI 7119-8:2017", "SNI 19-7119.1-2005", "M-LP-721-HRS (Spektrofotometri)", "SNI 19-7119.6-2005", "SNI 19-7119.9-2005"]
-            },
-            "Udara dalam Ruang di Fasilitas Pelayanan Kesehatan": {
-                tipeLaporan: "udara",
-                parameter: ["Suhu", "Kelembaban", "Pencahayaan", "Debu", "Kebisingan"],
-                prosedur: ["SNI 7230:2009"]
-            },
-            "Emisi sumber bergerak": {
-                tipeLaporan: "udara",
-                parameter: ["Opasitas"],
-                prosedur: ["SNI 09-7118.2-2005"]
-            },
-            "Emisi sumber tidak bergerak": {
-                tipeLaporan: "udara",
-                parameter: ["Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Carbon dioksida (CO₂)", "Nitrogen oksida (NOx)", "Oksigen (O₂)", "Opasitas", "Kecepatan Linier/Laju alir (velocity)", "Kadar Uap Air", "Partikulat", "Hidrogen flourida (HF)", "Hidrogen sulfida (H₂S)", "Hidrogen klorida (HCl)", "Amoniak (NH₃)", "Gas Klorin (Cl₂)", "Total sulfur tereduksi (TRS)", "Air Raksa (Hg)", "Timbal (Pb)", "Arsen (As)", "Cadmium (Cd)", "Seng (Zn)", "Antimony (Sb)", "Talium (TI)", "Dioksin dan Furan"],
-                prosedur: ["SNI 7117.13-2009", "M-LV-712-OPS"]
-            },
-            "Tingkat Kebisingan": {
-                tipeLaporan: "kebisingan",
-                parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat"],
-                prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
-            },
-            "Tingkat Getaran": {
-                tipeLaporan: "getaran",
-                parameter: ["Tingkat Getaran", "Getaran untuk pemaparan lengan dan tangan (HAV)", "Getaran untuk pemaparan seluruh tubuh (WBV)"],
-                prosedur: ["M-LP-711-GET (Vibration Meter)", "SNI IEC 60034-14-2009"]
-            },
-            "Tingkat Getaran Lingkungan Kerja": {
-                tipeLaporan: "getaran",
-                parameter: ["Tingkat Getaran", "Getaran untuk pemaparan lengan dan tangan (HAV)", "Getaran untuk pemaparan seluruh tubuh (WBV)"],
-                prosedur: ["M-LP-711-GET (Vibration Meter)", "SNI IEC 60034-14-2009"]
-            }
-        };
+            prosedur: ["SNI 06-6989.3:2019 (pH)", "SNI 06-6989.9:2004 (COD)", "SNI 06-6989.11:2019 (TDS)", "SNI 06-6989.23:2005 (minyak & lemak)", "SNI 06-6989.27:2019 (Cd, AAS)", "SNI 06-6989.29:2005 (fenol)", "SNI 06-6989.30:2005 (BOD)", "SNI 06-6989.38:2005 (DO)", "SNI 6989.1:2019 (pengambilan contoh uji)", "SNI 6989.19:2009 (F⁻)", "SNI 6989.20:2019 (NO₂-N)", "SNI 6989.22:2004 (Cl⁻)", "SNI 6989.34:2009 (bau)", "SNI 6989.46:2009 (warna)", "SNI 6989.68:2009 (S²⁻)", "SNI 6989.69:2009 (NO₃-N)", "SNI 6989.71:2009 (total P)", "SNI 6989.84:2019 (logam berat, AAS)", "SNI 8995:2021 (MBAS)", "SNI 6989.31:2021 (NO₃-N)", "SNI 9063:2022 (total coliform & E. coli, MPN)", "M-LP-720-TDS (padatan terlarut total)", "ISO 9308-1:2014 (E. coli & coliform, filtrasi membran)"]
+        },
+        "Air Permukaan": {
+            tipeLaporan: "air",
+            parameter: ["Padatan tersuspensi total (TSS)", "derajat keasaman (pH)", "amonia (NH₃-N)", "kebutuhan oksigen kimiawi (COD)", "minyak dan lemak", "sulfat (SO₄²⁻)", "kadmium terlarut (Cd)", "nikel terlarut (Ni)", "krom terlarut (Cr)", "seng terlarut (Zn)", "mangan terlarut (Mn)", "tembaga terlarut (Cu)", "timbal terlarut (Pb)", "besi terlarut (Fe)", "barium terlarut (Ba)", "kobalt terlarut (Co)", "padatan terlarut total (TDS)", "suhu", "perak terlarut (Ag)", "ortofosfat", "total fosfor", "padatan terlarut total (TDS) secara gravimetri", "daya hantar listrik (DHL)", "krom heksavalen (Cr⁶⁺)", "klorida (Cl⁻)", "nilai permanganat", "fluorida (F⁻)", "nitrit (NO₂-N)", "total coliform", "fecal coliform", "air raksa terlarut (Hg)", "arsen terlarut (As)", "selenium terlarut (Se)", "sianida (CN⁻)", "sulfida", "klor bebas", "nitrat (NO₃-N)", "surfaktan anionik (MBAS)", "fenol", "warna", "kebutuhan oksigen biokimiawi (BOD)", "oksigen terlarut (DO)", "total nitrogen (sebagai N)", "boron terlarut (B)", "aldrin/dieldrin", "BHC", "khlordan", "DDT", "endrin", "heptaklor", "lindan", "metoksiklor", "toksafen", "radioaktivitas gross-α", "radioaktivitas gross-β", "klorofil-a", "sampah"],
+            prosedur: ["SNI 06-6989.3:2019 (pH)", "SNI 06-6989.9:2004 (COD)", "SNI 06-6989.11:2019 (TDS)", "SNI 06-6989.23:2005 (minyak & lemak)", "SNI 06-6989.27:2019 (Cd, AAS)", "SNI 06-6989.29:2005 (fenol)", "SNI 06-6989.30:2005 (BOD)", "SNI 06-6989.38:2005 (DO)", "SNI 6989.1:2019 (pengambilan contoh uji)", "SNI 6989.19:2009 (F⁻)", "SNI 6989.20:2019 (NO₂-N)", "SNI 6989.22:2004 (Cl⁻)", "SNI 6989.46:2009 (warna)", "SNI 6989.68:2009 (S²⁻)", "SNI 6989.71:2009 (total P)", "SNI 6989.84:2019 (logam berat, AAS)", "SNI 8995:2021 (MBAS)", "SNI 6989.31:2021 (NO₃-N)", "SNI 9063:2022 (total coliform & E. coli, MPN)", "M-LP-720-TDS (padatan terlarut total)", "SM APHA 23rd Ed., 9221B&C (2017) (coliform & E. coli, metode tabung ganda)", "SM APHA 23rd Ed., 9221B, C & E (2017) (total coliform, fecal coliform & E. coli, metode MPN)"]
+        },
+        "Air Bersih": {
+            tipeLaporan: "air",
+            parameter: ["Padatan tersuspensi total (TSS)", "derajat keasaman (pH)", "amonia (NH₃-N)", "sulfat (SO₄²⁻)", "kadmium terlarut (Cd)", "nikel terlarut (Ni)", "krom terlarut (Cr)", "seng terlarut (Zn)", "mangan terlarut (Mn)", "tembaga terlarut (Cu)", "timbal terlarut (Pb)", "besi terlarut (Fe)", "barium terlarut (Ba)", "aluminium terlarut (Al)", "kalium terlarut (K)", "kobalt terlarut (Co)", "padatan terlarut total (TDS) secara gravimetri", "suhu", "perak terlarut (Ag)", "ortofosfat", "total fosfor", "daya hantar listrik (DHL)", "krom heksavalen terlarut (Cr⁶⁺)", "klorida (Cl⁻)", "nilai permanganat", "fluorida (F⁻)", "nitrit terlarut (NO₂-N)", "total coliform", "Escherichia coli", "kekeruhan", "warna", "bau", "nitrat terlarut (NO₃-N)"],
+            prosedur: ["SNI 06-6989.3:2019 (pH)", "SNI 06-6989.9:2004 (COD)", "SNI 06-6989.11:2019 (TDS)", "SNI 06-6989.23:2005 (minyak & lemak)", "SNI 06-6989.27:2019 (Cd, AAS)", "SNI 06-6989.29:2005 (fenol)", "SNI 06-6989.30:2005 (BOD)", "SNI 06-6989.38:2005 (DO)", "SNI 6989.1:2019 (pengambilan contoh uji)", "SNI 6989.19:2009 (F⁻)", "SNI 6989.20:2019 (NO₂-N)", "SNI 6989.22:2004 (Cl⁻)", "SNI 6989.34:2009 (bau)", "SNI 6989.46:2009 (warna)", "SNI 6989.68:2009 (S²⁻)", "SNI 6989.69:2009 (NO₃-N)", "SNI 6989.71:2009 (total P)", "SNI 6989.84:2019 (logam berat, AAS)", "SNI 8995:2021 (MBAS)", "SNI 6989.31:2021 (NO₃-N)", "SNI 9063:2022 (total coliform & E. coli, MPN)", "M-LP-720-TDS (padatan terlarut total)", "ISO 9308-1:2014 (E. coli & coliform, metode filtrasi membran)"]
+        },
+        "Udara Ambien": {
+            tipeLaporan: "udara",
+            parameter: ["Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Oksidan fotokimia (Ox) sebagai ozon (O₃)", "Hidrokarbon Non Metana (NMHC)", "Partikel tersuspensi total (TSP)", "Partikel dengan ukuran ≤ 10 µm (PM 10)", "Partikel dengan ukuran ≤ 2,5 µm (PM 2,5)", "Timbal (Pb)", "Temperatur", "Amoniak (NH₃)", "Metil merkaptan (CH₃SH)", "Hidrogen sulfida (H₂S)", "Metil sulfida ((CH₃)₂)S", "Stirena (C₆H₈CHCH₂)"],
+            prosedur: ["SNI 7119-7:2017", "SNI 7119-2:2017", "M-LP-713-AMB (Portable Gas Monitor)", "SNI 7119-3:2017", "SNI 7119-4:2017", "SNI 7119-8:2017", "SNI 19-7119.1-2005", "M-LP-721-HRS (Spektrofotometri)", "SNI 19-7119.6-2005", "SNI 19-7119.9-2005"]
+        },
+        "Udara dalam Ruang di Fasilitas Pelayanan Kesehatan": {
+            tipeLaporan: "udara",
+            parameter: ["Suhu", "Kelembaban", "Pencahayaan", "Debu", "Kebisingan"],
+            prosedur: ["SNI 7230:2009"]
+        },
+        "Emisi sumber bergerak": {
+            tipeLaporan: "udara",
+            parameter: ["Opasitas"],
+            prosedur: ["SNI 09-7118.2-2005"]
+        },
+        "Emisi sumber tidak bergerak": {
+            tipeLaporan: "udara",
+            parameter: ["Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Carbon dioksida (CO₂)", "Nitrogen oksida (NOx)", "Oksigen (O₂)", "Opasitas", "Kecepatan Linier/Laju alir (velocity)", "Kadar Uap Air", "Partikulat", "Hidrogen flourida (HF)", "Hidrogen sulfida (H₂S)", "Hidrogen klorida (HCl)", "Amoniak (NH₃)", "Gas Klorin (Cl₂)", "Total sulfur tereduksi (TRS)", "Air Raksa (Hg)", "Timbal (Pb)", "Arsen (As)", "Cadmium (Cd)", "Seng (Zn)", "Antimony (Sb)", "Talium (TI)", "Dioksin dan Furan"],
+            prosedur: ["SNI 7117.13-2009", "M-LV-712-OPS"]
+        },
+        "Tingkat Kebisingan": {
+            tipeLaporan: "kebisingan",
+            parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat"],
+            prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
+        },
+        "Tingkat Getaran": {
+            tipeLaporan: "getaran",
+            parameter: ["Tingkat Getaran", "Getaran untuk pemaparan lengan dan tangan (HAV)", "Getaran untuk pemaparan seluruh tubuh (WBV)"],
+            prosedur: ["M-LP-711-GET (Vibration Meter)", "SNI IEC 60034-14-2009"]
+        },
+        "Tingkat Getaran Lingkungan Kerja": {
+            tipeLaporan: "getaran",
+            parameter: ["Tingkat Getaran", "Getaran untuk pemaparan lengan dan tangan (HAV)", "Getaran untuk pemaparan seluruh tubuh (WBV)"],
+            prosedur: ["M-LP-711-GET (Vibration Meter)", "SNI IEC 60034-14-2009"]
+        }
+    };
     
     let jenisLaporanTerpilih = null;
 

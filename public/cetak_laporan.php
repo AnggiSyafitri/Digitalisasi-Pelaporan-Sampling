@@ -130,7 +130,7 @@ function terbilang($angka) {
         .label { width: 35%; font-weight: bold; }
         .separator { width: 5%; text-align: center; }
         .value { width: 60%; }
-        .contoh-list { margin: 0; padding-left: 18px; }
+        .contoh-list { margin: 0; padding-left 0: 18px; }
         .contoh-list li { margin-bottom: 20px; }
         .contoh-detail-table { margin-left: 0; }
         .ttd-section { margin-top: 40px; width: 100%; font-size: 11pt; }

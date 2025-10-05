@@ -266,7 +266,7 @@ require_once '../templates/header.php';
             <form action="../actions/proses_aksi_mt.php" method="POST">
                 <input type="hidden" name="laporan_id" value="<?php echo $laporan_id; ?>">
                 <div class="form-group"><label for="catatan_revisi_mt">Catatan (wajib diisi jika dikembalikan):</label><textarea name="catatan_revisi_mt" id="catatan_revisi_mt" class="form-control" rows="4"></textarea></div>
-                <div class="action-buttons"><button type="submit" name="aksi" value="setuju" class="btn btn-success">Setujui Laporan (ACC)</button><button type="submit" name="aksi" value="revisi" class="btn btn-warning">Kembalikan ke Penyelia</button></div>
+                <div class="action-buttons"><button type="submit" name="aksi" value="setuju" class="btn btn-success">Setujui Laporan (ACC)</button><button type="submit" name="aksi" value="revisi" class="btn btn-warning">Kembalikan ke PPC</button></div>
             </form>
         </div>
     </div>
