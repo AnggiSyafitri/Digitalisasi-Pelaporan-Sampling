@@ -134,7 +134,7 @@ function terbilang($angka) {
         .contoh-list li { margin-bottom: 20px; }
         .contoh-detail-table { margin-left: 0; }
         .ttd-section { margin-top: 40px; width: 100%; font-size: 11pt; }
-        .ttd-left { float: left; width: 45%; text-align: center; }
+        .ttd-left { float: left; width: 40%; text-align: center; }
         .ttd-right { float: right; width: 45%; text-align: center; }
         .ttd-space { height: 70px; }
         .ttd-penyelia { margin-top: 20px; }
