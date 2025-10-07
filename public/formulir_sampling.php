@@ -547,7 +547,7 @@ require_once '../templates/header.php';
         // Hanya lakukan validasi ketat jika aksi adalah 'ajukan'
         if (aksi === 'ajukan') {
             const requiredFields = {
-                'jenis_kegiatan': 'Jenis Kegiatan', 'perusahaan': 'Nama Perusahaan', 'alamat': 'Alamat Perusahaan', 'tanggal': 'Tanggal Pelaksanaan', 'pengambil_sampel': 'Pengambil Sampel'
+                'jenis_kegiatan': 'Jenis Kegiatan', 'perusahaan': 'Nama Perusahaan', 'alamat': 'Alamat Perusahaan', 'tanggal_mulai': 'Tanggal Pelaksanaan', 'pengambil_sampel': 'Pengambil Sampel'
             };
             for (const id in requiredFields) {
                 if (!document.getElementById(id).value.trim()) {

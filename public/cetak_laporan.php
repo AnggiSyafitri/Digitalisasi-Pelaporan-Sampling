@@ -261,7 +261,7 @@ function terbilang($angka) {
             </div>
             <div class="ttd-right">
                 <?php
-                    $tanggal_ttd = !empty($laporan['waktu_persetujuan_mt']) ? strtotime($laporan['waktu_persetujuan_mt']) : strtotime($laporan['tanggal']);
+                    $tanggal_ttd = !empty($laporan['waktu_persetujuan_mt']) ? strtotime($laporan['waktu_persetujuan_mt']) : strtotime($laporan['tanggal_mulai']);
                     $fmt = new IntlDateFormatter('id_ID', IntlDateFormatter::LONG, IntlDateFormatter::NONE, 'Asia/Jakarta');
                 ?>
                 Medan, <?php echo $fmt->format($tanggal_ttd); ?><br>

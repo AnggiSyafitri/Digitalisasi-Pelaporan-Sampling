@@ -394,7 +394,7 @@ require_once '../templates/header.php';
                                 <td>#<?php echo htmlspecialchars($laporan['id']); ?></td>
                                 <td><?php echo ucfirst(htmlspecialchars($laporan['jenis_laporan'])); ?></td>
                                 <td><?php echo htmlspecialchars($laporan['perusahaan']); ?></td>
-                                <td><?php echo date('d M Y', strtotime($laporan['tanggal'])); ?></td>
+                                <td><?php echo date('d M Y', strtotime($laporan['tanggal_mulai'])); ?></td>
                                 <td>
                                     <span class="status <?php echo 'status-' . strtolower(str_replace(' ', '-', $laporan['status'])); ?>">
                                         <?php echo htmlspecialchars($laporan['status']); ?>
