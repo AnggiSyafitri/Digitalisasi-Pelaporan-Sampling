@@ -262,7 +262,7 @@ require_once '../templates/header.php';
                     <input type="text" id="merek_${currentCounter}" class="form-control" name="contoh[${currentCounter}][merek]" required>
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="kode_${currentCounter}">Kode <span class="text-danger">*</span></label>
+                    <label for="kode_${currentCounter}">Kode Contoh <span class="text-danger">*</span></label>
                     <input type="text" id="kode_${currentCounter}" class="form-control" name="contoh[${currentCounter}][kode]" required>
                 </div>
             </div>

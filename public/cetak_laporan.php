@@ -196,7 +196,7 @@ function terbilang($angka) {
                     <table class="content-table contoh-detail-table">
                         <tr><td class="label">Jenis Contoh</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['jenis_contoh']); ?></td></tr>
                         <tr><td class="label">Etiket / Merek</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['merek']); ?></td></tr>
-                        <tr><td class="label">Kode</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['kode']); ?></td></tr>
+                        <tr><td class="label">Kode Contoh</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['kode']); ?></td></tr>
                         <tr><td class="label">Prosedur Pengambilan Contoh</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['prosedur']); ?></td></tr>
                         <tr><td class="label">Parameter</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['parameter']); ?></td></tr>
                         <tr><td class="label">Baku Mutu</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['baku_mutu']); ?></td></tr>
@@ -211,7 +211,7 @@ function terbilang($angka) {
                 <div style="display: flex; align-items: flex-end; justify-content: center; height: 100px;">
 
                     <div style="line-height: 5; padding-left: 20px;">
-                        Penyelia
+                        Diperiksa - Penyelia
                         <strong>( <?php echo htmlspecialchars($laporan['nama_penyelia'] ?? '.........................'); ?> )</strong>
                     </div>
                     <div style="width: 90px; flex-shrink: 0; text-align: center;">
@@ -224,7 +224,7 @@ function terbilang($angka) {
             </div>
 
             <div class="ttd-left">
-                Mengetahui, <br>
+                Menyetujui, <br>
                 Manajer Teknis
                 <div class="ttd-space">
                     <?php if (!empty($laporan['ttd_mt'])): ?>

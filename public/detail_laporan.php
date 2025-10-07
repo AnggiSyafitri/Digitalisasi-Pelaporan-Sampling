@@ -203,8 +203,8 @@ require_once '../templates/header.php';
             <table class="table-detail">
                 <tr><td width="30%">Jenis Contoh</td><td><?php echo htmlspecialchars($contoh['jenis_contoh']); ?></td></tr>
                 <tr><td>Etiket / Merek</td><td><?php echo htmlspecialchars($contoh['merek']); ?></td></tr>
-                <tr><td>Kode</td><td><?php echo htmlspecialchars($contoh['kode']); ?></td></tr>
-                <tr><td>Prosedur</td><td><?php echo htmlspecialchars($contoh['prosedur']); ?></td></tr>
+                <tr><td>Kode Contoh</td><td><?php echo htmlspecialchars($contoh['kode']); ?></td></tr>
+                <tr><td>Prosedur</td><td><?php echo htmlspecialchars(is_array($contoh['prosedur']) ? implode(', ', $contoh['prosedur']) : $contoh['prosedur']); ?></td></tr>
                 <tr><td>Parameter</td><td><?php echo htmlspecialchars($contoh['parameter']); ?></td></tr>
                 <tr><td>Baku Mutu</td><td><?php echo htmlspecialchars($contoh['baku_mutu']); ?></td></tr>
                 <tr><td>Catatan Tambahan</td><td><?php echo nl2br(htmlspecialchars($contoh['catatan'])); ?></td></tr>
