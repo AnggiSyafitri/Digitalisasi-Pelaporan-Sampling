@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_nama_ttd'])) {
 $sql = "
     SELECT 
         l.*,
-        f.perusahaan, f.alamat, f.tanggal, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama,
+        f.perusahaan, f.alamat, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama,
         u_ppc.nama_lengkap as nama_pembuat_laporan,
         u_penyelia.nama_lengkap as nama_penyelia
     FROM laporan l
@@ -170,7 +170,19 @@ function terbilang($angka) {
                 <tr>
                     <td class="label">TANGGAL PELAKSANAAN</td>
                     <td class="separator">:</td>
-                    <td class="value"><?php echo date('d F Y', strtotime($laporan['tanggal'])); ?></td>
+                    <td class="value">
+                        <?php
+                        $mulai_cetak = new DateTime($laporan['tanggal_mulai']);
+                        $selesai_cetak = new DateTime($laporan['tanggal_selesai']);
+                        $formatter_cetak = new IntlDateFormatter('id_ID', IntlDateFormatter::LONG, IntlDateFormatter::NONE);
+
+                        if ($mulai_cetak->format('Y-m-d') == $selesai_cetak->format('Y-m-d')) {
+                            echo $formatter_cetak->format($mulai_cetak);
+                        } else {
+                            echo $formatter_cetak->format($mulai_cetak) . " s/d " . $formatter_cetak->format($selesai_cetak);
+                        }
+                        ?>
+                    </td>
                 </tr>
                 <tr>
                     <td class="label">PENGAMBIL SAMPEL</td>
@@ -180,6 +192,20 @@ function terbilang($angka) {
                         echo htmlspecialchars($laporan['pengambil_sampel']); 
                         if ($laporan['pengambil_sampel'] == 'Sub Kontrak' && !empty($laporan['sub_kontrak_nama'])) {
                             echo " (" . htmlspecialchars($laporan['sub_kontrak_nama']) . ")";
+                        }
+                        ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">TUJUAN PEMERIKSAAN</td>
+                    <td class="separator">:</td>
+                    <td class="value">
+                        <?php 
+                        $tujuan_cetak = htmlspecialchars($laporan['tujuan_pemeriksaan'] ?? '-');
+                        if ($tujuan_cetak === 'Lainnya' && !empty($laporan['tujuan_pemeriksaan_lainnya'])) {
+                            echo htmlspecialchars($laporan['tujuan_pemeriksaan_lainnya']);
+                        } else {
+                            echo $tujuan_cetak;
                         }
                         ?>
                     </td>

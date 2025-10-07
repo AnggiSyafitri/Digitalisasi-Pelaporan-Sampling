@@ -127,9 +127,15 @@ require_once '../templates/header.php';
                         <textarea id="alamat" name="alamat" rows="3" class="form-control" required><?php echo htmlspecialchars($data_laporan['alamat']); ?></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="tanggal">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
-                        <input type="date" id="tanggal" name="tanggal" class="form-control" value="<?php echo htmlspecialchars($data_laporan['tanggal']); ?>" required>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="tanggal_mulai">Tanggal Mulai Pelaksanaan <span class="text-danger">*</span></label>
+                            <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="form-control" value="<?php echo htmlspecialchars($data_laporan['tanggal_mulai']); ?>" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="tanggal_selesai">Tanggal Selesai Pelaksanaan <span class="text-danger">*</span></label>
+                            <input type="date" id="tanggal_selesai" name="tanggal_selesai" class="form-control" value="<?php echo htmlspecialchars($data_laporan['tanggal_selesai']); ?>" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -144,6 +150,22 @@ require_once '../templates/header.php';
                         <label for="sub_kontrak_nama">Nama Perusahaan Sub Kontrak <span class="text-danger">*</span></label>
                         <input type="text" id="sub_kontrak_nama" name="sub_kontrak_nama" class="form-control" value="<?php echo htmlspecialchars($data_laporan['sub_kontrak_nama']); ?>">
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tujuan_pemeriksaan">Tujuan Pemeriksaan <span class="text-danger">*</span></label>
+                    <select id="tujuan_pemeriksaan" name="tujuan_pemeriksaan" class="form-control" required>
+                        <option value="">-- Pilih Tujuan --</option>
+                        <option value="Pemantauan / Pelaporan" <?php echo ($data_laporan['tujuan_pemeriksaan'] == 'Pemantauan / Pelaporan') ? 'selected' : ''; ?>>Pemantauan / Pelaporan</option>
+                        <option value="Pembuktian / Penegakan Hukum" <?php echo ($data_laporan['tujuan_pemeriksaan'] == 'Pembuktian / Penegakan Hukum') ? 'selected' : ''; ?>>Pembuktian / Penegakan Hukum</option>
+                        <option value="Kepentingan Internal / Perusahaan" <?php echo ($data_laporan['tujuan_pemeriksaan'] == 'Kepentingan Internal / Perusahaan') ? 'selected' : ''; ?>>Kepentingan Internal / Perusahaan</option>
+                        <option value="Lainnya" <?php echo ($data_laporan['tujuan_pemeriksaan'] == 'Lainnya') ? 'selected' : ''; ?>>Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="tujuan_lainnya_wrapper" style="display:<?php echo ($data_laporan['tujuan_pemeriksaan'] == 'Lainnya') ? 'block' : 'none'; ?>;">
+                    <label for="tujuan_pemeriksaan_lainnya">Tujuan Lainnya <span class="text-danger">*</span></label>
+                    <input type="text" id="tujuan_pemeriksaan_lainnya" name="tujuan_pemeriksaan_lainnya" class="form-control" value="<?php echo htmlspecialchars($data_laporan['tujuan_pemeriksaan_lainnya']); ?>">
                 </div>
 
                 <hr class="mb-4">
@@ -184,6 +206,18 @@ require_once '../templates/header.php';
         } else {
             subKontrakWrapper.style.display = 'none';
             subKontrakInput.required = false;
+        }
+    });
+
+    document.getElementById('tujuan_pemeriksaan').addEventListener('change', function() {
+        const lainnyaWrapper = document.getElementById('tujuan_lainnya_wrapper');
+        const lainnyaInput = document.getElementById('tujuan_pemeriksaan_lainnya');
+        if (this.value === 'Lainnya') {
+            lainnyaWrapper.style.display = 'block';
+            lainnyaInput.required = true;
+        } else {
+            lainnyaWrapper.style.display = 'none';
+            lainnyaInput.required = false;
         }
     });
 

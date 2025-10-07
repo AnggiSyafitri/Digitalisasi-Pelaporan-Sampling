@@ -87,9 +87,15 @@ require_once '../templates/header.php';
                         <textarea id="alamat" name="alamat" rows="3" class="form-control" required></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="tanggal">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
-                        <input type="date" id="tanggal" name="tanggal" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="tanggal_mulai">Tanggal Mulai Pelaksanaan <span class="text-danger">*</span></label>
+                            <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="tanggal_selesai">Tanggal Selesai Pelaksanaan <span class="text-danger">*</span></label>
+                            <input type="date" id="tanggal_selesai" name="tanggal_selesai" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -104,6 +110,22 @@ require_once '../templates/header.php';
                     <div class="form-group" id="sub_kontrak_wrapper" style="display:none;">
                         <label for="sub_kontrak_nama">Nama Perusahaan Sub Kontrak <span class="text-danger">*</span></label>
                         <input type="text" id="sub_kontrak_nama" name="sub_kontrak_nama" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tujuan_pemeriksaan">Tujuan Pemeriksaan <span class="text-danger">*</span></label>
+                        <select id="tujuan_pemeriksaan" name="tujuan_pemeriksaan" class="form-control" required>
+                            <option value="">-- Pilih Tujuan --</option>
+                            <option value="Pemantauan / Pelaporan">Pemantauan / Pelaporan</option>
+                            <option value="Pembuktian / Penegakan Hukum">Pembuktian / Penegakan Hukum</option>
+                            <option value="Kepentingan Internal / Perusahaan">Kepentingan Internal / Perusahaan</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="tujuan_lainnya_wrapper" style="display:none;">
+                        <label for="tujuan_pemeriksaan_lainnya">Tujuan Lainnya <span class="text-danger">*</span></label>
+                        <input type="text" id="tujuan_pemeriksaan_lainnya" name="tujuan_pemeriksaan_lainnya" class="form-control">
                     </div>
                 </div>
 
@@ -143,7 +165,19 @@ require_once '../templates/header.php';
             subKontrakInput.required = false;
         }
     });
-    
+
+    document.getElementById('tujuan_pemeriksaan').addEventListener('change', function() {
+        const lainnyaWrapper = document.getElementById('tujuan_lainnya_wrapper');
+        const lainnyaInput = document.getElementById('tujuan_pemeriksaan_lainnya');
+        if (this.value === 'Lainnya') {
+            lainnyaWrapper.style.display = 'block';
+            lainnyaInput.required = true;
+        } else {
+            lainnyaWrapper.style.display = 'none';
+            lainnyaInput.required = false;
+        }
+    });
+   
     const dataSampling = {
         "Air Limbah": {
             tipeLaporan: "air",

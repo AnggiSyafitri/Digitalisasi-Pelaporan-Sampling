@@ -48,9 +48,11 @@ try {
     }
 
     // 1. Update data utama di tabel 'formulir'
-    $stmt_form = $conn->prepare("UPDATE formulir SET perusahaan = ?, alamat = ?, tanggal = ?, jenis_kegiatan = ?, pengambil_sampel = ?, sub_kontrak_nama = ? WHERE id = ?");
+    $stmt_form = $conn->prepare("UPDATE formulir SET perusahaan = ?, alamat = ?, tanggal_mulai = ?, tanggal_selesai = ?, jenis_kegiatan = ?, pengambil_sampel = ?, sub_kontrak_nama = ?, tujuan_pemeriksaan = ?, tujuan_pemeriksaan_lainnya = ? WHERE id = ?");
     $sub_kontrak_nama = ($_POST['pengambil_sampel'] === 'Sub Kontrak') ? $_POST['sub_kontrak_nama'] : null;
-    $stmt_form->bind_param("ssssssi", $_POST['perusahaan'], $_POST['alamat'], $_POST['tanggal'], $_POST['jenis_kegiatan'], $_POST['pengambil_sampel'], $sub_kontrak_nama, $form_id);
+    $tujuan_pemeriksaan = $_POST['tujuan_pemeriksaan'];
+    $tujuan_pemeriksaan_lainnya = ($tujuan_pemeriksaan === 'Lainnya') ? $_POST['tujuan_pemeriksaan_lainnya'] : null;
+    $stmt_form->bind_param("sssssssssi", $_POST['perusahaan'], $_POST['alamat'], $_POST['tanggal_mulai'], $_POST['tanggal_selesai'], $_POST['jenis_kegiatan'], $_POST['pengambil_sampel'], $sub_kontrak_nama, $tujuan_pemeriksaan, $tujuan_pemeriksaan_lainnya, $form_id);
     $stmt_form->execute();
     $stmt_form->close();
 

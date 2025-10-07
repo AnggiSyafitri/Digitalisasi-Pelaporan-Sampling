@@ -82,9 +82,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
         $jenis_kegiatan = $_POST['jenis_kegiatan'];
         $perusahaan = $_POST['perusahaan'];
         $alamat = $_POST['alamat'];
-        $tanggal = $_POST['tanggal'];
+        $tanggal_mulai = $_POST['tanggal_mulai'];
+        $tanggal_selesai = $_POST['tanggal_selesai'];
         $pengambil_sampel = $_POST['pengambil_sampel'];
         $sub_kontrak_nama = ($pengambil_sampel === 'Sub Kontrak') ? $_POST['sub_kontrak_nama'] : NULL;
+        // Ambil data tujuan pemeriksaan
+        $tujuan_pemeriksaan = $_POST['tujuan_pemeriksaan'];
+        $tujuan_pemeriksaan_lainnya = ($tujuan_pemeriksaan === 'Lainnya') ? $_POST['tujuan_pemeriksaan_lainnya'] : NULL;
 
         // Kelompokkan item contoh berdasarkan tipe laporannya
         $laporan_items_by_type = ['air' => [],'udara' => [],'kebisingan' => [],'getaran' => []];
@@ -102,9 +106,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
             if (!empty($items)) {
                 
                 // 1. Buat entri di tabel `formulir`
-                $sql_form = "INSERT INTO formulir (jenis_laporan, perusahaan, alamat, tanggal, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $sql_form = "INSERT INTO formulir (jenis_laporan, perusahaan, alamat, tanggal_mulai, tanggal_selesai, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama, tujuan_pemeriksaan, tujuan_pemeriksaan_lainnya, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt_form = $conn->prepare($sql_form);
-                $stmt_form->bind_param("sssssssi", $jenis, $data_utama['perusahaan'], $data_utama['alamat'], $data_utama['tanggal'], $data_utama['jenis_kegiatan'], $data_utama['pengambil_sampel'], $data_utama['sub_kontrak_nama'], $ppc_id);
+                $stmt_form->bind_param("ssssssssssi", $jenis, $data_utama['perusahaan'], $data_utama['alamat'], $tanggal_mulai, $tanggal_selesai, $data_utama['jenis_kegiatan'], $data_utama['pengambil_sampel'], $data_utama['sub_kontrak_nama'], $tujuan_pemeriksaan, $tujuan_pemeriksaan_lainnya, $ppc_id);
                 $stmt_form->execute();
                 $form_id = $conn->insert_id;
                 $stmt_form->close();

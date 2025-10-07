@@ -19,7 +19,7 @@ $role_id = $_SESSION['role_id'];
 $sql_utama = "
     SELECT 
         l.*, 
-        f.perusahaan, f.alamat, f.tanggal, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama,
+        f.perusahaan, f.alamat, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama,
         u_ppc.nama_lengkap as nama_ppc,
         u_penyelia.nama_lengkap as nama_penyelia,
         u_mt.nama_lengkap as nama_mt,
@@ -102,11 +102,41 @@ require_once '../templates/header.php';
                 <tr><td><strong>Jenis Kegiatan</strong></td><td><?php echo htmlspecialchars($data_laporan['jenis_kegiatan'] ?? '-'); ?></td></tr>
                 <tr><td><strong>Perusahaan</strong></td><td><?php echo htmlspecialchars($data_laporan['perusahaan'] ?? '-'); ?></td></tr>
                 <tr><td><strong>Alamat</strong></td><td><?php echo htmlspecialchars($data_laporan['alamat'] ?? '-'); ?></td></tr>
-                <tr><td><strong>Tanggal Pelaksanaan</strong></td><td><?php echo date('d F Y', strtotime($data_laporan['tanggal'])); ?></td></tr>
+                <tr>
+                    <td><strong>Tanggal Pelaksanaan</strong></td>
+                    <td>
+                        <?php
+                        $mulai = new DateTime($data_laporan['tanggal_mulai']);
+                        $selesai = new DateTime($data_laporan['tanggal_selesai']);
+                        $formatter = new IntlDateFormatter('id_ID', IntlDateFormatter::LONG, IntlDateFormatter::NONE);
+
+                        if ($mulai->format('Y-m-d') == $selesai->format('Y-m-d')) {
+                            echo $formatter->format($mulai);
+                        } else {
+                            echo $formatter->format($mulai) . " s/d " . $formatter->format($selesai);
+                        }
+                        ?>
+                    </td>
+                </tr>
                 <tr><td><strong>Pengambil Sampel</strong></td><td><?php echo htmlspecialchars($data_laporan['pengambil_sampel'] ?? '-'); ?></td></tr>
                 <?php if($data_laporan['sub_kontrak_nama']): ?>
                 <tr><td><strong>Nama Sub Kontrak</strong></td><td><?php echo htmlspecialchars($data_laporan['sub_kontrak_nama']); ?></td></tr>
                 <?php endif; ?>
+
+                <tr>
+                    <td><strong>Tujuan Pemeriksaan</strong></td>
+                    <td>
+                        <?php 
+                        $tujuan = htmlspecialchars($data_laporan['tujuan_pemeriksaan'] ?? '-');
+                        if ($tujuan === 'Lainnya' && !empty($data_laporan['tujuan_pemeriksaan_lainnya'])) {
+                            echo htmlspecialchars($data_laporan['tujuan_pemeriksaan_lainnya']);
+                        } else {
+                            echo $tujuan;
+                        }
+                        ?>
+                    </td>
+                </tr>
+
             </table>
         </div>
     </div>
