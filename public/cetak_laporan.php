@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_nama_ttd'])) {
 $sql = "
     SELECT 
         l.*,
-        f.perusahaan, f.alamat, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama,
+        f.perusahaan, f.alamat, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama, f.tujuan_pemeriksaan, f.tujuan_pemeriksaan_lainnya,
         u_ppc.nama_lengkap as nama_pembuat_laporan,
         u_penyelia.nama_lengkap as nama_penyelia
     FROM laporan l

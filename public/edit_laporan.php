@@ -252,6 +252,11 @@ require_once '../templates/header.php';
             parameter: ["Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Oksidan fotokimia (Ox) sebagai ozon (O₃)", "Hidrokarbon Non Metana (NMHC)", "Partikel tersuspensi total (TSP)", "Partikel dengan ukuran ≤ 10 µm (PM 10)", "Partikel dengan ukuran ≤ 2,5 µm (PM 2,5)", "Timbal (Pb)", "Temperatur", "Kelembaban", "Amoniak (NH₃)", "Metil merkaptan (CH₃SH)**", "Hidrogen sulfida (H₂S)", "Metil sulfida ((CH₃)₂)S**", "Stirena (C₆H₈CHCH₂)**"],
             prosedur: ["SNI 7119-7:2017", "SNI 7119-2:2017", "M-LP-713-AMB (Portable Gas Monitor)", "SNI 7119-3:2017", "SNI 7119-4:2017", "SNI 7119-8:2017", "SNI 19-7119.1-2005", "M-LP-721-HRS (Spektrofotometri)", "SNI 19-7119.6-2005 (Lokasi sampling ambient)", "SNI 19-7119.9-2005 (Roadside)"]
         },
+        "Udara Lingkungan Kerja": {
+            tipeLaporan: "udara",
+            parameter: ["Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Oksidan fotokimia (Ox) sebagai ozon (O₃)", "Hidrokarbon Non Metana (NMHC)", "Partikel tersuspensi total (TSP)", "Partikel dengan ukuran ≤ 10 µm (PM 10)", "Partikel dengan ukuran ≤ 2,5 µm (PM 2,5)", "Timbal (Pb)", "Temperatur", "Kelembaban", "Amoniak (NH₃)", "Metil merkaptan (CH₃SH)**", "Hidrogen sulfida (H₂S)", "Metil sulfida ((CH₃)₂)S**", "Stirena (C₆H₈CHCH₂)**"],
+            prosedur: ["SNI 7119-7:2017", "SNI 7119-2:2017", "M-LP-713-AMB (Portable Gas Monitor)", "SNI 7119-3:2017", "SNI 7119-4:2017", "SNI 7119-8:2017", "SNI 19-7119.1-2005", "M-LP-721-HRS (Spektrofotometri)", "SNI 19-7119.6-2005 (Lokasi sampling ambient)", "SNI 19-7119.9-2005 (Roadside)"]
+        },
         "Udara dalam Ruang di Fasilitas Pelayanan Kesehatan": {
             tipeLaporan: "udara",
             parameter: ["Suhu", "Kelembaban", "Pencahayaan", "Debu", "Kebisingan", "Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Oksidan fotokimia (Ox) sebagai ozon (O₃)", "Hidrokarbon Non Metana (NMHC)", "Partikel tersuspensi total (TSP)", "Partikel dengan ukuran ≤ 10 µm (PM 10)", "Partikel dengan ukuran ≤ 2,5 µm (PM 2,5)", "Timbal (Pb)", "Temperatur", "Kelembaban", "Amoniak (NH₃)", "Metil merkaptan (CH₃SH)**", "Hidrogen sulfida (H₂S)", "Metil sulfida ((CH₃)₂)S**", "Stirena (C₆H₈CHCH₂)**"],
@@ -268,6 +273,16 @@ require_once '../templates/header.php';
             prosedur: ["SNI 7117.13-2009", "M-LV-712-OPS"]
         },
         "Tingkat Kebisingan": {
+            tipeLaporan: "kebisingan",
+            parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat", "Tingkat kebisingan lingkungan"],
+            prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
+        },
+        "Tingkat Kebisingan Lingkungan": {
+            tipeLaporan: "kebisingan",
+            parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat", "Tingkat kebisingan lingkungan"],
+            prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
+        },
+        "Tingkat Kebisingan Lingkungan Kerja": {
             tipeLaporan: "kebisingan",
             parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat", "Tingkat kebisingan lingkungan"],
             prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
@@ -557,7 +572,8 @@ document.getElementById('editForm').addEventListener('submit', function(event) {
         'jenis_kegiatan': 'Jenis Kegiatan',
         'perusahaan': 'Nama Perusahaan',
         'alamat': 'Alamat Perusahaan',
-        'tanggal': 'Tanggal Pelaksanaan',
+        'tanggal_mulai': 'Tanggal Mulai Pelaksanaan',
+        'tanggal_selesai': 'Tanggal Selesai Pelaksanaan',
         'pengambil_sampel': 'Pengambil Sampel'
     };
 

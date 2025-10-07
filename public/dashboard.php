@@ -28,9 +28,9 @@ if (!empty($_GET['search_id'])) {
     $search_types .= "s";
 }
 
-if (!empty($_GET['filter_jenis'])) {
-    $search_conditions[] = "f.jenis_kegiatan = ?";
-    $search_params[] = $_GET['filter_jenis'];
+if (!empty($_GET['filter_jenis_laporan'])) {
+    $search_conditions[] = "l.jenis_laporan = ?"; // Mengambil dari tabel laporan
+    $search_params[] = $_GET['filter_jenis_laporan'];
     $search_types .= "s";
 }
 
@@ -41,13 +41,15 @@ if (!empty($_GET['search_perusahaan'])) {
 }
 
 if (!empty($_GET['tanggal_mulai'])) {
-    $search_conditions[] = "f.tanggal >= ?";
+    // Laporan yang tanggal mulainya setelah atau sama dengan tanggal filter
+    $search_conditions[] = "f.tanggal_mulai >= ?";
     $search_params[] = $_GET['tanggal_mulai'];
     $search_types .= "s";
 }
 
 if (!empty($_GET['tanggal_akhir'])) {
-    $search_conditions[] = "f.tanggal <= ?";
+    // Laporan yang tanggal selesainya sebelum atau sama dengan tanggal filter
+    $search_conditions[] = "f.tanggal_selesai <= ?";
     $search_params[] = $_GET['tanggal_akhir'];
     $search_types .= "s";
 }
@@ -59,7 +61,7 @@ if (!empty($_GET['filter_status'])) {
 }
 
 $query_part = "
-    SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal, f.jenis_kegiatan, l.ppc_id, l.updated_at
+    SELECT l.id, l.jenis_laporan, l.status, f.perusahaan, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, l.ppc_id, l.updated_at
     FROM laporan l
     JOIN formulir f ON l.form_id = f.id
 ";
@@ -170,11 +172,13 @@ require_once '../templates/header.php';
                 
                 <!-- Filter Jenis Kegiatan -->
                 <div class="col-md-2">
-                    <label for="filter_jenis" class="form-label">Jenis Kegiatan</label>
-                    <select class="form-control" id="filter_jenis" name="filter_jenis">
+                    <label for="filter_jenis_laporan" class="form-label">Jenis Laporan</label>
+                    <select class="form-control" id="filter_jenis_laporan" name="filter_jenis_laporan">
                         <option value="">Semua Jenis</option>
-                        <option value="Sampling" <?php echo (isset($_GET['filter_jenis']) && $_GET['filter_jenis'] == 'Sampling') ? 'selected' : ''; ?>>Sampling</option>
-                        <option value="Pengujian" <?php echo (isset($_GET['filter_jenis']) && $_GET['filter_jenis'] == 'Pengujian') ? 'selected' : ''; ?>>Pengujian</option>
+                        <option value="air" <?php echo (isset($_GET['filter_jenis_laporan']) && $_GET['filter_jenis_laporan'] == 'air') ? 'selected' : ''; ?>>Air</option>
+                        <option value="udara" <?php echo (isset($_GET['filter_jenis_laporan']) && $_GET['filter_jenis_laporan'] == 'udara') ? 'selected' : ''; ?>>Udara</option>
+                        <option value="kebisingan" <?php echo (isset($_GET['filter_jenis_laporan']) && $_GET['filter_jenis_laporan'] == 'kebisingan') ? 'selected' : ''; ?>>Kebisingan</option>
+                        <option value="getaran" <?php echo (isset($_GET['filter_jenis_laporan']) && $_GET['filter_jenis_laporan'] == 'getaran') ? 'selected' : ''; ?>>Getaran</option>
                     </select>
                 </div>
                 
@@ -287,7 +291,7 @@ require_once '../templates/header.php';
                                 <td>#<?php echo htmlspecialchars($laporan['id']); ?></td>
                                 <td><?php echo ucfirst(htmlspecialchars($laporan['jenis_laporan'])); ?></td>
                                 <td><?php echo htmlspecialchars($laporan['perusahaan']); ?></td>
-                                <td><?php echo date('d M Y', strtotime($laporan['tanggal'])); ?></td>
+                                <td><?php echo date('d M Y', strtotime($laporan['tanggal_mulai'])); ?></td>
                                 <td>
                                     <span class="status <?php echo 'status-' . strtolower(str_replace(' ', '-', $laporan['status'])); ?>">
                                         <?php echo htmlspecialchars($laporan['status']); ?>

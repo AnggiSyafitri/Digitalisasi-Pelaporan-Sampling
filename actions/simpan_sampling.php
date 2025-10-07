@@ -99,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
             }
         }
 
-        $data_utama = compact('perusahaan', 'alamat', 'tanggal', 'jenis_kegiatan', 'pengambil_sampel', 'sub_kontrak_nama');
+        $data_utama = compact('perusahaan', 'alamat', 'jenis_kegiatan', 'pengambil_sampel', 'sub_kontrak_nama');
         
         // Loop untuk setiap jenis laporan (misal: 'air', 'udara', dll.)
         foreach ($laporan_items_by_type as $jenis => $items) {
@@ -121,10 +121,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
                 foreach ($items as $item) {
                     $index = $item['original_key']; // Perbaikan bug
                     
-                    $file_info_ba = isset($files_data['name'][$index]['file_berita_acara']) ? ['name'=>$files_data['name'][$index]['file_berita_acara'], 'error'=>$files_data['error'][$index]['file_berita_acara'], 'tmp_name'=>$files_data['tmp_name'][$index]['file_berita_acara'], 'size'=>$files_data['size'][$index]['file_berita_acara']] : null;
+                    // Proses file Berita Acara
+                    $file_info_ba = (isset($files_data['name'][$index]['file_berita_acara']) && $files_data['error'][$index]['file_berita_acara'] == 0) 
+                        ? [
+                            'name' => $files_data['name'][$index]['file_berita_acara'], 
+                            'error' => $files_data['error'][$index]['file_berita_acara'], 
+                            'tmp_name' => $files_data['tmp_name'][$index]['file_berita_acara'], 
+                            'size' => $files_data['size'][$index]['file_berita_acara']
+                        ] 
+                        : null;
                     $nama_file_ba = processUploadedFile($file_info_ba, $index, 'Berita Acara', $processed_files_tracker);
 
-                    $file_info_sppc = isset($files_data['name'][$index]['file_sppc']) ? ['name'=>$files_data['name'][$index]['file_sppc'], 'error'=>$files_data['error'][$index]['file_sppc'], 'tmp_name'=>$files_data['tmp_name'][$index]['file_sppc'], 'size'=>$files_data['size'][$index]['file_sppc']] : null;
+                    // Proses file SPPC
+                    $file_info_sppc = (isset($files_data['name'][$index]['file_sppc']) && $files_data['error'][$index]['file_sppc'] == 0) 
+                        ? [
+                            'name' => $files_data['name'][$index]['file_sppc'], 
+                            'error' => $files_data['error'][$index]['file_sppc'], 
+                            'tmp_name' => $files_data['tmp_name'][$index]['file_sppc'], 
+                            'size' => $files_data['size'][$index]['file_sppc']
+                        ] 
+                        : null;
                     $nama_file_sppc = processUploadedFile($file_info_sppc, $index, 'SPPC', $processed_files_tracker);
 
                     // Data teks lainnya

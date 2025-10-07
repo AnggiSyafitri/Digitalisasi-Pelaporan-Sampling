@@ -19,7 +19,7 @@ $role_id = $_SESSION['role_id'];
 $sql_utama = "
     SELECT 
         l.*, 
-        f.perusahaan, f.alamat, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama,
+        f.perusahaan, f.alamat, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama, f.tujuan_pemeriksaan, f.tujuan_pemeriksaan_lainnya,
         u_ppc.nama_lengkap as nama_ppc,
         u_penyelia.nama_lengkap as nama_penyelia,
         u_mt.nama_lengkap as nama_mt,
