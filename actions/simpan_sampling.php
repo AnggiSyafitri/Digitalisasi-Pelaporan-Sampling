@@ -126,10 +126,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
                     // Data teks lainnya
                     $jenis_contoh = $item['jenis_contoh'] ?? 'N/A';
                     $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
+                    $prosedur = isset($item['prosedur']) ? implode(', ', $item['prosedur']) : '';
                     $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
                     $catatan = $item['catatan'] ?? '';
 
-                    $stmt_contoh->bind_param("issssssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $item['prosedur'], $parameter, $baku_mutu, $catatan, $nama_file_ba, $nama_file_sppc);
+                    $stmt_contoh->bind_param("issssssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $prosedur, $parameter, $baku_mutu, $catatan, $nama_file_ba, $nama_file_sppc);
                     $stmt_contoh->execute();
                 }
                 $stmt_contoh->close();

@@ -215,12 +215,12 @@ require_once '../templates/header.php';
         },
         "Udara Ambien": {
             tipeLaporan: "udara",
-            parameter: ["Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Oksidan fotokimia (Ox) sebagai ozon (O₃)", "Hidrokarbon Non Metana (NMHC)", "Partikel tersuspensi total (TSP)", "Partikel dengan ukuran ≤ 10 µm (PM 10)", "Partikel dengan ukuran ≤ 2,5 µm (PM 2,5)", "Timbal (Pb)", "Temperatur", "Amoniak (NH₃)", "Metil merkaptan (CH₃SH)", "Hidrogen sulfida (H₂S)", "Metil sulfida ((CH₃)₂)S", "Stirena (C₆H₈CHCH₂)"],
-            prosedur: ["SNI 7119-7:2017", "SNI 7119-2:2017", "M-LP-713-AMB (Portable Gas Monitor)", "SNI 7119-3:2017", "SNI 7119-4:2017", "SNI 7119-8:2017", "SNI 19-7119.1-2005", "M-LP-721-HRS (Spektrofotometri)", "SNI 19-7119.6-2005", "SNI 19-7119.9-2005"]
+            parameter: ["Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Oksidan fotokimia (Ox) sebagai ozon (O₃)", "Hidrokarbon Non Metana (NMHC)", "Partikel tersuspensi total (TSP)", "Partikel dengan ukuran ≤ 10 µm (PM 10)", "Partikel dengan ukuran ≤ 2,5 µm (PM 2,5)", "Timbal (Pb)", "Temperatur", "Kelembaban", "Amoniak (NH₃)", "Metil merkaptan (CH₃SH)**", "Hidrogen sulfida (H₂S)", "Metil sulfida ((CH₃)₂)S**", "Stirena (C₆H₈CHCH₂)**"],
+            prosedur: ["SNI 7119-7:2017", "SNI 7119-2:2017", "M-LP-713-AMB (Portable Gas Monitor)", "SNI 7119-3:2017", "SNI 7119-4:2017", "SNI 7119-8:2017", "SNI 19-7119.1-2005", "M-LP-721-HRS (Spektrofotometri)", "SNI 19-7119.6-2005 (Lokasi sampling ambient)", "SNI 19-7119.9-2005 (Roadside)"]
         },
         "Udara dalam Ruang di Fasilitas Pelayanan Kesehatan": {
             tipeLaporan: "udara",
-            parameter: ["Suhu", "Kelembaban", "Pencahayaan", "Debu", "Kebisingan"],
+            parameter: ["Suhu", "Kelembaban", "Pencahayaan", "Debu", "Kebisingan", "Sulfur dioksida (SO₂)", "Nitrogen dioksida (NO₂)", "Carbon Monoksida (CO)", "Oksidan fotokimia (Ox) sebagai ozon (O₃)", "Hidrokarbon Non Metana (NMHC)", "Partikel tersuspensi total (TSP)", "Partikel dengan ukuran ≤ 10 µm (PM 10)", "Partikel dengan ukuran ≤ 2,5 µm (PM 2,5)", "Timbal (Pb)", "Temperatur", "Kelembaban", "Amoniak (NH₃)", "Metil merkaptan (CH₃SH)**", "Hidrogen sulfida (H₂S)", "Metil sulfida ((CH₃)₂)S**", "Stirena (C₆H₈CHCH₂)**"],
             prosedur: ["SNI 7230:2009"]
         },
         "Emisi sumber bergerak": {
@@ -235,7 +235,7 @@ require_once '../templates/header.php';
         },
         "Tingkat Kebisingan": {
             tipeLaporan: "kebisingan",
-            parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat"],
+            parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat", "Tingkat kebisingan lingkungan"],
             prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
         },
         "Tingkat Getaran": {
@@ -325,13 +325,19 @@ function tambahContoh(data = null) {
             <label for="baku_mutu_${currentCounter}">Baku Mutu <span class="text-danger">*</span></label>
             <select class="form-control" name="contoh[${currentCounter}][baku_mutu]" id="baku_mutu_${currentCounter}" required>
                 <option value="">-- Pilih Baku Mutu --</option>
-                <option value="PP RI No. 22 Tahun 2021, Lampiran I">PP RI No. 22 Tahun 2021, Lampiran I</option>
-                <option value="PP RI No. 22 Tahun 2021, Lampiran III">PP RI No. 22 Tahun 2021, Lampiran III</option>
-                <option value="PP RI No. 22 Tahun 2021, Lampiran IV">PP RI No. 22 Tahun 2021, Lampiran IV</option>
+                <option value="KepMen LH No. 50 Tahun 1996">KepMen LH No. 50 Tahun 1996</option>
+                <option value="Permenaker No. 25 Tahun 2018">Permenaker No. 25 Tahun 2018</option>
                 <option value="PP RI No. 22 Tahun 2021, Lampiran VI">PP RI No. 22 Tahun 2021, Lampiran VI</option>
                 <option value="PP RI No. 22 Tahun 2021, Lampiran VII">PP RI No. 22 Tahun 2021, Lampiran VII</option>
+                <option value="PP RI No. 22 Tahun 2021, Lampiran VIII">PP RI No. 22 Tahun 2021, Lampiran VIII</option>
                 <option value="PERMENLH No. 05 Tahun 2014 Lampiran III">PERMENLH No. 05 Tahun 2014 Lampiran III</option>
                 <option value="PERMEN LHK No. 14 Tahun 2020">Permen LHK No. 14 Tahun 2020</option>
+                <option value="PerMen LH No. 07 Tahun 2007, Lampiran I - VII">PerMen LH No. 07 Tahun 2007, Lampiran I - VII</option>
+                <option value="Permenkes No. 22 Tahun 2023">Permenkes No. 22 Tahun 2023</option>
+                <option value="Permen LHK No. 11 Tahun 2021, Lampiran I">Permen LHK No. 11 Tahun 2021, Lampiran I</option>
+                <option value="KepMen LH No. 13 Tahun 1995, Lampiran Vb">KepMen LH No. 13 Tahun 1995, Lampiran Vb</option>
+                <option value="Permen LHK P.56 Tahun 2015">Permen LHK P.56 Tahun 2015</option>
+                <option value="Permen LHK No. P.17 Tahun 2018">Permen LHK No. P.17 Tahun 2018</option>
                 <option value="Keputusan Menteri Lingkungan Hidup No. 48 Tahun 1996 (Tingkat Kebisingan)">Keputusan Menteri Lingkungan Hidup No. 48 Tahun 1996 (Tingkat Kebisingan)</option>
                 <option value="Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996 (Tingkat Getaran)">Keputusan Menteri Lingkungan Hidup No. 49 Tahun 1996 (Tingkat Getaran)</option>                
                 <option value="Lainnya">Lainnya...</option>

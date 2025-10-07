@@ -155,7 +155,7 @@ function terbilang($angka) {
                 <tr>
                     <td class="label">JENIS KEGIATAN</td>
                     <td class="separator">:</td>
-                    <td class="value"><?php echo htmlspecialchars($laporan['jenis_kegiatan']); ?> / Pengujian <?php echo htmlspecialchars($nama_contoh_utama); ?></td>
+                    <td class="value"><?php echo htmlspecialchars($laporan['jenis_kegiatan']); ?> <?php echo htmlspecialchars($nama_contoh_utama); ?></td>
                 </tr>
                 <tr>
                     <td class="label">NAMA PERUSAHAAN</td>
