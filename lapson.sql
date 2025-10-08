@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS `contoh` (
   `formulir_id` int DEFAULT NULL,
   `nama_contoh` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `jenis_contoh` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `merek` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `kode` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `merek` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `kode` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `prosedur` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `parameter` text COLLATE utf8mb4_general_ci,
   `baku_mutu` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `contoh` (
   PRIMARY KEY (`id`),
   KEY `formulir_id` (`formulir_id`),
   CONSTRAINT `contoh_ibfk_1` FOREIGN KEY (`formulir_id`) REFERENCES `formulir` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Data exporting was unselected.
 
@@ -49,15 +49,18 @@ CREATE TABLE IF NOT EXISTS `formulir` (
   `jenis_laporan` enum('air','udara','kebisingan','getaran') COLLATE utf8mb4_general_ci NOT NULL,
   `perusahaan` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
   `alamat` text COLLATE utf8mb4_general_ci NOT NULL,
-  `tanggal` date NOT NULL,
+  `tanggal_mulai` date DEFAULT NULL,
+  `tanggal_selesai` date DEFAULT NULL,
   `jenis_kegiatan` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `pengambil_sampel` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `sub_kontrak_nama` varchar(150) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `tujuan_pemeriksaan` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `tujuan_pemeriksaan_lainnya` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `created_by` int NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `created_by` (`created_by`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Data exporting was unselected.
 
@@ -84,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `laporan` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Data exporting was unselected.
 

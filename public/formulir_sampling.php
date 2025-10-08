@@ -71,7 +71,7 @@ require_once '../templates/header.php';
                         <label for="jenis_kegiatan">Jenis Kegiatan <span class="text-danger">*</span></label>
                         <select id="jenis_kegiatan" name="jenis_kegiatan" class="form-control" required>
                             <option value="">-- Pilih Jenis Kegiatan --</option>
-                            <option value="Sampling">Sampling</option>
+                            <option value="Sampling dan Pengujian">Sampling dan Pengujian</option>
                             <option value="Pengujian">Pengujian</option>
                         </select>
                         <small id="kegiatan_detail_text" class="form-text text-muted"></small>
