@@ -139,13 +139,17 @@ function terbilang($angka) {
         .ttd-space { height: 70px; }
         .ttd-penyelia { margin-top: 20px; }
         .no-print { margin-top: 40px; padding: 20px; border: 2px dashed #ccc; background-color: #f9f9f9; }
+        .doc-number { text-align: right; font-weight: bold; font-size: 11pt; }
+        
         @media print {
             .no-print { display: none; }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
+        <div class="doc-number">F-LP-712/1-I-00/25</div>
         <div class="header">
             <h3>HASIL LAPORAN KEGIATAN SAMPLING</h3>
         </div>

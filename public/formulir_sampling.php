@@ -72,6 +72,7 @@ require_once '../templates/header.php';
                         <select id="jenis_kegiatan" name="jenis_kegiatan" class="form-control" required>
                             <option value="">-- Pilih Jenis Kegiatan --</option>
                             <option value="Sampling dan Pengujian">Sampling dan Pengujian</option>
+                            <option value="Sampling">Sampling</option>
                             <option value="Pengujian">Pengujian</option>
                         </select>
                         <small id="kegiatan_detail_text" class="form-text text-muted"></small>
@@ -138,6 +139,26 @@ require_once '../templates/header.php';
                         Tambah Contoh Uji
                     </button>
                     <div id="contohContainer"></div>
+                </div>
+
+                <hr class="mb-4">
+                <div class="form-section" style="border:none; padding-bottom:0;">
+                    <h3>Dokumen Pendukung</h3>
+                    <p>Unggah dokumen Berita Acara dan SPPC untuk laporan ini.</p>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="file_berita_acara">Upload Berita Acara (Opsional)</label>
+                            <input type="file" id="file_berita_acara" name="file_berita_acara" class="form-control-file" onchange="validateFile(this)">
+                            <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
+                            <div class="file-error-message text-danger small mt-1"></div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="file_sppc">Upload SPPC (Opsional)</label>
+                            <input type="file" id="file_sppc" name="file_sppc" class="form-control-file" onchange="validateFile(this)">
+                            <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
+                            <div class="file-error-message text-danger small mt-1"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="button-group mt-4">
@@ -353,21 +374,6 @@ require_once '../templates/header.php';
             <div class="form-group">
                 <label for="catatan_${currentCounter}">Catatan Tambahan <span class="text-danger">*</span></label>
                 <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2" required></textarea>
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="file_berita_acara_${currentCounter}">Upload Berita Acara (Opsional)</label>
-                    <input type="file" id="file_berita_acara_${currentCounter}" name="contoh[${currentCounter}][file_berita_acara]" class="form-control-file" onchange="validateFile(this)">
-                    <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
-                    <div class="file-error-message text-danger small mt-1"></div>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="file_sppc_${currentCounter}">Upload SPPC (Opsional)</label>
-                    <input type="file" id="file_sppc_${currentCounter}" name="contoh[${currentCounter}][file_sppc]" class="form-control-file" onchange="validateFile(this)">
-                    <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
-                    <div class="file-error-message text-danger small mt-1"></div>
-                </div>
             </div>
         `;
         container.appendChild(div);

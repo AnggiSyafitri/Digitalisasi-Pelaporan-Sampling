@@ -18,8 +18,8 @@ $role_id = $_SESSION['role_id'];
 // Query SQL yang disederhanakan untuk mengambil data dari tabel 'formulir' yang baru
 $sql_utama = "
     SELECT 
-        l.*, 
-        f.perusahaan, f.alamat, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama, f.tujuan_pemeriksaan, f.tujuan_pemeriksaan_lainnya,
+        l.*,
+        f.perusahaan, f.alamat, f.tanggal_mulai, f.tanggal_selesai, f.jenis_kegiatan, f.pengambil_sampel, f.sub_kontrak_nama, f.tujuan_pemeriksaan, f.tujuan_pemeriksaan_lainnya, f.file_berita_acara, f.file_sppc,
         u_ppc.nama_lengkap as nama_ppc,
         u_penyelia.nama_lengkap as nama_penyelia,
         u_mt.nama_lengkap as nama_mt,
@@ -137,6 +137,27 @@ require_once '../templates/header.php';
                     </td>
                 </tr>
 
+                <tr>
+                    <td><strong>Dokumen Berita Acara</strong></td>
+                    <td>
+                        <?php if (!empty($data_laporan['file_berita_acara'])): ?>
+                            <a href="<?php echo BASE_URL . '/uploads/' . htmlspecialchars($data_laporan['file_berita_acara']); ?>" target="_blank" class="btn btn-info btn-sm">Lihat File</a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Dokumen SPPC</strong></td>
+                    <td>
+                        <?php if (!empty($data_laporan['file_sppc'])): ?>
+                            <a href="<?php echo BASE_URL . '/uploads/' . htmlspecialchars($data_laporan['file_sppc']); ?>" target="_blank" class="btn btn-info btn-sm">Lihat File</a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                
             </table>
         </div>
     </div>
@@ -238,31 +259,6 @@ require_once '../templates/header.php';
                 <tr><td>Parameter</td><td><?php echo htmlspecialchars($contoh['parameter']); ?></td></tr>
                 <tr><td>Baku Mutu</td><td><?php echo htmlspecialchars($contoh['baku_mutu']); ?></td></tr>
                 <tr><td>Catatan Tambahan</td><td><?php echo nl2br(htmlspecialchars($contoh['catatan'])); ?></td></tr>
-
-                <tr>
-                    <td>File Berita Acara</td>
-                    <td>
-                        <?php if (!empty($contoh['file_berita_acara'])): ?>
-                            <a href="<?php echo BASE_URL . '/uploads/' . htmlspecialchars($contoh['file_berita_acara']); ?>" target="_blank" class="btn btn-info btn-sm">
-                                Lihat File
-                            </a>
-                        <?php else: ?>
-                            -
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <tr>
-                    <td>File SPPC</td>
-                    <td>
-                        <?php if (!empty($contoh['file_sppc'])): ?>
-                            <a href="<?php echo BASE_URL . '/uploads/' . htmlspecialchars($contoh['file_sppc']); ?>" target="_blank" class="btn btn-info btn-sm">
-                                Lihat File
-                            </a>
-                        <?php else: ?>
-                            -
-                        <?php endif; ?>
-                    </td>
-                </tr>
                 </table>
 
         </div>
@@ -306,7 +302,8 @@ require_once '../templates/header.php';
     <div class="card action-box mt-4">
         <div class="card-header"><h3>Tindakan Pencetakan</h3></div>
         <div class="card-body">
-            <p>Laporan ini sudah final. Setelah dicetak, ubah statusnya menjadi "Selesai".</p>
+            <p>Laporan ini sudah final. Jika tindakan "Konfirmasi Selesai" dilakukan, maka laporan tidak dapat di edit kembali.</p>
+            <p>~~ Harap dipastikan lagi laporannya sebelum di konfirmasi yaa😉 ~~</p>
             <div class="action-buttons">
                 <a href="cetak_laporan.php?id=<?php echo $data_laporan['id']; ?>" target="_blank" class="btn btn-info">Buka Halaman Cetak</a>
                 <form action="../actions/proses_aksi_penerima.php" method="POST" onsubmit="return confirm('Anda yakin ingin menyelesaikan laporan ini?');">

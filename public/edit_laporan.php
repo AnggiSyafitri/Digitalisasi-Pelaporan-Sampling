@@ -113,6 +113,7 @@ require_once '../templates/header.php';
                         <select id="jenis_kegiatan" name="jenis_kegiatan" class="form-control" required>
                             <option value="">-- Pilih Jenis Kegiatan --</option>
                             <option value="Sampling dan Pengujian" <?php echo ($data_laporan['jenis_kegiatan'] == 'Sampling dan Pengujian') ? 'selected' : ''; ?>>Sampling dan Pengujian</option>
+                            <option value="Sampling" <?php echo ($data_laporan['jenis_kegiatan'] == 'Sampling') ? 'selected' : ''; ?>>Sampling</option>
                             <option value="Pengujian" <?php echo ($data_laporan['jenis_kegiatan'] == 'Pengujian') ? 'selected' : ''; ?>>Pengujian</option>
                         </select>
                     </div>
@@ -178,6 +179,34 @@ require_once '../templates/header.php';
                     </button>
                     <div id="contohContainer">
                         </div>
+                </div>
+
+                <hr class="mb-4">
+                <div class="form-section" style="border:none; padding-bottom:0;">
+                    <h3>Dokumen Pendukung</h3>
+                    <p>Ganti atau unggah dokumen Berita Acara dan SPPC untuk laporan ini (jika ada).</p>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="file_berita_acara">Upload Berita Acara (Opsional)</label>
+                            <input type="hidden" name="file_berita_acara_lama" value="<?php echo htmlspecialchars($data_laporan['file_berita_acara']); ?>">
+                            <?php if (!empty($data_laporan['file_berita_acara'])): ?>
+                                <p class="form-text text-muted mb-1 small">File saat ini: <a href="<?php echo BASE_URL; ?>/uploads/<?php echo htmlspecialchars($data_laporan['file_berita_acara']); ?>" target="_blank">Lihat File</a></p>
+                            <?php endif; ?>
+                            <input type="file" id="file_berita_acara" name="file_berita_acara" class="form-control-file" onchange="validateFile(this)">
+                            <small class="form-text text-muted">Biarkan kosong jika tidak ingin mengubah file. | PDF, JPG, PNG (Maks 5MB)</small>
+                            <div class="file-error-message text-danger small mt-1"></div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="file_sppc">Upload SPPC (Opsional)</label>
+                            <input type="hidden" name="file_sppc_lama" value="<?php echo htmlspecialchars($data_laporan['file_sppc']); ?>">
+                            <?php if (!empty($data_laporan['file_sppc'])): ?>
+                                <p class="form-text text-muted mb-1 small">File saat ini: <a href="<?php echo BASE_URL; ?>/uploads/<?php echo htmlspecialchars($data_laporan['file_sppc']); ?>" target="_blank">Lihat File</a></p>
+                            <?php endif; ?>
+                            <input type="file" id="file_sppc" name="file_sppc" class="form-control-file" onchange="validateFile(this)">
+                            <small class="form-text text-muted">Biarkan kosong jika tidak ingin mengubah file. | PDF, JPG, PNG (Maks 5MB)</small>
+                            <div class="file-error-message text-danger small mt-1"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="button-group mt-4">
@@ -399,24 +428,6 @@ function tambahContoh(data = null) {
             <textarea id="catatan_${currentCounter}" class="form-control" name="contoh[${currentCounter}][catatan]" rows="2" required>${data ? data.catatan : ''}</textarea>
         </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="file_berita_acara_${currentCounter}">Upload Berita Acara (Opsional)</label>
-                <input type="hidden" name="contoh[${currentCounter}][file_berita_acara_lama]" value="${data && data.file_berita_acara ? data.file_berita_acara : ''}">
-                ${data && data.file_berita_acara ? `<p class="form-text text-muted mb-1 small">File saat ini: <a href="<?php echo BASE_URL; ?>/uploads/${data.file_berita_acara}" target="_blank">Lihat</a></p>` : ''}
-                <input type="file" id="file_berita_acara_${currentCounter}" name="contoh[${currentCounter}][file_berita_acara]" class="form-control-file" onchange="validateFile(this)">
-                <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
-                <div class="file-error-message text-danger small mt-1"></div>
-            </div>
-            <div class="form-group col-md-6">
-                <label for="file_sppc_${currentCounter}">Upload SPPC (Opsional)</label>
-                <input type="hidden" name="contoh[${currentCounter}][file_sppc_lama]" value="${data && data.file_sppc ? data.file_sppc : ''}">
-                ${data && data.file_sppc ? `<p class="form-text text-muted mb-1 small">File saat ini: <a href="<?php echo BASE_URL; ?>/uploads/${data.file_sppc}" target="_blank">Lihat</a></p>` : ''}
-                <input type="file" id="file_sppc_${currentCounter}" name="contoh[${currentCounter}][file_sppc]" class="form-control-file" onchange="validateFile(this)">
-                <small class="form-text text-muted">PDF, JPG, JPEG, PNG (Maks 5MB)</small>
-                <div class="file-error-message text-danger small mt-1"></div>
-            </div>
-        </div>
     `;
     container.appendChild(div);
     

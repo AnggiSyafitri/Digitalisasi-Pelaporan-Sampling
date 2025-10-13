@@ -66,6 +66,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
     $conn->begin_transaction();
 
     try {
+        // Proses file upload utama di awal
+        $nama_file_ba = processUploadedFile($_FILES['file_berita_acara'] ?? null, 0, 'Berita Acara', $processed_files_tracker);
+        $nama_file_sppc = processUploadedFile($_FILES['file_sppc'] ?? null, 0, 'SPPC', $processed_files_tracker);
+
         // Ambil data TTD PPC dari tabel users
             $stmt_ttd = $conn->prepare("SELECT tanda_tangan FROM users WHERE id = ?");
             $stmt_ttd->bind_param("i", $ppc_id);
@@ -106,51 +110,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contoh'])) {
             if (!empty($items)) {
                 
                 // 1. Buat entri di tabel `formulir`
-                $sql_form = "INSERT INTO formulir (jenis_laporan, perusahaan, alamat, tanggal_mulai, tanggal_selesai, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama, tujuan_pemeriksaan, tujuan_pemeriksaan_lainnya, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $sql_form = "INSERT INTO formulir (jenis_laporan, perusahaan, alamat, tanggal_mulai, tanggal_selesai, jenis_kegiatan, pengambil_sampel, sub_kontrak_nama, tujuan_pemeriksaan, tujuan_pemeriksaan_lainnya, created_by, file_berita_acara, file_sppc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt_form = $conn->prepare($sql_form);
-                $stmt_form->bind_param("ssssssssssi", $jenis, $data_utama['perusahaan'], $data_utama['alamat'], $tanggal_mulai, $tanggal_selesai, $data_utama['jenis_kegiatan'], $data_utama['pengambil_sampel'], $data_utama['sub_kontrak_nama'], $tujuan_pemeriksaan, $tujuan_pemeriksaan_lainnya, $ppc_id);
+                $stmt_form->bind_param("ssssssssssiss", $jenis, $data_utama['perusahaan'], $data_utama['alamat'], $tanggal_mulai, $tanggal_selesai, $data_utama['jenis_kegiatan'], $data_utama['pengambil_sampel'], $data_utama['sub_kontrak_nama'], $tujuan_pemeriksaan, $tujuan_pemeriksaan_lainnya, $ppc_id, $nama_file_ba, $nama_file_sppc);
                 $stmt_form->execute();
                 $form_id = $conn->insert_id;
                 $stmt_form->close();
 
                 // 2. Loop melalui setiap contoh uji, validasi & simpan filenya, lalu simpan datanya
-                $sql_contoh = "INSERT INTO contoh (formulir_id, nama_contoh, jenis_contoh, merek, kode, prosedur, parameter, baku_mutu, catatan, file_berita_acara, file_sppc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $sql_contoh = "INSERT INTO contoh (formulir_id, nama_contoh, jenis_contoh, merek, kode, prosedur, parameter, baku_mutu, catatan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt_contoh = $conn->prepare($sql_contoh);
-                $files_data = $_FILES['contoh'] ?? [];
 
                 foreach ($items as $item) {
-                    $index = $item['original_key']; // Perbaikan bug
-                    
-                    // Proses file Berita Acara
-                    $file_info_ba = (isset($files_data['name'][$index]['file_berita_acara']) && $files_data['error'][$index]['file_berita_acara'] == 0) 
-                        ? [
-                            'name' => $files_data['name'][$index]['file_berita_acara'], 
-                            'error' => $files_data['error'][$index]['file_berita_acara'], 
-                            'tmp_name' => $files_data['tmp_name'][$index]['file_berita_acara'], 
-                            'size' => $files_data['size'][$index]['file_berita_acara']
-                        ] 
-                        : null;
-                    $nama_file_ba = processUploadedFile($file_info_ba, $index, 'Berita Acara', $processed_files_tracker);
+                    $index = $item['original_key'];
 
-                    // Proses file SPPC
-                    $file_info_sppc = (isset($files_data['name'][$index]['file_sppc']) && $files_data['error'][$index]['file_sppc'] == 0) 
-                        ? [
-                            'name' => $files_data['name'][$index]['file_sppc'], 
-                            'error' => $files_data['error'][$index]['file_sppc'], 
-                            'tmp_name' => $files_data['tmp_name'][$index]['file_sppc'], 
-                            'size' => $files_data['size'][$index]['file_sppc']
-                        ] 
-                        : null;
-                    $nama_file_sppc = processUploadedFile($file_info_sppc, $index, 'SPPC', $processed_files_tracker);
-
-                    // Data teks lainnya
                     $jenis_contoh = $item['jenis_contoh'] ?? 'N/A';
                     $parameter = isset($item['parameter']) ? implode(', ', $item['parameter']) : '';
                     $prosedur = isset($item['prosedur']) ? implode(', ', $item['prosedur']) : '';
                     $baku_mutu = ($item['baku_mutu'] === 'Lainnya') ? ($item['baku_mutu_lainnya'] ?? '') : ($item['baku_mutu'] ?? '');
                     $catatan = $item['catatan'] ?? '';
 
-                    $stmt_contoh->bind_param("issssssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $prosedur, $parameter, $baku_mutu, $catatan, $nama_file_ba, $nama_file_sppc);
+                    $stmt_contoh->bind_param("issssssss", $form_id, $item['nama_contoh'], $jenis_contoh, $item['merek'], $item['kode'], $prosedur, $parameter, $baku_mutu, $catatan);
                     $stmt_contoh->execute();
                 }
                 $stmt_contoh->close();
