@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_nama_ttd'])) {
     }
 }
 
-// Ambil semua data yang diperlukan
+// Ambil data yang diperlukan
 $sql = "
     SELECT 
         l.*,

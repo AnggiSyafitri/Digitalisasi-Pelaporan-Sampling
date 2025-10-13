@@ -16,12 +16,10 @@
 
 
 -- Dumping database structure for samplingdb
-DROP DATABASE IF EXISTS `samplingdb`;
 CREATE DATABASE IF NOT EXISTS `samplingdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `samplingdb`;
 
 -- Dumping structure for table samplingdb.contoh
-DROP TABLE IF EXISTS `contoh`;
 CREATE TABLE IF NOT EXISTS `contoh` (
   `id` int NOT NULL AUTO_INCREMENT,
   `formulir_id` int DEFAULT NULL,
@@ -38,12 +36,11 @@ CREATE TABLE IF NOT EXISTS `contoh` (
   PRIMARY KEY (`id`),
   KEY `formulir_id` (`formulir_id`),
   CONSTRAINT `contoh_ibfk_1` FOREIGN KEY (`formulir_id`) REFERENCES `formulir` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.formulir
-DROP TABLE IF EXISTS `formulir`;
 CREATE TABLE IF NOT EXISTS `formulir` (
   `id` int NOT NULL AUTO_INCREMENT,
   `jenis_laporan` enum('air','udara','kebisingan','getaran') COLLATE utf8mb4_general_ci NOT NULL,
@@ -60,12 +57,11 @@ CREATE TABLE IF NOT EXISTS `formulir` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `created_by` (`created_by`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.laporan
-DROP TABLE IF EXISTS `laporan`;
 CREATE TABLE IF NOT EXISTS `laporan` (
   `id` int NOT NULL AUTO_INCREMENT,
   `jenis_laporan` enum('air','udara','kebisingan','getaran') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'air',
@@ -87,12 +83,11 @@ CREATE TABLE IF NOT EXISTS `laporan` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.riwayat_revisi
-DROP TABLE IF EXISTS `riwayat_revisi`;
 CREATE TABLE IF NOT EXISTS `riwayat_revisi` (
   `id` int NOT NULL AUTO_INCREMENT,
   `laporan_id` int NOT NULL,
@@ -105,12 +100,11 @@ CREATE TABLE IF NOT EXISTS `riwayat_revisi` (
   PRIMARY KEY (`id`),
   KEY `laporan_id` (`laporan_id`),
   CONSTRAINT `riwayat_revisi_ibfk_1` FOREIGN KEY (`laporan_id`) REFERENCES `laporan` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.roles
-DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nama_role` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
@@ -120,7 +114,6 @@ CREATE TABLE IF NOT EXISTS `roles` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.users
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
