@@ -177,8 +177,6 @@ require_once '../templates/header.php';
                         <option value="">Semua Jenis</option>
                         <option value="air" <?php echo (isset($_GET['filter_jenis_laporan']) && $_GET['filter_jenis_laporan'] == 'air') ? 'selected' : ''; ?>>Air</option>
                         <option value="udara" <?php echo (isset($_GET['filter_jenis_laporan']) && $_GET['filter_jenis_laporan'] == 'udara') ? 'selected' : ''; ?>>Udara</option>
-                        <option value="kebisingan" <?php echo (isset($_GET['filter_jenis_laporan']) && $_GET['filter_jenis_laporan'] == 'kebisingan') ? 'selected' : ''; ?>>Kebisingan</option>
-                        <option value="getaran" <?php echo (isset($_GET['filter_jenis_laporan']) && $_GET['filter_jenis_laporan'] == 'getaran') ? 'selected' : ''; ?>>Getaran</option>
                     </select>
                 </div>
                 

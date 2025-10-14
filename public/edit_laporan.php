@@ -302,27 +302,27 @@ require_once '../templates/header.php';
             prosedur: ["SNI 7117.13-2009", "M-LV-712-OPS"]
         },
         "Tingkat Kebisingan": {
-            tipeLaporan: "kebisingan",
+            tipeLaporan: "udara",
             parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat", "Tingkat kebisingan lingkungan"],
             prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
         },
         "Tingkat Kebisingan Lingkungan": {
-            tipeLaporan: "kebisingan",
+            tipeLaporan: "udara",
             parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat", "Tingkat kebisingan lingkungan"],
             prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
         },
         "Tingkat Kebisingan Lingkungan Kerja": {
-            tipeLaporan: "kebisingan",
+            tipeLaporan: "udara",
             parameter: ["Tingkat kebisingan", "Tingkat kebisingan sesaat", "Tingkat kebisingan lingkungan"],
             prosedur: ["SNI 8427 : 2017", "SNI 19-7119.9-2005", "SNI 19-7119.6-2005"]
         },
         "Tingkat Getaran": {
-            tipeLaporan: "getaran",
+            tipeLaporan: "udara",
             parameter: ["Tingkat Getaran", "Getaran untuk pemaparan lengan dan tangan (HAV)", "Getaran untuk pemaparan seluruh tubuh (WBV)"],
             prosedur: ["M-LP-711-GET (Vibration Meter)", "SNI IEC 60034-14-2009"]
         },
         "Tingkat Getaran Lingkungan Kerja": {
-            tipeLaporan: "getaran",
+            tipeLaporan: "udara",
             parameter: ["Tingkat Getaran", "Getaran untuk pemaparan lengan dan tangan (HAV)", "Getaran untuk pemaparan seluruh tubuh (WBV)"],
             prosedur: ["M-LP-711-GET (Vibration Meter)", "SNI IEC 60034-14-2009"]
         }
