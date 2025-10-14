@@ -6,9 +6,10 @@
         <div class="d-flex align-items-center justify-content-between small">
             <div class="text-muted">Hak Cipta &copy; AS - BSPJI Medan <?php echo date('Y'); ?></div>
             <div>
-                <a href="#">Kebijakan Privasi</a>
+            <div>
+                <a href="https://drive.google.com/file/d/1i4lWovs2p2u2m4EEN4Mp36uSPLrfiRWb/view?usp=sharing" target="_blank">Kebijakan Privasi</a>
                 &middot;
-                <a href="#">Syarat &amp; Ketentuan</a>
+                <a href="https://drive.google.com/file/d/16TdfIkhhBl2TmSbVzUH_A1Tmr2b9SY4t/view?usp=sharing " target="_blank">Syarat &amp; Ketentuan</a>
             </div>
         </div>
     </div>
