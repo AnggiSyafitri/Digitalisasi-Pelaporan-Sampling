@@ -41,7 +41,7 @@ if (isset($_SESSION['user_id'])):
     </div>
     <div class="user-info">
         <span>Selamat Datang, <strong><?php echo htmlspecialchars($_SESSION['nama_lengkap']); ?></strong></span>
-        <span style="font-size:1.1em; font-weight:400;">Peran: <?php echo htmlspecialchars($_SESSION['role_name']); ?></span>
+        <span style="font-size:1.1em; font-weight:400;">Jabatan: <?php echo htmlspecialchars($_SESSION['role_name']); ?></span>
         <div>
             <a href="profil.php">Profil Saya</a> | 
             <a href="logout.php">Logout</a>
