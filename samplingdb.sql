@@ -16,10 +16,12 @@
 
 
 -- Dumping database structure for samplingdb
+DROP DATABASE IF EXISTS `samplingdb`;
 CREATE DATABASE IF NOT EXISTS `samplingdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `samplingdb`;
 
 -- Dumping structure for table samplingdb.contoh
+DROP TABLE IF EXISTS `contoh`;
 CREATE TABLE IF NOT EXISTS `contoh` (
   `id` int NOT NULL AUTO_INCREMENT,
   `formulir_id` int DEFAULT NULL,
@@ -31,8 +33,6 @@ CREATE TABLE IF NOT EXISTS `contoh` (
   `parameter` text COLLATE utf8mb4_general_ci,
   `baku_mutu` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `catatan` text COLLATE utf8mb4_general_ci,
-  `file_berita_acara` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `file_sppc` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `formulir_id` (`formulir_id`),
   CONSTRAINT `contoh_ibfk_1` FOREIGN KEY (`formulir_id`) REFERENCES `formulir` (`id`) ON DELETE CASCADE
@@ -41,9 +41,10 @@ CREATE TABLE IF NOT EXISTS `contoh` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.formulir
+DROP TABLE IF EXISTS `formulir`;
 CREATE TABLE IF NOT EXISTS `formulir` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `jenis_laporan` enum('air','udara','kebisingan','getaran') COLLATE utf8mb4_general_ci NOT NULL,
+  `jenis_laporan` enum('air','udara') COLLATE utf8mb4_general_ci NOT NULL,
   `perusahaan` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
   `alamat` text COLLATE utf8mb4_general_ci NOT NULL,
   `tanggal_mulai` date DEFAULT NULL,
@@ -55,6 +56,8 @@ CREATE TABLE IF NOT EXISTS `formulir` (
   `tujuan_pemeriksaan_lainnya` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `created_by` int NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `file_berita_acara` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `file_sppc` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `created_by` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -62,9 +65,10 @@ CREATE TABLE IF NOT EXISTS `formulir` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.laporan
+DROP TABLE IF EXISTS `laporan`;
 CREATE TABLE IF NOT EXISTS `laporan` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `jenis_laporan` enum('air','udara','kebisingan','getaran') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'air',
+  `jenis_laporan` enum('air','udara') COLLATE utf8mb4_general_ci NOT NULL,
   `form_id` int NOT NULL,
   `ppc_id` int NOT NULL,
   `ttd_ppc` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -87,7 +91,24 @@ CREATE TABLE IF NOT EXISTS `laporan` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for table samplingdb.notifikasi
+DROP TABLE IF EXISTS `notifikasi`;
+CREATE TABLE IF NOT EXISTS `notifikasi` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL COMMENT 'ID user penerima notifikasi',
+  `pesan` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `laporan_id` int DEFAULT NULL,
+  `sudah_dibaca` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0=belum, 1=sudah',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `notifikasi_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table samplingdb.riwayat_revisi
+DROP TABLE IF EXISTS `riwayat_revisi`;
 CREATE TABLE IF NOT EXISTS `riwayat_revisi` (
   `id` int NOT NULL AUTO_INCREMENT,
   `laporan_id` int NOT NULL,
@@ -105,6 +126,7 @@ CREATE TABLE IF NOT EXISTS `riwayat_revisi` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.roles
+DROP TABLE IF EXISTS `roles`;
 CREATE TABLE IF NOT EXISTS `roles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nama_role` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
@@ -114,6 +136,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
 -- Data exporting was unselected.
 
 -- Dumping structure for table samplingdb.users
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
