@@ -39,7 +39,7 @@ $sql = "
         u_ppc.nama_lengkap as nama_pembuat_laporan,
         u_penyelia.nama_lengkap as nama_penyelia
     FROM laporan l
-    JOIN formulir f ON l.form_id = f.id
+    LEFT JOIN formulir f ON l.form_id = f.id
     LEFT JOIN users u_ppc ON l.ppc_id = u_ppc.id
     LEFT JOIN users u_penyelia ON l.penyelia_id = u_penyelia.id
     WHERE l.id = ?
