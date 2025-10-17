@@ -15,12 +15,10 @@ $laporan_id = (int)$_GET['id'];
 $user_id = $_SESSION['user_id'];
 $role_id = $_SESSION['role_id'];
 
-// === BLOK BARU: Tentukan Mode Draft ===
 $is_draft_mode = false;
 if (isset($_GET['mode']) && $_GET['mode'] === 'draft' && $role_id == 3) {
     $is_draft_mode = true;
 }
-// === AKHIR BLOK BARU ===
 
 // Proses simpan nama untuk tanda tangan
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_nama_ttd'])) {
@@ -86,7 +84,8 @@ while ($row = $result_contoh->fetch_assoc()) {
     $daftar_contoh[] = $row;
 }
 
-$nama_contoh_utama = !empty($daftar_contoh) ? $daftar_contoh[0]['nama_contoh'] : '';
+// === PERUBAHAN: Gunakan jenis_contoh untuk judul ===
+$jenis_contoh_utama = !empty($daftar_contoh) ? $daftar_contoh[0]['jenis_contoh'] : '';
 $jumlah_titik = count($daftar_contoh);
 
 function terbilang($angka) {
@@ -119,7 +118,6 @@ function terbilang($angka) {
         }
         .container { width: 100%; margin: auto; position: relative; }
         
-        /* === STYLE BARU UNTUK WATERMARK === */
         .watermark {
             position: fixed;
             top: 50%;
@@ -130,22 +128,24 @@ function terbilang($angka) {
             font-weight: bold;
             z-index: -1000;
             text-align: center;
-            -webkit-user-select: none; /* Safari */
-            -ms-user-select: none; /* IE 10+ */
-            user-select: none; /* Standard syntax */
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
-        /* === AKHIR STYLE BARU === */
 
         .header { text-align: center; margin-bottom: 30px; }
         .header h3 { margin: 0; text-decoration: underline; font-size: 14pt; }
         .content-table { width: 100%; border-collapse: collapse; }
         .content-table td { vertical-align: top; padding: 1px 0; }
-        .label { width: 35%; font-weight: bold; }
+        .label { width: 35%; }
         .separator { width: 5%; text-align: center; }
         .value { width: 60%; }
-        .contoh-list { margin: 0; padding-left: 18px; list-style-position: inside; }
-        .contoh-list li { margin-bottom: 20px; }
+        
+        /* === PERUBAHAN: Hapus gaya list agar nomor bisa manual === */
+        .contoh-list { margin: 0; padding-left: 0; }
+        .contoh-item { margin-bottom: 20px; }
         .contoh-detail-table { margin-left: 0; }
+        
         .ttd-section { margin-top: 40px; width: 100%; font-size: 11pt; }
         .ttd-left { float: left; width: 40%; text-align: center; }
         .ttd-right { float: right; width: 45%; text-align: center; }
@@ -165,6 +165,7 @@ function terbilang($angka) {
         <?php if ($is_draft_mode): ?>
         <div class="watermark">DRAFT</div>
         <?php endif; ?>
+
         <div class="doc-number">F-LP-712/1-I-00/25</div>
         <div class="header">
             <h3>HASIL LAPORAN KEGIATAN SAMPLING</h3>
@@ -173,22 +174,22 @@ function terbilang($angka) {
         <section class="info-kegiatan">
             <table class="content-table">
                 <tr>
-                    <td class="label">JENIS KEGIATAN</td>
+                    <td class="label"><strong>JENIS KEGIATAN</strong></td>
                     <td class="separator">:</td>
-                    <td class="value"><?php echo htmlspecialchars($laporan['jenis_kegiatan']); ?> <?php echo htmlspecialchars($nama_contoh_utama); ?></td>
+                    <td class="value"><?php echo htmlspecialchars($laporan['jenis_kegiatan']); ?> <?php echo htmlspecialchars($jenis_contoh_utama); ?></td>
                 </tr>
                 <tr>
-                    <td class="label">NAMA PERUSAHAAN</td>
+                    <td class="label"><strong>NAMA PERUSAHAAN</strong></td>
                     <td class="separator">:</td>
                     <td class="value"><?php echo htmlspecialchars($laporan['perusahaan']); ?></td>
                 </tr>
                 <tr>
-                    <td class="label">ALAMAT PERUSAHAAN</td>
+                    <td class="label"><strong>ALAMAT PERUSAHAAN</strong></td>
                     <td class="separator">:</td>
                     <td class="value"><?php echo htmlspecialchars($laporan['alamat']); ?></td>
                 </tr>
                 <tr>
-                    <td class="label">TANGGAL PELAKSANAAN</td>
+                    <td class="label"><strong>TANGGAL PELAKSANAAN</strong></td>
                     <td class="separator">:</td>
                     <td class="value">
                         <?php
@@ -205,7 +206,7 @@ function terbilang($angka) {
                     </td>
                 </tr>
                 <tr>
-                    <td class="label">PENGAMBIL SAMPEL</td>
+                    <td class="label"><strong>PENGAMBIL SAMPEL</strong></td>
                     <td class="separator">:</td>
                     <td class="value">
                         <?php 
@@ -217,7 +218,7 @@ function terbilang($angka) {
                     </td>
                 </tr>
                 <tr>
-                    <td class="label">TUJUAN PEMERIKSAAN</td>
+                    <td class="label"><strong>TUJUAN PEMERIKSAAN</strong></td>
                     <td class="separator">:</td>
                     <td class="value">
                         <?php 
@@ -234,25 +235,43 @@ function terbilang($angka) {
         </section>
 
         <section class="info-contoh" style="margin-top: 20px;">
-            <h4 style="margin-bottom: 5px;"><?php echo strtoupper(htmlspecialchars($nama_contoh_utama)); ?> : <?php echo $jumlah_titik . " (" . ucfirst(terbilang($jumlah_titik)) . ") Titik Pengujian"; ?></h4>
+            <h4 style="margin-bottom: 5px;"><?php echo strtoupper(htmlspecialchars($jenis_contoh_utama)); ?> : <?php echo $jumlah_titik . " (" . ucfirst(terbilang($jumlah_titik)) . ") Titik Pengujian"; ?></h4>
             
-            <ol class="contoh-list">
-                <?php foreach ($daftar_contoh as $contoh): ?>
-                <li>
+            <div class="contoh-list">
+                <?php foreach ($daftar_contoh as $index => $contoh): ?>
+                <div class="contoh-item">
                     <table class="content-table contoh-detail-table">
-                        <tr><td class="label">Jenis Contoh</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['jenis_contoh']); ?></td></tr>
-                        <tr><td class="label">Etiket / Merek</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['merek']); ?></td></tr>
-                        <tr><td class="label">Kode Contoh</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['kode']); ?></td></tr>
-                        <tr><td class="label">Prosedur Pengambilan Contoh</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['prosedur']); ?></td></tr>
-                        <tr><td class="label">Parameter</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['parameter']); ?></td></tr>
-                        <tr><td class="label">Baku Mutu</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['baku_mutu']); ?></td></tr>
+                        <tr>
+                            <td class="label"><strong><?php echo ($index + 1); ?>. Jenis Contoh</strong></td>
+                            <td class="separator">:</td>
+                            <td class="value"><?php echo htmlspecialchars($contoh['jenis_contoh']); ?></td>
+                        </tr>
+                        <tr><td class="label" style="padding-left: 18px;">Etiket / Merek</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['merek']); ?></td></tr>
+                        <tr><td class="label" style="padding-left: 18px;">Kode Contoh</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['kode']); ?></td></tr>
+                        <tr><td class="label" style="padding-left: 18px;">Prosedur Pengambilan Contoh</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['prosedur']); ?></td></tr>
+                        <tr><td class="label" style="padding-left: 18px;">Parameter</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['parameter']); ?></td></tr>
+                        <tr><td class="label" style="padding-left: 18px;">Baku Mutu</td><td class="separator">:</td><td class="value"><?php echo htmlspecialchars($contoh['baku_mutu']); ?></td></tr>
                     </table>
-                </li>
+                </div>
                 <?php endforeach; ?>
-            </ol>
+            </div>
         </section>
 
         <section class="ttd-section">
+            <div class="ttd-penyelia" style="width: 60%; margin-left: 0; margin-bottom: 10px; text-align: left;">
+                <div style="display: flex; align-items: flex-end; justify-content: center; height: 100px;">
+                    <div style="line-height: 5; padding-left: 20px;">
+                        Mengetahui - Penyelia
+                        <strong>( <?php echo htmlspecialchars($laporan['nama_penyelia'] ?? '.........................'); ?> )</strong>
+                    </div>
+                    <div style="width: 90px; flex-shrink: 0; text-align: center;">
+                        <?php if (!empty($laporan['ttd_penyelia'])): ?>
+                            <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_penyelia']); ?>" style="max-height: 60px;">
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            
             <div style="clear: both; content: ''; display: table;"></div>
             <div class="ttd-left">
                 Menyetujui, <br>
@@ -276,57 +295,57 @@ function terbilang($angka) {
                         <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_ppc']); ?>" style="max-height: 70px;">
                     <?php endif; ?>
                 </div>
-                <strong>( <?php echo htmlspecialchars($laporan['nama_pembuat_laporan'] ?? '.........................'); ?> )</strong>
+                <strong>( <?php echo htmlspecialchars($laporan['nama_ppc_tercetak'] ?? $laporan['nama_pembuat_laporan'] ?? '.........................'); ?> )</strong>
             </div>
             <div style="clear: both; content: ''; display: table;"></div>
         </section>
         
         <?php if ($role_id == 4): ?>
-        <div class="no-print">
-            <h4>Pengaturan Tanda Tangan</h4>
-            <p>Silakan isi nama Petugas Sampling dan pilih Manajer Teknis sebelum mencetak.</p>
-            <form method="POST" action="">
-                <div style="margin-bottom: 15px;">
-                    <label for="nama_ppc"><strong>Nama Petugas Sampling:</strong></label><br>
-                    <input type="text" id="nama_ppc" name="nama_ppc" value="<?php echo htmlspecialchars($laporan['nama_ppc_tercetak'] ?? $laporan['nama_pembuat_laporan']); ?>" required style="width: 250px; padding: 5px;">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label for="nama_mt_select"><strong>Nama Manajer Teknis:</strong></label><br>
-                    <select id="nama_mt_select" name="nama_mt_select" style="width: 250px; padding: 5px;">
-                        <option value="Rossi Evana" <?php echo (isset($laporan['nama_mt_tercetak']) && $laporan['nama_mt_tercetak'] == 'Rossi Evana') ? 'selected' : ''; ?>>Rossi Evana</option>
-                        <option value="add_new">Lainnya...</option>
-                    </select>
-                </div>
-                <div id="nama_mt_lainnya_div" style="display:none; margin-bottom: 15px;">
-                    <label for="nama_mt_lainnya">Ketik Nama Manajer Teknis:</label><br>
-                    <input type="text" id="nama_mt_lainnya" name="nama_mt_lainnya" style="width: 250px; padding: 5px;">
-                </div>
-                <button type="submit" name="simpan_nama_ttd">Simpan Nama</button>
-                <button type="button" onclick="window.print();">Cetak Laporan</button>
-            </form>
+            <div class="no-print">
+                <h4>Pengaturan Tanda Tangan</h4>
+                <p>Silakan isi nama Petugas Sampling dan pilih Manajer Teknis sebelum mencetak.</p>
+                <form method="POST" action="">
+                    <div style="margin-bottom: 15px;">
+                        <label for="nama_ppc"><strong>Nama Petugas Sampling:</strong></label><br>
+                        <input type="text" id="nama_ppc" name="nama_ppc" value="<?php echo htmlspecialchars($laporan['nama_ppc_tercetak'] ?? $laporan['nama_pembuat_laporan']); ?>" required style="width: 250px; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="nama_mt_select"><strong>Nama Manajer Teknis:</strong></label><br>
+                        <select id="nama_mt_select" name="nama_mt_select" style="width: 250px; padding: 5px;">
+                            <option value="Rossi Evana" <?php echo (isset($laporan['nama_mt_tercetak']) && $laporan['nama_mt_tercetak'] == 'Rossi Evana') ? 'selected' : ''; ?>>Rossi Evana</option>
+                            <option value="add_new">Lainnya...</option>
+                        </select>
+                    </div>
+                    <div id="nama_mt_lainnya_div" style="display:none; margin-bottom: 15px;">
+                        <label for="nama_mt_lainnya">Ketik Nama Manajer Teknis:</label><br>
+                        <input type="text" id="nama_mt_lainnya" name="nama_mt_lainnya" style="width: 250px; padding: 5px;">
+                    </div>
+                    <button type="submit" name="simpan_nama_ttd">Simpan Nama</button>
+                    <button type="button" onclick="window.print();">Cetak Laporan</button>
+                </form>
+            </div>
+            <?php elseif ($is_draft_mode): ?>
+            <div class="no-print">
+                <h4>Mode Pratinjau</h4>
+                <p>Ini adalah pratinjau laporan dengan watermark "DRAFT". Laporan final tidak akan memiliki watermark ini.</p>
+                <button type="button" onclick="window.print();">Cetak Pratinjau</button>
+            </div>
+            <?php endif; ?>
         </div>
-        <?php elseif ($is_draft_mode): ?>
-        <div class="no-print">
-            <h4>Mode Pratinjau</h4>
-            <p>Ini adalah pratinjau laporan dengan watermark "DRAFT". Laporan final tidak akan memiliki watermark ini.</p>
-            <button type="button" onclick="window.print();">Cetak Pratinjau</button>
-        </div>
-        <?php endif; ?>
-    </div>
 
-    <script>
-        document.getElementById('nama_mt_select').addEventListener('change', function() {
-            var lainnyaDiv = document.getElementById('nama_mt_lainnya_div');
-            var lainnyaInput = document.getElementById('nama_mt_lainnya');
-            if (this.value === 'add_new') {
-                lainnyaDiv.style.display = 'block';
-                lainnyaInput.required = true;
-            } else {
-                lainnyaDiv.style.display = 'none';
-                lainnyaInput.required = false;
-            }
-        });
-        document.getElementById('nama_mt_select').dispatchEvent(new Event('change'));
-    </script>
+        <script>
+            document.getElementById('nama_mt_select').addEventListener('change', function() {
+                var lainnyaDiv = document.getElementById('nama_mt_lainnya_div');
+                var lainnyaInput = document.getElementById('nama_mt_lainnya');
+                if (this.value === 'add_new') {
+                    lainnyaDiv.style.display = 'block';
+                    lainnyaInput.required = true;
+                } else {
+                    lainnyaDiv.style.display = 'none';
+                    lainnyaInput.required = false;
+                }
+            });
+            document.getElementById('nama_mt_select').dispatchEvent(new Event('change'));
+        </script>
 </body>
 </html>
