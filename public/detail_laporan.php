@@ -15,6 +15,17 @@ if (!isset($_GET['id'])) {
 $laporan_id = (int)$_GET['id'];
 $role_id = $_SESSION['role_id'];
 
+if (isset($_GET['notif_id'])) {
+    $notif_id_to_read = (int)$_GET['notif_id'];
+    $current_user_id = $_SESSION['user_id'];
+    
+    $sql_mark_read = "UPDATE notifikasi SET sudah_dibaca = 1 WHERE id = ? AND user_id = ?";
+    $stmt_mark_read = $conn->prepare($sql_mark_read);
+    $stmt_mark_read->bind_param("ii", $notif_id_to_read, $current_user_id);
+    $stmt_mark_read->execute();
+    $stmt_mark_read->close();
+}
+
 // Query SQL yang disederhanakan untuk mengambil data dari tabel 'formulir' yang baru
 $sql_utama = "
     SELECT 
@@ -54,7 +65,6 @@ while($row = $result_contoh->fetch_assoc()){
     $data_contoh[] = $row;
 }
 
-// --- MULAI BLOK BARU ---
 // Ambil data riwayat revisi dari tabel baru
 $sql_riwayat = "
     SELECT 
@@ -75,7 +85,6 @@ $riwayat_revisi = [];
 while($row = $result_riwayat->fetch_assoc()){
     $riwayat_revisi[] = $row;
 }
-// --- AKHIR BLOK BARU ---
 
 $page_title = 'Detail Laporan #' . $laporan_id;
 require_once '../templates/header.php';
@@ -289,6 +298,10 @@ require_once '../templates/header.php';
             <?php if (isset($_SESSION['error_message'])): ?>
                 <div class="alert alert-danger"><?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?></div>
             <?php endif; ?>
+
+            <a href="cetak_laporan.php?id=<?php echo $data_laporan['id']; ?>&mode=draft" target="_blank" class="btn btn-info mb-3">
+                Lihat Pratinjau Laporan (Draft)
+            </a>
             <form action="../actions/proses_aksi_mt.php" method="POST">
                 <input type="hidden" name="laporan_id" value="<?php echo $laporan_id; ?>">
                 <div class="form-group"><label for="catatan_revisi_mt">Catatan (wajib diisi jika dikembalikan):</label><textarea name="catatan_revisi_mt" id="catatan_revisi_mt" class="form-control" rows="4"></textarea></div>

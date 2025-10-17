@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $aksi = $_POST['aksi'];
     $catatan_revisi = $_POST['catatan_revisi'];
     $penyelia_id = $_SESSION['user_id'];
+    $penyelia_nama = $_SESSION['nama_lengkap']; // Ambil nama Penyelia untuk notifikasi
 
     $conn->begin_transaction();
 
@@ -28,11 +29,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new Exception("Aksi ditolak. Anda harus mengunggah tanda tangan di halaman profil terlebih dahulu.");
             }
 
-            // Jika disetujui, update status, catat waktu, dan simpan file TTD
+            // Update status, catat waktu, dan simpan file TTD
             $sql = "UPDATE laporan SET status = 'Menunggu Persetujuan MT', penyelia_id = ?, waktu_verifikasi_penyelia = NOW(), ttd_penyelia = ? WHERE id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("isi", $penyelia_id, $ttd_file, $laporan_id);
             $stmt->execute();
+
+            // === BLOK BARU: Notifikasi untuk Manajer Teknis ===
+            $pesan = "Laporan #{$laporan_id} telah diverifikasi oleh {$penyelia_nama} dan menunggu persetujuan Anda.";
+            // Kirim ke role_id = 3 (Manajer Teknis)
+            buatNotifikasiUntukRole($conn, 3, $pesan, $laporan_id);
+            // === AKHIR BLOK BARU ===
 
         } elseif ($aksi == 'revisi') {
             // Jika dikembalikan untuk revisi
@@ -40,30 +47,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new Exception("Catatan revisi wajib diisi jika laporan dikembalikan.");
             }
 
-            // 1. Ambil status laporan saat ini sebelum diubah
-            $stmt_cek = $conn->prepare("SELECT status FROM laporan WHERE id = ?");
+            // Ambil status laporan saat ini dan ID PPC pembuat laporan
+            $stmt_cek = $conn->prepare("SELECT status, ppc_id FROM laporan WHERE id = ?");
             $stmt_cek->bind_param("i", $laporan_id);
             $stmt_cek->execute();
-            $result_cek = $stmt_cek->get_result();
-            $laporan_lama = $result_cek->fetch_assoc();
+            $laporan_lama = $stmt_cek->get_result()->fetch_assoc();
             $status_awal = $laporan_lama['status'];
+            $ppc_penerima_id = $laporan_lama['ppc_id']; // ID PPC yang akan menerima notifikasi
             $stmt_cek->close();
 
             $status_tujuan = 'Revisi PPC';
 
-            // 2. Update status, tapi KOSONGKAN ID Penyelia karena direvisi
+            // Update status, KOSONGKAN ID Penyelia, dan simpan catatan revisi
             $sql_update = "UPDATE laporan SET status = ?, penyelia_id = NULL, catatan_revisi = ? WHERE id = ?";
             $stmt_update = $conn->prepare($sql_update);
             $stmt_update->bind_param("ssi", $status_tujuan, $catatan_revisi, $laporan_id);
             $stmt_update->execute();
             $stmt_update->close();
 
-            // 3. Masukkan catatan ke tabel riwayat_revisi
+            // Masukkan catatan ke tabel riwayat_revisi
             $sql_riwayat = "INSERT INTO riwayat_revisi (laporan_id, revisi_oleh_id, catatan_revisi, status_awal, status_tujuan) VALUES (?, ?, ?, ?, ?)";
             $stmt_riwayat = $conn->prepare($sql_riwayat);
             $stmt_riwayat->bind_param("iisss", $laporan_id, $penyelia_id, $catatan_revisi, $status_awal, $status_tujuan);
             $stmt_riwayat->execute();
             $stmt_riwayat->close();
+
+            // === BLOK BARU: Notifikasi untuk PPC ===
+            $pesan = "Laporan #{$laporan_id} dikembalikan oleh {$penyelia_nama} untuk direvisi.";
+            // Kirim notifikasi ke PPC yang bersangkutan
+            buatNotifikasi($conn, $ppc_penerima_id, $pesan, $laporan_id);
+            // === AKHIR BLOK BARU ===
         }
 
         $conn->commit();

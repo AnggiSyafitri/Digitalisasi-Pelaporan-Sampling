@@ -34,6 +34,26 @@ if (!$data_laporan) {
     die("Laporan tidak ditemukan, tidak dapat diakses, atau statusnya tidak valid untuk diedit.");
 }
 
+// === BLOK BARU: Ambil Catatan Revisi Terakhir ===
+$catatan_revisi_terakhir = null;
+if ($data_laporan['status'] == 'Revisi PPC') {
+    $sql_revisi = "
+        SELECT rr.catatan_revisi, u.nama_lengkap as perevisi, r.nama_role as role_perevisi, rr.tanggal_revisi_diminta
+        FROM riwayat_revisi rr
+        JOIN users u ON rr.revisi_oleh_id = u.id
+        JOIN roles r ON u.role_id = r.id
+        WHERE rr.laporan_id = ?
+        ORDER BY rr.tanggal_revisi_diminta DESC
+        LIMIT 1
+    ";
+    $stmt_revisi = $conn->prepare($sql_revisi);
+    $stmt_revisi->bind_param("i", $laporan_id);
+    $stmt_revisi->execute();
+    $catatan_revisi_terakhir = $stmt_revisi->get_result()->fetch_assoc();
+    $stmt_revisi->close();
+}
+// === AKHIR BLOK BARU ===
+
 // Ambil data contoh-contoh yang terkait
 $sql_contoh = "SELECT * FROM contoh WHERE formulir_id = ?";
 $stmt_contoh = $conn->prepare($sql_contoh);
@@ -70,6 +90,30 @@ require_once '../templates/header.php';
         max-height: 200px;
         overflow-y: auto;
     }
+    /* === STYLE BARU UNTUK KOTAK REVISI === */
+    .revision-box {
+        background-color: #fff3cd;
+        border-left: 5px solid #ffeeba;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 0 8px 8px 0;
+    }
+    .revision-box h4 {
+        color: #856404;
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+    .revision-box p {
+        margin-bottom: 0;
+        white-space: pre-wrap; /* Menjaga format baris baru */
+    }
+    .revision-box small {
+        display: block;
+        margin-top: 1rem;
+        font-style: italic;
+        color: #66512c;
+    }
+    /* === AKHIR STYLE BARU === */
 </style>
 
 <div class="loading-overlay" id="loadingOverlay">
@@ -83,12 +127,20 @@ require_once '../templates/header.php';
     <div class="card" style="margin-top: 1.5rem;">
         <div class="card-header">
             <h2>Edit Laporan Sampling #<?php echo htmlspecialchars($laporan_id); ?></h2>
-            <p class="mb-0">
-                <?php echo $data_laporan['status'] == 'Draft' ? 'Anda sedang mengedit draft laporan.' : 'Anda sedang mengedit laporan yang dikembalikan untuk revisi.'; ?>
-            </p>
         </div>
 
         <div class="card-body">
+
+            <?php if ($catatan_revisi_terakhir): ?>
+            <div class="revision-box">
+                <h4>Catatan Revisi</h4>
+                <p><?php echo htmlspecialchars($catatan_revisi_terakhir['catatan_revisi']); ?></p>
+                <small>
+                    Dari: <strong><?php echo htmlspecialchars($catatan_revisi_terakhir['perevisi']); ?></strong> (<?php echo htmlspecialchars($catatan_revisi_terakhir['role_perevisi']); ?>)
+                    pada <?php echo date('d F Y, H:i', strtotime($catatan_revisi_terakhir['tanggal_revisi_diminta'])); ?>
+                </small>
+            </div>
+            <?php endif; ?>
             <div id="validation-error-container" class="alert alert-danger" style="display:none;"></div>
 
             <?php if (isset($_SESSION['flash_error'])): ?>
@@ -214,7 +266,7 @@ require_once '../templates/header.php';
                         Simpan Perubahan Draft
                     </button>
                     <button type="submit" name="aksi" value="ajukan" class="btn btn-success">
-                        Ajukan ke Penyelia
+                        Ajukan Kembali ke Penyelia
                     </button>
                 </div>
             </form>
@@ -222,8 +274,8 @@ require_once '../templates/header.php';
     </div>
 </div>
 
-
 <script>
+    // ... (Semua kode JavaScript yang sudah ada di file edit_laporan.php tetap di sini) ...
     const dataContohLama = <?php echo json_encode($data_contoh); ?>;
     
     document.getElementById('pengambil_sampel').addEventListener('change', function() {

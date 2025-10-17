@@ -10744,3 +10744,112 @@ body {
         margin-bottom: 10px;
     }
 }
+
+/* === NOTIFICATION STYLES === */
+.notification-wrapper {
+    position: relative;
+    margin-right: 1.5rem;
+}
+
+.notification-bell {
+    font-size: 1.5rem; /* Ukuran ikon lonceng */
+    color: white;
+    cursor: pointer;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border: 2px solid #343a40; /* Sesuaikan dengan warna header */
+}
+
+.notification-panel {
+    display: none; /* Sembunyi secara default */
+    position: absolute;
+    top: 150%; /* Posisi di bawah header */
+    right: 0;
+    width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    z-index: 1050;
+}
+
+.notification-panel.show {
+    display: block; /* Tampilkan saat class 'show' ditambahkan oleh JS */
+}
+
+.notification-header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.notification-header h5 {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.notification-header a {
+    font-size: 0.8rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item a {
+    display: block;
+    padding: 1rem;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:last-child a {
+    border-bottom: none;
+}
+
+.notification-item a:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.unread a {
+    background-color: #eaf7ff; /* Warna hijau pudar seperti idemu, tapi ini versi biru muda */
+}
+
+.notification-item .message {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.notification-item .timestamp {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.notification-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}

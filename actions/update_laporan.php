@@ -44,6 +44,7 @@ $status_laporan = ($aksi === 'ajukan') ? 'Menunggu Verifikasi' : 'Draft';
 
 $processed_files_tracker = [];
 $ppc_id = $_SESSION['user_id'];
+$ppc_nama = $_SESSION['nama_lengkap']; // Ambil nama PPC untuk notifikasi
 $ttd_ppc_file = null;
 
 $conn->begin_transaction();
@@ -99,12 +100,20 @@ try {
         $stmt_contoh->close();
     }
 
-    // 5. Update status laporan di tabel 'laporan'
+    // 5. Update status laporan di tabel 'laporan', dan hapus catatan revisi lama
     $sql_laporan = "UPDATE laporan SET status = ?, ttd_ppc = ?, catatan_revisi = NULL WHERE id = ?";
     $stmt_laporan = $conn->prepare($sql_laporan);
     $stmt_laporan->bind_param("ssi", $status_laporan, $ttd_ppc_file, $laporan_id);
     $stmt_laporan->execute();
     $stmt_laporan->close();
+
+    // === BLOK BARU: Buat Notifikasi untuk Penyelia saat laporan diajukan kembali ===
+    if ($status_laporan === 'Menunggu Verifikasi') {
+        $pesan = "Laporan revisi (#{$laporan_id}) dari {$ppc_nama} telah diajukan kembali dan menunggu verifikasi.";
+        // Kirim notifikasi ke semua user dengan role_id = 2 (Penyelia)
+        buatNotifikasiUntukRole($conn, 2, $pesan, $laporan_id);
+    }
+    // === AKHIR BLOK BARU ===
 
     // Jika semua berhasil, commit
     $conn->commit();
@@ -131,3 +140,4 @@ try {
     header("Location: " . BASE_URL . "/edit_laporan.php?laporan_id=" . $laporan_id);
     exit();
 }
+?>

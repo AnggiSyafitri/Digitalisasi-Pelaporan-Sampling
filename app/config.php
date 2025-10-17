@@ -28,4 +28,8 @@ define('BASE_URL', 'http://digitalisasi-pelaporan-sampling.test/public');
 
 // 5. Muat dan jalankan otorisasi waktu
 require_once 'otorisasi_waktu.php';
+
+// === BLOK BARU: Muat file fungsi bantuan ===
+require_once 'functions.php';
+// === AKHIR BLOK BARU ===
 ?>

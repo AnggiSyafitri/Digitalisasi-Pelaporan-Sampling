@@ -15,6 +15,13 @@ $laporan_id = (int)$_GET['id'];
 $user_id = $_SESSION['user_id'];
 $role_id = $_SESSION['role_id'];
 
+// === BLOK BARU: Tentukan Mode Draft ===
+$is_draft_mode = false;
+if (isset($_GET['mode']) && $_GET['mode'] === 'draft' && $role_id == 3) {
+    $is_draft_mode = true;
+}
+// === AKHIR BLOK BARU ===
+
 // Proses simpan nama untuk tanda tangan
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['simpan_nama_ttd'])) {
     $nama_mt = $_POST['nama_mt_select'] === 'add_new' ? $_POST['nama_mt_lainnya'] : $_POST['nama_mt_select'];
@@ -50,32 +57,20 @@ $stmt->execute();
 $result = $stmt->get_result();
 $laporan = $result->fetch_assoc();
 
-// Ambil TTD terbaru dari setiap user yang terlibat, langsung dari tabel 'users'
-$sql_ttd = "
-    SELECT 
-        (SELECT tanda_tangan FROM users WHERE id = ?) as ttd_ppc,
-        (SELECT tanda_tangan FROM users WHERE id = ?) as ttd_penyelia,
-        (SELECT tanda_tangan FROM users WHERE id = ?) as ttd_mt
-";
-$stmt_ttd = $conn->prepare($sql_ttd);
-$stmt_ttd->bind_param("iii", $laporan['ppc_id'], $laporan['penyelia_id'], $laporan['mt_id']);
-$stmt_ttd->execute();
-$ttd_terbaru = $stmt_ttd->get_result()->fetch_assoc();
-$stmt_ttd->close();
-
 if (!$laporan) {
     die("Laporan tidak ditemukan.");
 }
 
-// VALIDASI AKSES: Hanya Penerima Contoh yang bisa akses laporan "Disetujui, Siap Dicetak"
-// Semua role bisa akses laporan yang sudah "Selesai"
-if ($role_id == 4) {
-    // Penerima Contoh bisa akses laporan "Disetujui, Siap Dicetak" dan "Selesai"
+// VALIDASI AKSES
+if ($role_id == 4) { // Penerima Contoh
     if (!in_array($laporan['status'], ['Disetujui, Siap Dicetak', 'Selesai'])) {
         die("Anda tidak memiliki hak akses untuk mencetak laporan dengan status ini.");
     }
-} else {
-    // Role lain hanya bisa akses laporan yang sudah "Selesai"
+} elseif ($is_draft_mode && $role_id == 3) { // MT dalam mode draft
+    if ($laporan['status'] !== 'Menunggu Persetujuan MT') {
+        die("Mode pratinjau hanya tersedia untuk laporan yang sedang menunggu persetujuan Anda.");
+    }
+} else { // Role lain
     if ($laporan['status'] != 'Selesai') {
         die("Laporan ini belum dapat dicetak. Status harus 'Selesai'.");
     }
@@ -122,7 +117,25 @@ function terbilang($angka) {
             font-size: 11pt; 
             line-height: 1.6; 
         }
-        .container { width: 100%; margin: auto; }
+        .container { width: 100%; margin: auto; position: relative; }
+        
+        /* === STYLE BARU UNTUK WATERMARK === */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 150px;
+            color: rgba(0, 0, 0, 0.08);
+            font-weight: bold;
+            z-index: -1000;
+            text-align: center;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* Standard syntax */
+        }
+        /* === AKHIR STYLE BARU === */
+
         .header { text-align: center; margin-bottom: 30px; }
         .header h3 { margin: 0; text-decoration: underline; font-size: 14pt; }
         .content-table { width: 100%; border-collapse: collapse; }
@@ -130,7 +143,7 @@ function terbilang($angka) {
         .label { width: 35%; font-weight: bold; }
         .separator { width: 5%; text-align: center; }
         .value { width: 60%; }
-        .contoh-list { margin: 0; padding-left 0: 18px; }
+        .contoh-list { margin: 0; padding-left: 18px; list-style-position: inside; }
         .contoh-list li { margin-bottom: 20px; }
         .contoh-detail-table { margin-left: 0; }
         .ttd-section { margin-top: 40px; width: 100%; font-size: 11pt; }
@@ -149,6 +162,9 @@ function terbilang($angka) {
 
 <body>
     <div class="container">
+        <?php if ($is_draft_mode): ?>
+        <div class="watermark">DRAFT</div>
+        <?php endif; ?>
         <div class="doc-number">F-LP-712/1-I-00/25</div>
         <div class="header">
             <h3>HASIL LAPORAN KEGIATAN SAMPLING</h3>
@@ -237,35 +253,20 @@ function terbilang($angka) {
         </section>
 
         <section class="ttd-section">
-            <div class="ttd-penyelia" style="width: 60%; margin-left: 0; margin-bottom: 10px; text-align: left;">
-                <div style="display: flex; align-items: flex-end; justify-content: center; height: 100px;">
-
-                    <div style="line-height: 5; padding-left: 20px;">
-                        Diperiksa - Penyelia
-                        <strong>( <?php echo htmlspecialchars($laporan['nama_penyelia'] ?? '.........................'); ?> )</strong>
-                    </div>
-                    <div style="width: 90px; flex-shrink: 0; text-align: center;">
-                        <?php if (!empty($laporan['ttd_penyelia'])): ?>
-                            <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_penyelia']); ?>" style="max-height: 60px;">
-                        <?php endif; ?>
-                    </div>
-
-                </div>
-            </div>
-
+            <div style="clear: both; content: ''; display: table;"></div>
             <div class="ttd-left">
                 Menyetujui, <br>
                 Manajer Teknis
                 <div class="ttd-space">
-                    <?php if (!empty($laporan['ttd_mt'])): ?>
+                    <?php if (!$is_draft_mode && !empty($laporan['ttd_mt'])): ?>
                         <img src="<?php echo BASE_URL . '/uploads/ttd/' . htmlspecialchars($laporan['ttd_mt']); ?>" style="max-height: 70px;">
                     <?php endif; ?>
                 </div>
-                <strong>( <?php echo htmlspecialchars($laporan['nama_mt_tercetak'] ?? '.........................'); ?> )</strong>
+                <strong>( <?php echo !$is_draft_mode ? htmlspecialchars($laporan['nama_mt_tercetak'] ?? '.........................') : '.........................'; ?> )</strong>
             </div>
             <div class="ttd-right">
                 <?php
-                    $tanggal_ttd = !empty($laporan['waktu_persetujuan_mt']) ? strtotime($laporan['waktu_persetujuan_mt']) : strtotime($laporan['tanggal_mulai']);
+                    $tanggal_ttd = !empty($laporan['waktu_verifikasi_penyelia']) ? strtotime($laporan['waktu_verifikasi_penyelia']) : strtotime($laporan['tanggal_mulai']);
                     $fmt = new IntlDateFormatter('id_ID', IntlDateFormatter::LONG, IntlDateFormatter::NONE, 'Asia/Jakarta');
                 ?>
                 Medan, <?php echo $fmt->format($tanggal_ttd); ?><br>
@@ -277,6 +278,7 @@ function terbilang($angka) {
                 </div>
                 <strong>( <?php echo htmlspecialchars($laporan['nama_pembuat_laporan'] ?? '.........................'); ?> )</strong>
             </div>
+            <div style="clear: both; content: ''; display: table;"></div>
         </section>
         
         <?php if ($role_id == 4): ?>
@@ -302,6 +304,12 @@ function terbilang($angka) {
                 <button type="submit" name="simpan_nama_ttd">Simpan Nama</button>
                 <button type="button" onclick="window.print();">Cetak Laporan</button>
             </form>
+        </div>
+        <?php elseif ($is_draft_mode): ?>
+        <div class="no-print">
+            <h4>Mode Pratinjau</h4>
+            <p>Ini adalah pratinjau laporan dengan watermark "DRAFT". Laporan final tidak akan memiliki watermark ini.</p>
+            <button type="button" onclick="window.print();">Cetak Pratinjau</button>
         </div>
         <?php endif; ?>
     </div>
