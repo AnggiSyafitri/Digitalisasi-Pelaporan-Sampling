@@ -266,7 +266,7 @@ require_once '../templates/header.php';
                         Simpan Perubahan Draft
                     </button>
                     <button type="submit" name="aksi" value="ajukan" class="btn btn-success">
-                        Ajukan Kembali ke Penyelia
+                        Ajukan ke Penyelia
                     </button>
                 </div>
             </form>
